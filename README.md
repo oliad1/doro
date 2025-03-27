@@ -1,3 +1,6 @@
+# Doro.Study
+An automated grade tracker for Waterloo Courses
+
 ## Tech Stack
 Next.js, TypeScript, Supabase, Python, Selenium, Google OAuth
 
