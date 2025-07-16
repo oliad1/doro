@@ -1,19 +1,10 @@
 import { getClient } from "@/lib/sql";
 import { NextRequest, NextResponse } from "next/server";
+import { DEPARTMENTS } from '@/constants/SearchConstants';
 
 export async function GET(request: NextRequest){
     try {
         const { searchParams } = new URL(request.url)
-
-        const departments = [
-            ["AE", "BME", "CHE", "CIVE", "ECE", "ME", "MSCI", "MSE", "MTE", "NE", "SE", "SYDE"],
-            ["AMATH", "ACTSC", "CO", "CS", "MATH", "STAT"],
-            ["ASTRN", "BIOL", "CHEM", "EARTH", "OPTOM", "PHYS", "SCBUS", "SCI"],
-            ["HEALTH", "HLTH", "KIN", "PHS", "REC"],
-            ["ERS", "GEOG", "INTEG", "PLAN"],
-            ["AFM", "APPLS", "ANTH", "BLKST", "CLAS", "COMMST", "EASIA", "ECON", "EMLS", "ENGL", "FINE", "FR", "GER", "GBDA", "GSJ", "GGOV", "HIST", "ISS", "ITAL", "ITALST", "JS", "LS", "MEDVL", "MUSIC", "PACS", "PHIL", "PSCI", "PSYCH", "RS", "SDS", "SMF", "SOC", "SOCWK", "SWK", "SWREN", "SPAN", "TS"],
-            ["BET", "PD", "SAF", "ARCH", "DAC", "ENBUS", "SFM"]
-        ];
 
         const page = searchParams.get('page')
         const search = searchParams.get('search')
@@ -42,7 +33,7 @@ export async function GET(request: NextRequest){
             .range(start, (start + 10))
 
         if (searchParams.has('fac')){
-            const facFilters = departments[facultyIndex].map((code) => `course_code.ilike.${code}%`).join(',');
+            const facFilters = DEPARTMENTS[facultyIndex].map((code) => `course_code.ilike.${code}%`).join(',');
             courseQuery = courseQuery.or(facFilters)
         }
 

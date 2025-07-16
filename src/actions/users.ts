@@ -1,51 +1,55 @@
 "use server"
-import { getAuth } from "@/lib/auth";
 import { Provider } from "@supabase/supabase-js";
+import { getRedirectUrl } from '@/utils/helpers';
+import { createClient } from '../../utils/supabase/server';
+import { LOGIN_PAGE } from '@/constants/Routes';
 
 export const loginAction = async (provider: Provider) => {
-    try {
-        const { data, error } = await (await getAuth()).signInWithOAuth({
-            provider,
-            options: {
-                redirectTo: (process.env.NODE_ENV==="production")?`http://doro.study/api/auth/`:'http://localhost:3000/api/auth/'
-            }
-        });
+  try {
+    const supabase = await createClient();
 
-        if (error){
-            console.error('Auth Error:', error.message);
-            return { errorMessage: error.message };
-        }
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+	redirectTo: getRedirectUrl()
+      }
+    });
 
-        return { errorMessage: null, url: data.url };
-    } catch (error) {
-        console.error('Unexpected error occurred', error);
-        return { errorMessage: "Unexpected error occured" };
+    if (error){
+      console.error('Auth Error:', error.message);
+      return { errorMessage: error.message };
     }
+
+    return { errorMessage: null, url: data.url };
+  } catch (error) {
+    console.error('Unexpected error occurred', error);
+    return { errorMessage: "Unexpected error occured" };
+  }
 }
 
 export const logoutAction = async () => {
-    try {
-        const { error } = await (await getAuth()).signOut();
+  try {
+    const supabase = await createClient();
 
-        if (error){
-            console.error('Sign Out Error:', error.message);
-            return error;
-        }
+    const { error } = await supabase.auth.signOut();
 
-        const response = await fetch('/api/cookies/user', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-
-        console.log("DELETE TEST: ", response)
-
-        window.location.href='/login'
-
-        return null;
-    } catch (error) {
-        console.error('Unexpected error occurred', error);
-        return error;
+    if (error){
+      console.error('Sign Out Error:', error.message);
+      return error;
     }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/cookies/user`, {
+      method: 'DELETE',
+      headers: {
+	'Content-Type': 'application/json'
+      },
+    });
+
+    console.log("DELETE TEST: ", response)
+
+    return null;
+  } catch (error) {
+    console.error('Unexpected error occurred', error);
+    return error;
+  }
 }

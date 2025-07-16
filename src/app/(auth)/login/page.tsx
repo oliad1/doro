@@ -1,12 +1,13 @@
 "use client"
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
-import { TrendingUp, Loader2, Router } from "lucide-react";
+import { TrendingUp, Loader2 } from "lucide-react";
 import { useTransition } from "react";
 import { Provider } from "@supabase/supabase-js";
 import { loginAction } from "@/actions/users";
+import { navigate } from "@/actions/redirect";
 import { toast } from "@/hooks/use-toast";
 
 export default function LogIn(){
@@ -16,7 +17,8 @@ export default function LogIn(){
         startTransition(async () => {
             const {errorMessage, url} = await loginAction(provider);
             if (!errorMessage && url){
-                window.location.href = url;
+		console.log("REDIRECT URL ", url);
+                navigate(url);
             } else {
                 toast({
                     title: "Auth Error",
