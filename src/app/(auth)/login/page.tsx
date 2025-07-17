@@ -17,7 +17,6 @@ export default function LogIn(){
         startTransition(async () => {
             const {errorMessage, url} = await loginAction(provider);
             if (!errorMessage && url){
-		console.log("REDIRECT URL ", url);
                 navigate(url);
             } else {
                 toast({
