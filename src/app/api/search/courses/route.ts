@@ -1,5 +1,5 @@
-import { getClient } from "@/lib/sql";
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from '@/../utils/supabase/server'; 
 import { DEPARTMENTS } from '@/constants/SearchConstants';
 
 export async function GET(request: NextRequest){
@@ -24,8 +24,10 @@ export async function GET(request: NextRequest){
         const facultyIndex = Number.parseInt(faculty!)
 
         const start:number = 10*(pageValue-1); //0, 10
+
+	const supabase = await createClient();
         
-        let courseQuery = (await getClient())
+        let courseQuery = supabase
             .from('outlines')
             .select("id, course_code, course_name, course_description")
             .like("course_code", `%${search ?? ''}%`)

@@ -1,5 +1,5 @@
 "use client"
-import DashboardSidebar from "@/components/dashboard-sidebar";
+import DashboardSidebar from "@/components/DashboardSidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useRef, useState } from "react";

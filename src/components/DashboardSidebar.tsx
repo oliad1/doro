@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "./ui/skeleton";
 import { navigate } from '@/actions/redirect';
 import { LOGIN_PAGE } from '@/constants/Routes';
+import Link from 'next/link';
 import React from "react";
 
 interface SidebarProps {
@@ -215,12 +216,14 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 	  <SidebarMenu>
 	    {items.map((item) => (
 	      <SidebarMenuItem key={item.title}>
-		<SidebarMenuButton asChild>
-		  <a href={`http://localhost:3000/${item.url}`}>
-		    < item.icon />
-		    <span>{item.title}</span>
-		  </a>
-		</SidebarMenuButton>
+		<Link id={item.url} href={`${process.env.NEXT_PUBLIC_SITE_URL}${item.url}`} passHref>
+		  <SidebarMenuButton asChild>
+		    <div>
+		      < item.icon />
+		      <span>{item.title}</span>
+		    </div>
+		  </SidebarMenuButton>
+		</Link>
 	      </SidebarMenuItem>
 	    ))}
 	  </SidebarMenu>

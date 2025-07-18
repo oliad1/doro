@@ -41,7 +41,7 @@ export default function SearchPage({
     , {
       scroll: false,
     });
-  }, [faculty, dept, page, query, search, router]);
+  }, [faculty, dept, page, search, router]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -52,13 +52,17 @@ export default function SearchPage({
   const handlePress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const value = e.key;
     if (value==="Enter"){
-      /*window.history.pushState(
-	null,
-	"",
-	`?page=1&search=${query.toUpperCase()}` + (faculty=="Faculty"?'':`&fac=${facultyIndex}`) + (dept=="Department"?'':`&dept=${dept}`)
-      )*/
       setSearch(query);
+      setPage(1);
     }
+  }
+
+  const clearFilters = () => {
+    setFaculty("Faculty");
+    setFacultyIndex(0);
+    setDept("Department");
+    setSearch("");
+    setPage(1);
   }
 
   const animateCourseItem = (course: string, isPinning: boolean) => {
@@ -129,10 +133,12 @@ export default function SearchPage({
 
   useEffect(() => {
     const fetchCourses = async () => {
+      setLoading(true);
       try {
 	const { searchParams } = new URL(window.location.href);
 	if (searchParams.has('page')){
-	  setPage(Number.parseInt(searchParams.get('page')!))
+	  let pageVal = Number.parseInt(searchParams.get('page')!)!;
+	  setPage(pageVal > 0 ? pageVal : 1);
 	}
 	if (searchParams.has('search')){
 	  setQuery(searchParams.get('search')!)
@@ -212,9 +218,9 @@ export default function SearchPage({
     // if (!data){
     //     console.error("No courses returned by database")
     // }
-    fetchCourses().then(()=>{
+    //fetchCourses().then(()=>{
       /*window.history.pushState(null, '', '/search'+window.location.search)*/
-    })
+    //})
   }
   // <SidebarMenuButton key={course.id} onClick={()=>handleClick(course.id)}></SidebarMenuButton>
 
@@ -241,17 +247,10 @@ export default function SearchPage({
 		      setFacultyIndex(facultyOption.index);
 		      setSearch(query);
 		      setDept("Department");
-		      /*
-		      window.history.pushState(
-			null,
-			"",
-			`?page=1&search=${query}&fac=${facultyOption.index}`
-		      )
-		      */
+		      setPage(1);
 		    }
-		    }
-		  >
-		    {facultyOption.title}
+		  }>
+		  {facultyOption.title}
 		  </DropdownMenuRadioItem>
 		))}
 	      </DropdownMenuRadioGroup>
@@ -266,7 +265,7 @@ export default function SearchPage({
 	      </Button>
 	    </DropdownMenuTrigger>
 	    <DropdownMenuContent>
-	      <DropdownMenuRadioGroup value={dept} onValueChange={setDept}>
+	      <DropdownMenuRadioGroup value={dept}>
 		{DEPARTMENTS[facultyIndex].map((departmentOption) => (
 		  <DropdownMenuRadioItem 
 		    key={departmentOption} 
@@ -274,14 +273,9 @@ export default function SearchPage({
 		    onSelect={() => {
 		      setDept(departmentOption); 
 		      setSearch(query);
-		      /*window.history.pushState(
-			null,
-			"",
-			`?page=1&search=${query}&fac=${facultyIndex}&dept=${departmentOption}`
-		      )*/
+		      setPage(1);
 		    }
-		    }
-		  >
+		  }>
 		    {departmentOption}
 		  </DropdownMenuRadioItem>
 		))}
@@ -289,14 +283,7 @@ export default function SearchPage({
 	    </DropdownMenuContent>
 	  </DropdownMenu>
 
-	  <Button onClick={()=> {
-	    window.history.pushState(
-	      null,
-	      "",
-	      "?page=1"
-	    );
-	  }
-	  }>
+	  <Button onClick={clearFilters}>
 	    <FilterX/>
 	  </Button>
 	</div>
@@ -304,19 +291,37 @@ export default function SearchPage({
 	{/* <ScrollArea className="my-3"> */}
 	<div ref={resultsRef} className="max-h-[80vh]">
 	  {isLoading ? (
-	    Array.from({ length: 10 }, (_, index) => (
-	      <div key={index} className="flex items-center space-x-4 rounded-md border p-4 mb-3">
-		<div className="flex-1 space-y-1">
-		  <Skeleton className="h-4 w-[5rem] pb-1 leading-none" />
-		  <Skeleton className="h-3 w-1/12" />
+	    Array.from({ length: 11 }, (_, index) => (
+	    <Accordion key={index} type="single" collapsible className="w-full">
+	      <AccordionItem value={""} className="border rounded-md mb-3 overflow-hidden">
+		{/*<div key={index} className="flex items-center space-x-4 rounded-md border p-4 mb-3">*/}
+		<div className="flex items-center space-x-4 p-4">
+		  <div className="flex-1 space-y-1">
+		    <Skeleton className="w-[72px]">
+		      <p  className="text-sm font-medium leading-none opacity-0">
+			Placeholder
+		      </p>
+		    </Skeleton>
+		    <Skeleton className="w-[336px]">
+		      <p className="text-sm text-muted-foreground opacity-0">
+			Placeholder
+		      </p>
+		    </Skeleton>
+		  </div>
+		  <div className="flex items-center space-x-2">
+		    <AccordionTrigger className="p-0 h-8 w-8" />
+		    <Button variant="ghost" className="p-0 h-8 w-8">
+		      <Plus className="h-4 w-4" />
+		    </Button>
+		    <Button className="p-0 h-8 w-8" variant="ghost">
+		      <span className="pin-icon transition-transform duration-300">
+			<Pin className="h-4 w-4" />
+		      </span>
+		    </Button>
+		  </div>
 		</div>
-		<Button variant="ghost" className="p-0">
-		  <Plus />
-		</Button>
-		<Button className="p-0" variant="ghost">
-		  <Pin />
-		</Button>
-	      </div>
+		</ AccordionItem>
+	      </Accordion>
 	    ))
 	  ) : (
 	      <Accordion type="single" collapsible className="w-full">
@@ -364,53 +369,55 @@ export default function SearchPage({
 	      </Accordion>
 	    )}
 
-	  {isLoading ?
-	    <></>
-	    : <PaginationContent className="w-full flex flex-row justify-center items-center">
-	      {/* PAGINATION */}
-	      {
-		page == 1 ?
-		  <></>
-		  : <>
-		    <PaginationItem>
-		      <PaginationPrevious href={
-			`?page=${page - 1}&search=${query.toUpperCase()}` + (faculty == "Faculty" ? '' : `&fac=${facultyIndex}`) + (dept == "Department" ? '' : `&dept=${dept}`)
-		      } />
-		    </PaginationItem>
+	    <PaginationContent className="w-full flex flex-row justify-center items-center">
+	    {page > 1 && (
+	      <>
+		<PaginationItem>
+		  <PaginationPrevious 
+		    style={{ userSelect: "none" }}
+		    onClick={()=>setPage(page-1)}
+		  />
+		</PaginationItem>
+		<PaginationItem>
+		  <PaginationLink 
+		    style={{ userSelect: "none" }}
+		    onClick={()=>setPage(1)}
+		  >
+		    1
+		  </PaginationLink>
+		</PaginationItem>
 
-		    <PaginationItem>
-		      <PaginationLink href={
-			`?page=1&search=${query.toUpperCase()}` + (faculty == "Faculty" ? '' : `&fac=${facultyIndex}`) + (dept == "Department" ? '' : `&dept=${dept}`)
-		      }>1</PaginationLink>
-		    </PaginationItem>
+		{(page > 2) && ( 
+		  <PaginationItem>
+		    <PaginationEllipsis />
+		  </PaginationItem>
+		)}
+		</>
+	      )}
 
-		    {page > 2 ?
-		      <PaginationItem>
-			<PaginationEllipsis />
-		      </PaginationItem>
-		      : <></>
-		    }
-
-		  </>
-	      }
 	      <PaginationItem>
-		<PaginationLink>{page}</PaginationLink>
+		<PaginationLink 
+		  style={{ userSelect: "none" }}
+		  isActive
+		>
+		  {page}
+		</PaginationLink>
 	      </PaginationItem>
-	      {
-		(courses.length < 10) ? <></> //YOU CAN CHANGE THIS LATER <- REFERS TO MAX COURSES RETURNED
-		  : <>
-		    <PaginationItem>
-		      <PaginationEllipsis />
-		    </PaginationItem>
-		    <PaginationItem>
-		      <PaginationNext href={
-			`?page=${page + 1}&search=${query.toUpperCase()}` + (faculty == "Faculty" ? '' : `&fac=${facultyIndex}`) + (dept == "Department" ? '' : `&dept=${dept}`)
-		      } />
-		    </PaginationItem>
-		  </>
-	      }
+
+	    {(courses.length > 10) && (//YOU CAN CHANGE THIS LATER <- REFERS TO MAX COURSES RETURNED
+	      <>
+		<PaginationItem>
+		  <PaginationEllipsis />
+		</PaginationItem>
+		<PaginationItem>
+		  <PaginationNext
+		    style={{ userSelect: "none" }}
+		    onClick={()=>setPage(page+1)}
+		  />
+		</PaginationItem>
+	      </>
+	    )}
 	    </PaginationContent>
-	  }
 	</div>
 	{/* </ScrollArea> */}
       </div>
