@@ -140,7 +140,7 @@ export default function DashboardSidebar({ sidebar, user, loading, /*term, setTe
 	  <SidebarMenu>
 	    {items.map((item) => (
 	      <SidebarMenuItem key={item.title}>
-		<Link id={item.url} href={`${process.env.NEXT_PUBLIC_SITE_URL}${item.url}`} passHref>
+		<Link id={item.url} href={`${process.env.NEXT_PUBLIC_SITE_URL}/${item.url}`} passHref>
 		  <SidebarMenuButton asChild>
 		    <div>
 		      < item.icon />
