@@ -30,4 +30,5 @@ export interface SearchParams {
   search?: string;
   fac?: string;
   dept?: string;
+  facName?: string;
 };

@@ -1,3 +1,4 @@
+import { SearchParams } from "@/constants/SearchConstants";
 export const getRedirectUrl = () => {
   let url = 
     process?.env?.NEXT_PUBLIC_SITE_URL ?? //prod site URL
@@ -8,4 +9,10 @@ export const getRedirectUrl = () => {
   url = url.endsWith('/') ? url : `${url}/`
   url = `${url}api/auth`
   return url
+}
+
+export const getSearchParams = (searchParams: SearchParams) => {
+  return `?page=${searchParams.page}&search=${searchParams.search?.toUpperCase()}`
+    + (searchParams?.facName=="Faculty"?'':`&fac=${searchParams?.fac}`) 
+    + (searchParams?.dept=="Department"?'':`&dept=${searchParams?.dept}`);
 }

@@ -3,17 +3,13 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
     try {
-        const sidebar = (await cookies()).get('sidebar:state')
+	const cookieStore = await cookies();
 
-        if (!sidebar) {
-            return NextResponse.json(
-                { data: null, message: "No sidebar cookie found" },
-                { status: 404 }
-            )
+        if (!cookieStore.has('sidebar:state')) {
+	    cookieStore.set('sidebar:state', 'true');
         }
 
-        console.log("sidebar", sidebar.value)
-        return NextResponse.json({ data: sidebar.value }, { status: 200 })
+        return NextResponse.json({ data: cookieStore.get('sidebar:state')?.value }, { status: 200 })
     } catch (error) {
         console.error("Error retrieving sidebar cookie:", error)
         return NextResponse.json(

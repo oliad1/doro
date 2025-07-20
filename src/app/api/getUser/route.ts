@@ -1,12 +1,12 @@
-import { getAuth } from "@/lib/auth";
-import { getClient } from "@/lib/sql";
 import { User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { createClient } from "@/../utils/supabase/client";
+
+const supabase = createClient();
 
 export async function GET(){
     try {
-        const auth = await getAuth();
-        const { data, error } = await auth.getUser();
+        const { data, error } = await supabase.auth.getUser();
 
         if (error) {
             console.error("Error fetching user", error.message);
@@ -30,13 +30,11 @@ export async function GET(){
 
 async function registerNewUser(user: User){
     try {
-        const userQuery = (await getClient())
+        const { data, error } = await supabase
             .from('profiles')
-            .select()
-            .eq('id', user.id)
+            .select("*")
+            .eq('id', user.id);
 
-        const { data, error } = await userQuery
-        
         if (error) {
             console.error("Error fetching user data", error.message);
             return NextResponse.json({ error: error.message }, { status: 400 });
@@ -46,7 +44,7 @@ async function registerNewUser(user: User){
 
         if (!data[0] || !data){
             try {
-                await (await getClient())
+                await supabase
                     .from('profiles')
                     .insert({ 'id': user.id , 'selected_courses': [{}, {}, {}, {}, {}, {}]})
 

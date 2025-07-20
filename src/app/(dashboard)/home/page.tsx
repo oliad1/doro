@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { GradetimeChart } from "@/components/GradetimeChart";
 import { YearProgressChart } from "@/components/YearProgressChart";
 import { UpcomingSummativesTable } from "@/components/UpcomingSummativesTable";
+import ProfilesAPIClient from "@/APIClients/ProfilesAPIClient";
+import { useCounterStore } from "@/providers/dashboard-store-provider";
 
 interface GradeUpdate {
   date: string;
@@ -22,36 +24,13 @@ interface Terms {
 
 export default function Dashboard() {
   const [gradeUpdates, setGradeUpdates] = useState<GradeUpdate[]>([]);
-  const [courses, setCourses] = useState<Terms>();
   const [visibleCourses, setVisibleCourses] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [upcomingSummatives, setUpcomingSummatives] = useState<{ date: string, time: string, course: string, type: string }[]>([]);
 
-  const fetchCourses = async () => {
-    try {
-      // GET Request
-      const response = await fetch('/api/cookies/courses')
-      const { data, error } = await response.json();
-
-      if (error) {
-	console.error("Error fetching courses:", error);
-	return;
-      }
-
-      if (data) {
-	console.log("COURSES DATA:", data[0])
-
-	const parsedData = JSON.parse(data)
-
-	setCourses(parsedData)
-      }
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error updating courses:", error);
-    } finally {
-      console.log("COURSE FETCH COMPLETED");
-    }
-  };
+  const { termCourses, addTermCourse, deleteTermCourse, term } = useCounterStore(
+    (state) => state,
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -143,13 +122,12 @@ export default function Dashboard() {
 	];
 	setUpcomingSummatives(mockSummatives);
 
-	// setIsLoading(false);
+	setIsLoading(false);
       } catch (error) {
 	console.error("Error fetching data:", error);
 	// setIsLoading(false);
       }
     };
-    fetchCourses();
     fetchData();
   }, []);
 
@@ -165,10 +143,10 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-4">
 	<div className="lg:col-span-3 h-fit w-full">
 	  {isLoading? <p>Loading...</p>
-	    :<GradetimeChart
+	    : <GradetimeChart
 	      isLoading={isLoading}
 	      gradeUpdates={gradeUpdates}
-	      courses={courses ? Object.values(courses!).map((term:JSONData[])=>term!.map((course)=>course.code)).filter((term)=>(term!==null)).flat() : []}
+	      courses={termCourses.map((item)=>item.code)}
 	      visibleCourses={visibleCourses}
 	      onToggleCourse={handleToggleCourse}
 	    />}

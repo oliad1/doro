@@ -1,6 +1,6 @@
 "use client"
 import { Input } from "@/components/ui/input";
-import { ChevronDown, FilterX, Pin, PinOff, Plus, Search } from 'lucide-react';
+import { ChevronDown, FilterX, Pin, PinOff, Plus, Search, Minus } from 'lucide-react';
 import React, { useEffect, useState, useRef } from "react";
 import gsap from "gsap";
 import { use } from "react";
@@ -8,36 +8,46 @@ import { useGSAP } from "@gsap/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { DEPARTMENTS, FACULTIES, SearchParams } from '@/constants/SearchConstants';
 import { useRouter } from 'next/navigation';
+import { getSearchParams } from "@/utils/helpers";
+import { CourseDTO } from "@/types/Types";
+import EnrollmentsAPIClient from "@/APIClients/EnrollmentsAPIClient";
+import { toast } from "sonner";
+import { useCounterStore } from "@/providers/dashboard-store-provider";
 
-export default function SearchPage({
-  searchParams
-}: {
-    searchParams: Promise<SearchParams>;
-}) {
+export default function SearchPage(searchParams: Promise<SearchParams>) {
   gsap.registerPlugin(useGSAP);
 
   const router = useRouter();
 
+  const { termCourses, addTermCourse, deleteTermCourse, term } = useCounterStore(
+    (state) => state,
+  );
+
   const [faculty, setFaculty] = useState("Faculty");
   const [facultyIndex, setFacultyIndex] = useState<number>(0);
   const [dept, setDept] = useState("Department");
-  const [courses, setCourses] = useState<{id: string, code: string, name: string, description: string}[]>([]);
+  const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
-  const [results, setResults] = useState<{id: string, code: string, name: string, description: string}[]>([]);
+  const [results, setResults] = useState<CourseDTO[]>([]);
   const [pinnedItems, setPinnedItems] = useState<string[]>([]);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     router.push(
-      `?page=${page}&search=${search.toUpperCase()}` + (faculty=="Faculty"?'':`&fac=${facultyIndex}`) + (dept=="Department"?'':`&dept=${dept}`)
+      getSearchParams({
+	page: page.toString(),
+	facName: faculty,
+	fac: facultyIndex.toString(),
+	dept: dept,
+	search: search
+      })
     , {
       scroll: false,
     });
@@ -161,6 +171,8 @@ export default function SearchPage({
 
 	if (!courseCodes || !courseCodes[0]) {
 	  console.log("No courses returned by API.");
+	  setCourses(courseCodes);
+	  setResults(courseCodes);
 	  return;
 	}
 
@@ -184,30 +196,28 @@ export default function SearchPage({
     fetchCourses();
   }, [searchParams]);
 
-  const addCourse = async (course_code: string, id: string) => {
+  const addCourse = async (term: string, course: CourseDTO) => {
+    //const courses = await EnrollmentsAPIClient.addTermCourse(term, course);
+    //setCourses(courses);
+
     // const coursesData = await fetch('/api/courses/sidebar')
     // const res = await coursesData.json()
 
     // console.log("COURSES RETURNED: ", res)
-
-    const payload = {
-      value: { code:course_code, id:id }
-    }
-
-    console.log("PAYLOAD: ", payload)
-
+    /*
     const addedCourse = await fetch('/api/courses/sidebar/', {
       method: 'POST',
       headers: {
 	'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify([...courses, course])
     });
 
     const response = await addedCourse.json();
 
     console.log("API POST RESPONSE: ", response)
 
+    */
 
     // const { data, error } = await response.json();
 
@@ -225,7 +235,7 @@ export default function SearchPage({
   // <SidebarMenuButton key={course.id} onClick={()=>handleClick(course.id)}></SidebarMenuButton>
 
   return (
-    <Pagination>
+    <Pagination className="no-scrollbar">
       <div className="w-full mx-4">
 	<div className="w-full sticky py-3 flex items-center justify-center gap-2">
 	  <Input value={query.toUpperCase()} onChange={handleSearch} onKeyDown={handlePress} placeholder="Search" leadingIcon={<Search className="h-4" />} />
@@ -243,6 +253,7 @@ export default function SearchPage({
 		    key={facultyOption.index}
 		    value={facultyOption.title}
 		    onSelect={() => { 
+		      setLoading(true);
 		      setFaculty(facultyOption.title);
 		      setFacultyIndex(facultyOption.index);
 		      setSearch(query);
@@ -271,6 +282,7 @@ export default function SearchPage({
 		    key={departmentOption} 
 		    value={departmentOption}
 		    onSelect={() => {
+		      setLoading(true);
 		      setDept(departmentOption); 
 		      setSearch(query);
 		      setPage(1);
@@ -288,7 +300,6 @@ export default function SearchPage({
 	  </Button>
 	</div>
 
-	{/* <ScrollArea className="my-3"> */}
 	<div ref={resultsRef} className="max-h-[80vh]">
 	  {isLoading ? (
 	    Array.from({ length: 11 }, (_, index) => (
@@ -313,11 +324,13 @@ export default function SearchPage({
 		    <Button variant="ghost" className="p-0 h-8 w-8">
 		      <Plus className="h-4 w-4" />
 		    </Button>
+		      {/*
 		    <Button className="p-0 h-8 w-8" variant="ghost">
 		      <span className="pin-icon transition-transform duration-300">
 			<Pin className="h-4 w-4" />
 		      </span>
 		    </Button>
+		      */}
 		  </div>
 		</div>
 		</ AccordionItem>
@@ -326,62 +339,90 @@ export default function SearchPage({
 	  ) : (
 	      <Accordion type="single" collapsible className="w-full">
 		{
-		  results.length == 0 ?
-		    <div>No results.</div> //TODO: Make this look nicer
-		    : results.map((result) => (
-		      <AccordionItem key={result.id} value={result.id} className="border rounded-md mb-3 overflow-hidden">
-			<div data-course={result.id} className="flex items-center space-x-4 p-4">
-			  <div className="flex-1 space-y-1">
-			    <p className="text-sm font-medium leading-none">
-			      {result.code}
-			    </p>
-			    <p className="text-sm text-muted-foreground">
-			      {result.name}
-			    </p>
+		  (!results) ?
+		    <p className="leading-7 [&:not(:first-child)]:mt-6">No results.</p>
+		    : results.map((result) => { 
+		      const courseEnrolled = termCourses.some((course) => course.id === result.id);
+		      return (
+			<AccordionItem key={result.id} value={result.id} className="border rounded-md mb-3 overflow-hidden">
+			  <div data-course={result.id} className="flex items-center space-x-4 p-4">
+			    <div className="flex-1 space-y-1">
+			      <p className="text-sm font-medium leading-none">
+				{result.code}
+			      </p>
+			      <p className="text-sm text-muted-foreground">
+				{result.name}
+			      </p>
+			    </div>
+			    <div className="flex items-center space-x-2">
+			      <AccordionTrigger className="p-0 h-8 w-8" onClick={(e) => e.stopPropagation()}>
+			      </AccordionTrigger>
+			      <Button variant="ghost" className="p-0 h-8 w-8" onClick={()=>{
+				if (courseEnrolled) {
+				  deleteTermCourse({id: result.id, code: result.code});
+				  toast.info(`Removed ${result.code} from ${term}`, {
+				    richColors: true
+				  });
+				  return;
+				}
+				addTermCourse({id: result.id, code: result.code});
+				toast.success(`Added ${result.code} to ${term}`, {
+				  richColors: true
+				});
+			      }
+			      }>
+				{courseEnrolled
+				    ? <Minus className="h-4 w-4" />
+				    : <Plus className="h-4 w-4" /> }
+			      </Button>
+			      {/*
+			      <Button
+				className="p-0 h-8 w-8"
+				variant="ghost"
+				onClick={(e) => {
+				  e.stopPropagation();
+				  togglePin(result);
+				}}
+			      >
+				<span className="pin-icon transition-transform duration-300">
+				  {pinnedItems.includes(result.id) ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+				</span>
+			      </Button>
+			      */}
+			    </div>
 			  </div>
-			  <div className="flex items-center space-x-2">
-			    <AccordionTrigger className="p-0 h-8 w-8" onClick={(e) => e.stopPropagation()}>
-			    </AccordionTrigger>
-			    <Button variant="ghost" className="p-0 h-8 w-8" onClick={() => addCourse(result.code, result.id)}>
-			      <Plus className="h-4 w-4" />
-			    </Button>
-			    <Button
-			      className="p-0 h-8 w-8"
-			      variant="ghost"
-			      onClick={(e) => {
-				e.stopPropagation();
-				togglePin(result);
-			      }}
-			    >
-			      <span className="pin-icon transition-transform duration-300">
-				{pinnedItems.includes(result.id) ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
-			      </span>
-			    </Button>
-			  </div>
-			</div>
-			<AccordionContent>
-			  <div className="px-4 pb-0">
-			    <p className="text-sm text-muted-foreground">{result.description}</p>
-			  </div>
-			</AccordionContent>
-		      </AccordionItem>
-		    ))}
+			  <AccordionContent>
+			    <div className="px-4 pb-0">
+			      <p className="text-sm text-muted-foreground">{result.description}</p>
+			    </div>
+			  </AccordionContent>
+			</AccordionItem>
+		      )}
+		    )}
 	      </Accordion>
 	    )}
 
-	    <PaginationContent className="w-full flex flex-row justify-center items-center">
+	    <PaginationContent className="w-full flex flex-row justify-center items-center py-5">
 	    {page > 1 && (
 	      <>
 		<PaginationItem>
 		  <PaginationPrevious 
 		    style={{ userSelect: "none" }}
-		    onClick={()=>setPage(page-1)}
+		    onClick={()=>{
+		      setLoading(true);
+		      setPage(page-1)
+		      }
+		    }
 		  />
 		</PaginationItem>
 		<PaginationItem>
 		  <PaginationLink 
 		    style={{ userSelect: "none" }}
-		    onClick={()=>setPage(1)}
+		    onClick={()=>{
+		      setLoading(true);
+		      setPage(1)
+		      }
+		    }
 		  >
 		    1
 		  </PaginationLink>
@@ -404,7 +445,7 @@ export default function SearchPage({
 		</PaginationLink>
 	      </PaginationItem>
 
-	    {(courses.length > 10) && (//YOU CAN CHANGE THIS LATER <- REFERS TO MAX COURSES RETURNED
+	    {(courses?.length > 10) && (//YOU CAN CHANGE THIS LATER <- REFERS TO MAX COURSES RETURNED
 	      <>
 		<PaginationItem>
 		  <PaginationEllipsis />
@@ -412,14 +453,17 @@ export default function SearchPage({
 		<PaginationItem>
 		  <PaginationNext
 		    style={{ userSelect: "none" }}
-		    onClick={()=>setPage(page+1)}
+		    onClick={()=>{
+		      setLoading(true);
+		      setPage(page+1);
+		      }
+		    }
 		  />
 		</PaginationItem>
 	      </>
 	    )}
 	    </PaginationContent>
 	</div>
-	{/* </ScrollArea> */}
       </div>
     </Pagination>
   );

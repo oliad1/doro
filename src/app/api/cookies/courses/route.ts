@@ -1,9 +1,10 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { createClient } from '@/../utils/supabase/server';
+import { TERMS } from '@/constants/SidebarConstants';
 
 export async function GET(){
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
 
   if (!cookieStore.has('user_metadata')){
     console.error("User doesn't have metadata")
@@ -14,6 +15,7 @@ export async function GET(){
 
   //Run POST METHOD
   const metadata = cookieStore.get('user_metadata');
+
   if (!metadata) {
     const NO_METADATA = "User doesn't have metadata";
     console.error(NO_METADATA);
@@ -21,12 +23,11 @@ export async function GET(){
   }
 
   const formatted_metadata = JSON.parse(metadata!.value);
-  const terms: string[] = ["1A", "1B", "2A", "2B", "3A", "3B", "4A", "4B"] as const;
   const supabase = await createClient();
 
   let courses = [];
 
-  for (const term of terms) {
+  for (const term of TERMS) {
     const { data, error } = await supabase
       .from('profiles')
       .select(term)

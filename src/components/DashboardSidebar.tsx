@@ -1,30 +1,26 @@
 "use client"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, useSidebar } from "@/components/ui/sidebar";
-import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Plus, Search, Settings } from "lucide-react";
+import { toast } from "sonner";
+import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Plus, Search, Settings, TrendingUp } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { User } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { logoutAction } from "@/actions/users";
-import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "./ui/skeleton";
 import { navigate } from '@/actions/redirect';
 import { LOGIN_PAGE } from '@/constants/Routes';
+import { TERMS } from "@/constants/SidebarConstants";
 import Link from 'next/link';
 import React from "react";
+import { TermCourse } from '@/types/ProfileTypes';
+import { Term } from "@/types/Types";
+import { useCounterStore } from "@/providers/dashboard-store-provider";
 
 interface SidebarProps {
+  sidebar: boolean,
   user: User | null | undefined,
   loading: boolean,
-}
-
-interface JSONData {
-  id: string,
-  code: string,
-}
-
-interface Terms {
-  [key: number]: JSONData[]
 }
 
 const items = [
@@ -40,88 +36,25 @@ const items = [
   },
 ]
 
-interface TermData {
-  title: string,
-  index: number
-}
+//TODO: Add a removeCourse function allowing the sidebar to delete courses 
 
-const terms: TermData[] = [
-  { 
-    title: "1A",
-    index: 0 
-  },
-  {
-    title: "1B",
-    index: 1
-  },
-  {
-    title: "2A",
-    index: 2
-  },
-  {
-    title: "2B",
-    index: 3
-  },
-  {
-    title: "3A",
-    index: 4
-  },
-  {
-    title: "3B",
-    index: 5
-  },
-  {
-    title: "4A",
-    index: 6
-  },
-  {
-    title: "4B",
-    index: 7
-  },
-]
+export default function DashboardSidebar({ sidebar, user, loading, /*term, setTerm*/ }: SidebarProps) {
+  const { termCourses, term, setTerm, fetchTermCourses } = useCounterStore(
+    (state) => state,
+  );
 
-export default function DashboardSidebar({ user, loading }: SidebarProps) {
-  const [term, setTerm] = useState("1A")
-  const [termIndex, setTermIndex] = useState<number>(0);
-  const [courses, setCourses] = useState<Terms>()
   const [isPending, startTransition] = useTransition();
 
-  const fetchCourses = async () => {
+  const storeTerm = async (term: string) => {
     try {
-      // GET Request
-      const response = await fetch('/api/cookies/courses')
-
-      if (!response.ok) {
-	const err = await response.json();
-	console.error("Error updating courses:", err.error || "Unknown error");
-	return;
-      }
-
-      const { courses } = await response?.json();
-  
-      if (courses) {
-	setCourses(courses);
-      }
-    } catch (error) {
-      console.error("Error updating courses:", error);
-    } finally {
-      console.log("COURSE FETCH COMPLETED");
-    }
-  };
-
-  const storeTerm = async (term: TermData) => {
-    try {
-      // GET Request
-      const payload = {
-	value: JSON.stringify(term)
-      }
+      setTerm(term as Term);
 
       const response = await fetch('/api/cookies/term/', {
 	method: 'POST',
 	headers: {
 	  'Content-Type': 'application/json'
 	},
-	body: JSON.stringify(payload)
+	body: JSON.stringify(term)
       });
 
       const { data, error } = await response.json();
@@ -130,9 +63,6 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 	console.error("Error setting term:", error);
 	return;
       }
-
-      setTerm(term.title)
-      setTermIndex(term.index)
     } catch (error) {
       console.error("Error updating term:", error);
     } finally {
@@ -140,32 +70,23 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
     }
   }
 
-  const handleClick = (id: string) => {
-    fetchCourses()
-  }
-
-  const handleSelect = (term: TermData) => {
-    storeTerm(term)
-  }
-
   const handleLoading = () => {
     startTransition(async () => {
       try {
 	const error = await logoutAction();
-	console.log("LOGGING OUT", error);
 	if (!error) {
 	  console.log("Successfully logged out!");
 	  navigate(LOGIN_PAGE);
 	} else {
-	  toast({
-	    title: "Auth Error",
-	    description: "Error logging out"
+	  toast.error("Auth Error", {
+	    description: "Unexpected error logging out",
+	    richColors: true 
 	  });
 	}
-      } catch (error) { //TODO: I don't think toast works
-	toast({
-	  title: "Auth Error",
-	  description: "Unexpected error logging out"
+      } catch (error) {
+	toast.error("Auth Error", {
+	  description: "Unexpected error logging out",
+	  richColors: true 
 	});
       }
     })
@@ -188,11 +109,10 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 	  console.error("No term data returned (client side)", data)
 	  return;
 	}
-
-	const parsedData = JSON.parse(data)
-
-	setTerm(parsedData.title);
-	setTermIndex(parsedData.index);
+	
+	const { term } = data;
+	setTerm(term);
+	fetchTermCourses();
       } catch (error) {
 	console.error("Error updating term:", error);
       } finally {
@@ -200,7 +120,6 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
       }
     };
 
-    fetchCourses();
     fetchTerm();
   }, []);
 
@@ -208,7 +127,12 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader>
-	<SidebarTrigger className="-ml-1 mx-0.5 px-2" />
+	  <div className="flex flex-row overflow-hidden w-full gap-2 p-2 h-8 items-center text-left">
+	    <TrendingUp />
+	    {sidebar && (
+	      <span className="text-md font-semibold">Doro</span>
+	    )}
+	  </div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -247,25 +171,22 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 		</SidebarMenuButton>
 	      </DropdownMenuTrigger>
 	      <DropdownMenuContent side="bottom" className="w-[--radix--popper-anchor-width]">
-		{terms.map((term) => (
-		  <DropdownMenuItem key={term.index} onSelect={() => handleSelect(term)}>
-		    <span>{term.title}</span>
+		{TERMS.map((term) => (
+		  <DropdownMenuItem key={term} onSelect={()=>storeTerm(term)}>
+		    <span>{term}</span>
 		  </DropdownMenuItem>
 		))}
 	      </DropdownMenuContent>
-	      <SidebarGroupContent>
-		{!courses || !courses[termIndex] || courses[termIndex].length === 0 ?
-		  <p className="pl-2 md:invisible">Enroll in some courses!</p>
-		  : courses[termIndex].map((course) =>
-		    <a key={course.id} href={`/course/${course.id}`}>
-		      {<SidebarMenuButton>
+	      <SidebarGroupContent className="flex flex-col justify-center items-center w-full">
+		{!termCourses || !termCourses?.length ?
+		  <span>{sidebar && "Enroll in some courses!"}</span>
+		  : termCourses.map((course) =>
+		    <a key={course.id} href={`/course/${course.id}`} className="w-full">
+		      {<SidebarMenuButton className="px-5">
 			<span>{course.code}</span>
 		      </SidebarMenuButton>}
 		    </a>
 		  )}
-		{/* :
-			    <p>{courses.toString()}</p>
-			    } */}
 	      </SidebarGroupContent>
 	    </DropdownMenu>
 	  </SidebarMenu>
@@ -287,7 +208,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 			<Skeleton className="h-8 w-8 rounded-lg" />
 			: <>
 			  <Avatar className="h-8 w-8 rounded-lg">
-			    <AvatarImage src={user?.user_metadata.avatar_url} />
+			    <AvatarImage src={user?.user_metadata?.avatar_url} />
 			    <AvatarFallback className="rounded-lg"></AvatarFallback>
 			  </Avatar>
 			</>
@@ -301,7 +222,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 			  </>
 			  :
 			  <>
-			    <span className="truncate font-semibold">{user?.user_metadata.full_name}</span>
+			    <span className="truncate font-semibold">{user?.user_metadata?.full_name}</span>
 			    <span className="truncate text-xs">{user?.email}</span>
 			  </>
 			}
