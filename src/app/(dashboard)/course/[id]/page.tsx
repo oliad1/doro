@@ -8,44 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useEffect, useState } from "react";
 import { Pie, PieChart } from "recharts";
 import OutlinesAPIClient from "@/APIClients/OutlinesAPIClient";
-
-interface JSONType {
-  course_code: string,
-  course_description: string,
-  course_name: string,
-  id: string,
-  personnel: personnel[],
-  schemes: schemes[],
-}
-
-interface personnel {
-  name: string,
-  role: string,
-  email: string,
-}
-
-interface condition {
-  symbol: string,
-  lowerBound: number,
-  upperBound: number,
-}
-
-interface assessment {
-  date: string[],
-  drop: number,
-  name: string,
-  count: number,
-  grade: number[],
-  symbol: string,
-  weight: number,
-  assessmentType: string
-}
-
-interface schemes {
-  condition: condition,
-  schemeNum: number,
-  assessments: assessment[],
-}
+import { getCourseStats } from "@/utils/helpers";
 
 interface ChartData {
   assessmentType: string,
@@ -87,9 +50,10 @@ const chartConfig = {
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [courseId, setCourseId] = useState<string>()
-  const [courseMetadata, setCourseMetadata] = useState<JSONType>();
+  const [courseMetadata, setCourseMetadata] = useState<any>();
   const [isLoading, setLoading] = useState<boolean>(true);
   const [average, setAverage] = useState<Number>(0);
+  const [completion, setCompletion] = useState<Number>(0);
   const [chartData, setChartData] = useState();
   const [chartConfig, setChartConfig] = useState<ChartConfig>();
   let gpa = 0; //don't think I need a state since it's a linear conversion between average & GPA
@@ -134,10 +98,21 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       */
       const data = await OutlinesAPIClient.getCourse(courseId);
       setCourseMetadata(data);
+      
+      const { newAverage, newCompletion } = getCourseStats(data.assessment_groups);
+      console.log("NEW AVG", newAverage);
+      setAverage(newAverage ?? 0);
+      setCompletion(newCompletion ?? 0);
 
       console.log("COURSE DATA ", data);
 
-      const chartData = data.schemes[0].assessments.map((assessment: any, index: number)=> { return {assessmentType: assessment.assessmentType, weight: Number.parseFloat(assessment.weight)*100, fill: `hsl(var(--chart-${index+1}))` } })
+      const chartData = data.assessment_groups.map((group: any, index: number) => {
+	return { 
+	  name: group.name,
+	  weight: Number.parseFloat(group.weight)*100, 
+	  fill: `hsl(var(--chart-${index+1}))` 
+	}
+      })
 
       setChartData(chartData);
       console.log("OLD DATA:", chartData1);
@@ -147,9 +122,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       const updatedChartConfig: ChartConfig = {};
 
       // Loop over the assessments and populate the chartConfig
-      data.schemes[0].assessments.forEach((assessment: any) => {
-	updatedChartConfig[assessment.assessmentType] = {
-	  label: assessment.assessmentType,
+      data.assessment_groups.forEach((assessment: any) => {
+	updatedChartConfig[assessment.name] = {
+	  label: assessment.name,
 	  color: "hsl(var(--chart-5))",
 	};
       }); 
@@ -179,12 +154,12 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	    <CardHeader>
 	      <CardTitle>
 		<h2 className="text-3xl font-semibold text-white">
-		  {courseMetadata!.course_code}: {courseMetadata!.course_name}
+		  {courseMetadata!.code}: {courseMetadata!.name}
 		</h2>
 	      </CardTitle>
 	      <CardDescription>
 		<p className="text-muted-foreground">
-		  {courseMetadata!.course_description}
+		  {courseMetadata!.description}
 		</p>
 	      </CardDescription>
 	    </CardHeader>
@@ -194,37 +169,29 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 		<TableHeader>
 		  <TableRow>
 		    <TableHead>Assignment Name</TableHead>
-		    <TableHead>Due Date</TableHead>
 		    <TableHead className="text-right">Weighting (%)</TableHead>
 		    <TableHead className="text-right">Grade</TableHead>
 		  </TableRow>
 		</TableHeader>
 		<TableBody>
-		  {courseMetadata!.schemes[0].assessments?.map((assessment) =>
-		    Array.from({ length: assessment.count }).map((_, i) => (
-		      <TableRow key={assessment.assessmentType + i}>
+		  {courseMetadata!.assessment_groups?.map((assessment_group: any) =>
+		    assessment_group.assessments.map((assessment: any) => (
+		      <TableRow key={assessment.index}>
 			<TableCell className="font-medium">
-			  {(assessment.count > 1) ?
+			  {(assessment_group.count > 1) ?
 			    <>
-			      {assessment.name.slice(0, -1)} #{i + 1}
+			      {assessment_group.name?.slice(0, -1)} #{assessment.index + 1}
 			    </>
 			    : <>
-			      {assessment.name}
+			      {assessment_group.name}
 			    </>
 			  }
 			</TableCell>
 
-			{/* Date */}
-			<TableCell className="text-gray-300">
-			  {(assessment.date[0] == "none") ? "N/A" : assessment.date}
-			</TableCell>
-
-			{/* Weighting */}
 			<TableCell className="text-right text-gray-300">
-			  {((100 * assessment.weight) / (assessment.count)).toPrecision(2)}
+			  {(assessment.weight).toPrecision(2)}
 			</TableCell>
 
-			{/* Grade Input */}
 			<TableCell className="flex flex-row justify-end items-end">
 			  <div className="w-1/3">
 			    <Input
@@ -267,7 +234,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 		  Your Average
 		</p>
 		<h2 className="text-3xl font-semibold">
-		  {average ? average.toString(): "N/A"}
+		  {average?.toString()}%
 		</h2>
 	      </div>
 	      <div className="flex flex-col justify-center items-center">
@@ -283,7 +250,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 		  Course Completion 
 		</h2>
 		<h2 className="text-3xl font-semibold">
-		  40%
+		  {completion?.toString()}%
 		</h2>
 	      </div>
 	    </div>
@@ -310,7 +277,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 		    data={chartData}
 		    dataKey="weight"
 		    label 
-		    nameKey="assessmentType"/>
+		    nameKey="name"/>
 		</PieChart>
 	      </ChartContainer>
 	    }

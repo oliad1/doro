@@ -32,33 +32,6 @@ const getUser = async (): Promise<any> => {
       console.log("Error: user is null");
       throw new Error(`Error: user is null`);
     }
-   /*
-    const { data: userData, error: userError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", data.user.id)
-      .single();
-
-    if (userError) {
-      console.log("Error: There was a problem querying the user");
-      throw new Error(`Error: There was a problem querying the user`);
-    }
-
-    if (!userData || !userData?.length) {
-      const { error: insertError } = await supabase
-	.from("profiles")
-	.insert({
-	  "id": data.user.id,
-	});
-
-      if (insertError) {
-	console.log("Error: There was a problem creating the user");
-	throw new Error(`Error: There was a problem creating the user`);
-      }
-
-      console.log("Successfully inserted new user to table");
-    }
-    */
     
     const cookiePostRes = await fetch('/api/cookies/user', {
       method: 'POST',

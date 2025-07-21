@@ -4,10 +4,40 @@ const supabase = createClient();
 
 const getCourse = async (id: string) : Promise<any> => {
   try {
+    const { data: userData, error: userErr } = await supabase.auth.getUser();
+
+    if (userErr) {
+      console.log("Error:", userErr.message);
+      throw new Error(`Error: ${userErr.message}`);
+    }
+
+    if (!userData || !userData.user) {
+      console.log("Error: user is null");
+      throw new Error(`Error: user is null`);
+    }
+
+    const authId = userData?.user?.id;
+
     const { data, error } = await supabase
       .from("outlines")
-      .select("*")
+      .select(`
+	code,
+	name,
+	description,
+	assessment_groups ( 
+	  *,
+	  assessments (
+	    *,
+	    grades(
+	      grade,
+	      submitted_at,
+	      assessment_id
+	    )
+	  )
+	)
+      `)
       .eq("id", id)
+//      .eq("assessment_groups.assessments.grades.profile", authId)
       .single();
 
     if (error) {

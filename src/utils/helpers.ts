@@ -16,3 +16,27 @@ export const getSearchParams = (searchParams: SearchParams) => {
     + (searchParams?.facName=="Faculty"?'':`&fac=${searchParams?.fac}`) 
     + (searchParams?.dept=="Department"?'':`&dept=${searchParams?.dept}`);
 }
+
+export const getCourseStats = (assessment_groups: any) => {
+  let sum = 0;
+  let sum_weights = 0;
+
+  assessment_groups.forEach((group: any) => {
+    group.assessments.forEach((assessment: any) => {
+      const gradeObj = Array.isArray(assessment.grades) ? assessment.grades[0] : assessment.grades
+      
+      if (gradeObj) {
+	console.log(gradeObj);
+
+	sum += gradeObj.grade*group.weight;
+	sum_weights += group.weight;
+      }
+    });
+  });
+
+  if (sum && sum_weights) {
+    return {newAverage: (sum / sum_weights), newCompletion: sum_weights*100 };
+  }
+  
+  return { newAverage: null, newCompletion: null };
+}

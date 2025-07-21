@@ -29,13 +29,13 @@ export async function GET(request: NextRequest){
         
         let courseQuery = supabase
             .from('outlines')
-            .select("id, course_code, course_name, course_description")
-            .like("course_code", `%${search ?? ''}%`)
-            .like('course_code', `%${dept ?? ''}%`)
+            .select("id, code, name, description")
+            .like("code", `%${search ?? ''}%`)
+            .like('code', `%${dept ?? ''}%`)
             .range(start, (start + 10))
 
         if (searchParams.has('fac')){
-            const facFilters = DEPARTMENTS[facultyIndex].map((code) => `course_code.ilike.${code}%`).join(',');
+            const facFilters = DEPARTMENTS[facultyIndex].map((code) => `code.ilike.${code}%`).join(',');
             courseQuery = courseQuery.or(facFilters)
         }
 
@@ -54,9 +54,9 @@ export async function GET(request: NextRequest){
         }
 
         const ids = data.map(row => row.id);
-        const courseCodes = data.map(row => row.course_code);
-        const courseNames = data.map(row => row.course_name);
-        const courseDescriptions = data.map(row => row.course_description);
+        const courseCodes = data.map(row => row.code);
+        const courseNames = data.map(row => row.name);
+        const courseDescriptions = data.map(row => row.description);
 
         return NextResponse.json({ ids, courseCodes, courseNames, courseDescriptions }, { status: 200 });
         // return NextResponse.json({data: null}, {status: 205});
