@@ -1,8 +1,8 @@
-# Doro.Study
+# Doro
 An automated grade tracker for Waterloo Courses
 
 ## Tech Stack
-Next.js, TypeScript, Supabase, Python, Selenium, Google OAuth
+Next.js, TypeScript, Zustand, Supabase, Python, Selenium, Google OAuth
 
 ## Data Flow
 ![doro md-4](https://github.com/user-attachments/assets/9ec3d043-76c1-4612-bedc-212b27f9adf7)

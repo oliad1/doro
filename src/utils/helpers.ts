@@ -28,8 +28,8 @@ export const getCourseStats = (assessment_groups: any) => {
       if (gradeObj) {
 	console.log(gradeObj);
 
-	sum += gradeObj.grade*group.weight;
-	sum_weights += group.weight;
+	sum += gradeObj.grade*assessment.weight;
+	sum_weights += assessment.weight;
       }
     });
   });
@@ -39,4 +39,26 @@ export const getCourseStats = (assessment_groups: any) => {
   }
   
   return { newAverage: null, newCompletion: null };
+}
+
+export const getMovingAverage = (assessment_groups: any) => {
+  let newChartData: {grade: number, average: number, date: string}[] = [];
+  let sum_weights = 0;
+  let numerator = 0;
+
+  assessment_groups?.map((assessment_group: any) =>
+    assessment_group.assessments.map((assessment: any) => { 
+      if (assessment.grades.length) {
+	sum_weights += assessment.weight;
+	numerator += (assessment.grades[0].grade*assessment.weight);
+	const newAverage = numerator/sum_weights;
+	newChartData = [
+	  ...newChartData,
+	  {grade: assessment.grades[0].grade, average: newAverage, date: assessment.grades[0].submitted_at.split('T')[0]}
+	];
+      }
+    })
+  )
+  
+  return newChartData;
 }

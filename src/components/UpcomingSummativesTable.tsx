@@ -167,7 +167,7 @@ export function UpcomingSummativesTable({ summatives = [], isLoading }: TablePro
   }
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="lg:col-span-4">
       <CardHeader className="flex-shrink-0">
         <CardTitle>Upcoming Deliverables</CardTitle>
         <CardDescription>Your next assessments</CardDescription>

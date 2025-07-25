@@ -6,7 +6,7 @@ import { useStore } from "zustand";
 import {
   type CounterStore,
   createCounterStore,
-  initCounterStore,
+  initDashboardStore,
 } from "@/stores/dashboard-store";
 
 export type CounterStoreApi = ReturnType<typeof createCounterStore>;
@@ -25,7 +25,7 @@ export const CounterStoreProvider = ({
   const storeRef = useRef<CounterStoreApi | null>(null);
 
   if (storeRef.current === null) {
-    storeRef.current = createCounterStore(initCounterStore());
+    storeRef.current = createCounterStore(initDashboardStore());
   }
 
   return (

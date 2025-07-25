@@ -41,6 +41,11 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
     --color-complete: 12 6.5% 15.1%;
   }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }
 
 @layer base {

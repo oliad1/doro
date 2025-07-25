@@ -17,13 +17,13 @@ export const loginAction = async (provider: Provider) => {
 
     if (error){
       console.error('Auth Error:', error.message);
-      return { errorMessage: error.message };
+      return { error: error.message };
     }
 
     return { errorMessage: null, url: data.url };
   } catch (error) {
     console.error('Unexpected error occurred', error);
-    return { errorMessage: "Unexpected error occured" };
+    return { error: "Unexpected error occured" };
   }
 }
 

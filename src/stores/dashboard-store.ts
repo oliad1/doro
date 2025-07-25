@@ -18,7 +18,7 @@ export type CounterActions = {
 
 export type CounterStore = CounterState & CounterActions;
 
-export const initCounterStore = (): CounterState => {
+export const initDashboardStore = (): CounterState => {
   return { 
     termCourses: [],
     term: "1A"

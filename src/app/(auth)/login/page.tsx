@@ -19,7 +19,7 @@ export default function LogIn(){
       const {errorMessage, url} = await loginAction(provider);
       if (!errorMessage && url){
 	navigate(url);
-	toast.success("Successful Login", {
+	toast.loading("Redirecting Login", {
 	  richColors: true
 	});
       } else {
@@ -37,7 +37,7 @@ export default function LogIn(){
 	<div className="flex items-center gap-x-3">
 	  <TrendingUp />
 	  <h3 className="scroll-m-20 text-2xl font-medium tracking-tight">
-	    Doro Study
+	    Doro
 	  </h3>
 	</div>
 	<div className="relative mt-auto">
