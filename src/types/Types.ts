@@ -31,3 +31,23 @@ export type Term =
   | "4A"
   | "4B"
 ;
+
+export type TermCourse = {
+  id: string;
+  code: string;
+};
+
+export type GradeDTO = {
+  submitted_at: string;
+  grade: number;
+  assessments: {
+    grade: number;
+    weight: number;
+    assessment_groups: {
+      outlines: {
+	code: string;
+      }
+    }
+  }
+};
+
