@@ -10,7 +10,7 @@ interface CourseCompletionChartProps {
 
 export default function CourseCompletionChart ({ isLoading, completion }: CourseCompletionChartProps) {
   return (
-    <Card className="lg:col-span-2 col-span-2 row-span-1">
+    <Card className="lg:col-span-2 lg:row-start-2 lg:col-start-5 col-span-2">
       <CardHeader>
 	<CardTitle>Course Completion</CardTitle>
 	<CardDescription>The amount of weighting left, charted.</CardDescription>

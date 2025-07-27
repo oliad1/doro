@@ -159,7 +159,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-8 gap-y-2 gap-x-2 p-4">
+    <div className="grid grid-cols-2 lg:grid-cols-8 gap-2 p-4 h-screen">
       <GradeTable
 	isLoading={isLoading}
 	courseMetadata={courseMetadata}

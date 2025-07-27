@@ -11,14 +11,14 @@ interface CourseAverageCardProps {
 
 export default function CourseAverageCard ({ isLoading, averageChartData }: CourseAverageCardProps) {
   return (
-    <Card className="lg:col-span-4 col-span-2 row-span-1">
+    <Card className="lg:col-span-4 col-span-2 lg:row-span-10 h-min">
       <CardHeader>
 	<CardTitle>Course Average</CardTitle>
 	<CardDescription>Your moving average, charted.</CardDescription>
       </CardHeader>
 
       <CardContent> 
-	{isLoading 
+	{isLoading
 	  ? <Skeleton className="w-4 h-4"/>
 	  : <ChartContainer
 	    config={COURSE_AVERAGE_CHART_CONFIG}

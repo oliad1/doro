@@ -8,7 +8,7 @@ interface CourseStatCardProps {
 
 export default function CourseStatCard ({ average, gpa, completion }: CourseStatCardProps) {
   return (
-    <Card className="col-span-2 lg:col-span-4 row-span-1">
+    <Card className="col-span-2 lg:col-span-4 lg:row-start-1 lg:col-start-5">
       <CardHeader>
 	<CardTitle>Your Stats</CardTitle>
 	<CardDescription>All of your statistics for this class.</CardDescription>

@@ -11,7 +11,7 @@ interface CourseWeightChartProps {
 
 export default function CourseWeightCard ({ isLoading, chartConfig, chartData }: CourseWeightChartProps) {
   return (
-    <Card className="lg:col-span-2 col-span-2 row-span-1">
+    <Card className="lg:col-span-2 lg:row-start-2 lg:col-start-7 col-span-2 row-span-1">
       <CardHeader>
 	<CardTitle>Weighting Distribution</CardTitle>
 	<CardDescription>The weightings of all your deliverables, graphed.</CardDescription>
