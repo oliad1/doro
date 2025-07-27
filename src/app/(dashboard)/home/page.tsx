@@ -6,30 +6,15 @@ import { YearProgressChart } from "@/components/YearProgressChart";
 import { UpcomingSummativesTable } from "@/components/UpcomingSummativesTable";
 import GradesAPIClient from "@/APIClients/GradesAPIClient";
 import { useCounterStore } from "@/providers/dashboard-store-provider";
-import { TermCourse } from "@/types/ProfileTypes";
 import HomeRadarChart from "@/components/Home/HomeRadarChart";
-
-interface GradeUpdate {
-  date: string;
-  course: string;
-  grade: number;
-}
-
-interface JSONData {
-  id: string,
-  code: string,
-}
-
-interface Terms {
-  [key: number] : JSONData[]
-}
+import { formatGrades } from "@/utils/helpers";
+//import { HomeGradeDTO } from "@/types/Types";
 
 export default function Dashboard() {
-  const [gradeUpdates, setGradeUpdates] = useState<GradeUpdate[]>([]);
-  const [grades, setGrades] = useState<TermCourse[] | null>();
+  const [grades, setGrades] = useState<any[]>();
   const [visibleCourses, setVisibleCourses] = useState<Record<string, boolean>>({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [upcomingSummatives, setUpcomingSummatives] = useState<{ date: string, time: string, course: string, type: string }[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [upcomingSummatives, setUpcomingSummatives] = useState<any[]>([]);
   const radarChartData = [
     {
       code: "ECE 222",
@@ -53,7 +38,7 @@ export default function Dashboard() {
     },
   ];
 
-  const { termCourses, addTermCourse, deleteTermCourse, term } = useCounterStore(
+  const { termCourses } = useCounterStore(
     (state) => state,
   );
 
@@ -61,25 +46,44 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
 	const grades = await GradesAPIClient.getTermGrades(termCourses);
-	setGrades(grades);
-	setIsLoading(false);
+	const formattedGrades = formatGrades(grades);
+	console.log("FORMATTED ", formattedGrades);
+	setGrades(formattedGrades);
       } catch (error) {
 	console.error("Error fetching data:", error);
-	// setIsLoading(false);
+      } finally {
+	setIsLoading(false);
       }
     };
     fetchData();
   }, []);
 
   const handleToggleCourse = (course: string) => {
-    setVisibleCourses(prev => ({
-      ...prev,
-      [course]: !prev[course]
-    }));
+    setVisibleCourses(prev => {
+      const newState = { ...prev };
+
+      if (course==="all") {
+	if (!newState.all) {
+	  newState.all = false;
+	}
+
+	Object.entries(newState).forEach(([key, _]) => {
+	  newState[key] = !newState.all;
+	});
+      } else {
+	if (newState.all) {
+	  newState.all = false;
+	}
+
+	newState[course] = !prev[course];
+      }
+      console.log("NEW STATE", newState);
+      return newState;
+    });
   };
 
   return (
-    <div className="grid lg:grid-cols-4 lg:grid-rows-3 gap-4 p-4">
+    <div className="grid lg:grid-cols-4 lg:grid-rows-3 gap-4 mx-2 my-4">
       <GradetimeChart
 	grades={grades!}
 	isLoading={isLoading}

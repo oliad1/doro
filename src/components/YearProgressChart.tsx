@@ -10,7 +10,7 @@ export function YearProgressChart () {
   const semesterProgress = calculateSemesterProgress(dates);
 
   const dynamicChartData = [
-    { label: "Semester Progress", percentage: semesterProgress, fill: "hsl(var(--primary))" },
+    { label: "Semester Progress", percentage: semesterProgress, fill: "var(--primary)" },
   ];
 
   const dynamicChartConfig = {
@@ -19,7 +19,7 @@ export function YearProgressChart () {
     },
     semesterProgress: {
       label: "Semester Progress",
-      color: "hsl(var(--primary))",
+      color: "var(--primary)",
     },
   } satisfies ChartConfig;
 

@@ -57,7 +57,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	  return { 
 	    name: group.name,
 	    weight: Number.parseFloat(group.weight)*100, 
-	    fill: `hsl(var(--chart-${index+1}))` 
+	    fill: `var(--chart-${index+1})` 
 	  }
 	});
 
@@ -70,7 +70,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	data.assessment_groups.forEach((assessment: any) => {
 	  updatedChartConfig[assessment.name] = {
 	    label: assessment.name,
-	    color: "hsl(var(--chart-5))",
+	    color: "var(--chart-5)",
 	  };
 	});
 
@@ -109,7 +109,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       />
       <CourseAverageChart
 	isLoading={isLoading}
-	chartConfig={chartConfig!}
 	averageChartData={averageChartData || []}
       />
     </div>

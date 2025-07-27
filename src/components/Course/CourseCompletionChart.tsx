@@ -26,7 +26,7 @@ export default function CourseCompletionChart ({ isLoading, completion }: Course
 	    className="mx-auto aspect-square max-h-[250px]"
 	  >
 	    <RadialBarChart
-	      data={[{completion: completion, broswer: "safari", fill: "hsl(var(--primary))"}]}
+	      data={[{completion: completion, broswer: "safari", fill: "var(--primary)"}]}
 	      startAngle={0}
 	      endAngle={(completion/100 || 0)*360}
 	      innerRadius={80}

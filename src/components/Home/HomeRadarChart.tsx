@@ -25,7 +25,7 @@ export default function HomeRadarChart ({chartData}: HomeRadarChartProps) {
 	    <PolarGrid />
 	    <Radar
 	      dataKey="average"
-	      fill="hsl(var(--primary))"
+	      fill="var(--primary)"
 	      fillOpacity={0.6}
 	    />
 	  </RadarChart>

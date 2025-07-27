@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { ChevronDown, FilterX, Pin, PinOff, Plus, Search, Minus } from 'lucide-react';
 import React, { useEffect, useState, useRef } from "react";
 import gsap from "gsap";
-import { use } from "react";
 import { useGSAP } from "@gsap/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -14,7 +13,6 @@ import { DEPARTMENTS, FACULTIES, SearchParams } from '@/constants/SearchConstant
 import { useRouter } from 'next/navigation';
 import { getSearchParams } from "@/utils/helpers";
 import { CourseDTO } from "@/types/Types";
-import EnrollmentsAPIClient from "@/APIClients/EnrollmentsAPIClient";
 import { toast } from "sonner";
 import { useCounterStore } from "@/providers/dashboard-store-provider";
 

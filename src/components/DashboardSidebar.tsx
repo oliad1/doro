@@ -13,12 +13,10 @@ import { LOGIN_PAGE } from '@/constants/Routes';
 import { TERMS } from "@/constants/SidebarConstants";
 import Link from 'next/link';
 import React from "react";
-import { TermCourse } from '@/types/ProfileTypes';
 import { Term } from "@/types/Types";
 import { useCounterStore } from "@/providers/dashboard-store-provider";
 
 interface SidebarProps {
-  sidebar: boolean,
   user: User | null | undefined,
   loading: boolean,
 }
@@ -38,10 +36,11 @@ const items = [
 
 //TODO: Add a removeCourse function allowing the sidebar to delete courses 
 
-export default function DashboardSidebar({ sidebar, user, loading, /*term, setTerm*/ }: SidebarProps) {
+export default function DashboardSidebar({ user, loading, /*term, setTerm*/ }: SidebarProps) {
   const { termCourses, term, setTerm, fetchTermCourses } = useCounterStore(
     (state) => state,
   );
+
 
   const [isPending, startTransition] = useTransition();
 
@@ -124,12 +123,14 @@ export default function DashboardSidebar({ sidebar, user, loading, /*term, setTe
   }, []);
 
 
+  const { open } = useSidebar();
+
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader>
 	  <div className="flex flex-row overflow-hidden w-full gap-2 p-2 h-8 items-center text-left">
 	    <TrendingUp />
-	    {sidebar && (
+	    {open && (
 	      <span className="text-md font-semibold">Doro</span>
 	    )}
 	  </div>
@@ -179,7 +180,7 @@ export default function DashboardSidebar({ sidebar, user, loading, /*term, setTe
 	      </DropdownMenuContent>
 	      <SidebarGroupContent className="flex flex-col justify-center items-center w-full">
 		{!termCourses || !termCourses?.length ?
-		  <span>{sidebar && "Enroll in some courses!"}</span>
+		  <span>{open && "Enroll in some courses!"}</span>
 		  : termCourses.map((course) =>
 		    <a key={course.id} href={`/course/${course.id}`} className="w-full">
 		      {<SidebarMenuButton className="px-5">
@@ -206,12 +207,10 @@ export default function DashboardSidebar({ sidebar, user, loading, /*term, setTe
 		    <>
 		      {loading ?
 			<Skeleton className="h-8 w-8 rounded-lg" />
-			: <>
-			  <Avatar className="h-8 w-8 rounded-lg">
-			    <AvatarImage src={user?.user_metadata?.avatar_url} />
-			    <AvatarFallback className="rounded-lg"></AvatarFallback>
-			  </Avatar>
-			</>
+			: <Avatar className="h-8 w-8 rounded-lg">
+			  <AvatarImage src={user?.user_metadata?.avatar_url} />
+			  <AvatarFallback className="rounded-lg"></AvatarFallback>
+			</Avatar>
 		      }
 		      <div className="grid flex-1 text-left text-sm leading-tight">
 			{loading ?

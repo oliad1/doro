@@ -10,8 +10,6 @@ interface CourseAverageCardProps {
 }
 
 export default function CourseAverageCard ({ isLoading, averageChartData }: CourseAverageCardProps) {
-  
-
   return (
     <Card className="lg:col-span-4 col-span-2 row-span-1">
       <CardHeader>
@@ -48,15 +46,15 @@ export default function CourseAverageCard ({ isLoading, averageChartData }: Cour
 	      <Bar
 		dataKey="grade"
 		barSize={20}
-		fill="hsl(var(--chart-1))"
+		fill="var(--chart-1)"
 		/>
 	      <Line
 		dataKey="average"
 		type="natural"
-		stroke="hsl(var(--primary))"
+		stroke="var(--primary)"
 		strokeWidth={2}
 		dot={{
-		  fill: "hsl(var(--primary))",
+		  fill: "var(--primary)",
 		}}
 		activeDot={{
 		  r: 6,

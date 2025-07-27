@@ -6,8 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import ProfilesAPIClient from "@/APIClients/ProfilesAPIClient";
 import EnrollmentsAPIClient from "@/APIClients/EnrollmentsAPIClient";
-import { TermCourse } from "@/types/ProfileTypes";
-import { Term } from "@/types/Types";
+import { Term, TermCourse } from "@/types/Types";
 import { CounterStoreProvider } from "@/providers/dashboard-store-provider";
 
 interface DashboardProps {
@@ -17,7 +16,6 @@ interface DashboardProps {
 export default function DashboardLayout({ children }: DashboardProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [sidebar, setSidebar] = useState<boolean>(false);
   const [termCourses, setTermCourses] = useState<TermCourse[]>([]);
 
   useEffect(() => {
@@ -63,9 +61,8 @@ export default function DashboardLayout({ children }: DashboardProps) {
   // TODO: Create a READ COOKIES API ENDPOINT FOR SIDEBAR PROVIDER OPEN={} 
   return <div className="flex flex-row overflow-x-hidden">
     <CounterStoreProvider>
-      <SidebarProvider open={sidebar} onOpenChange={setSidebar} >
+      <SidebarProvider>
 	<DashboardSidebar 
-	  sidebar={sidebar}
 	  user={user}
 	  loading={loading}
 //	  courses={termCourses}

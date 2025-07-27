@@ -1,5 +1,5 @@
-import { createClient } from "@/../utils/supabase/client";
-import { TermCourse } from "@/types/ProfileTypes";
+import { createClient } from "@/utils/supabase/client";
+import { TermCourse } from "@/types/Types";
 
 const supabase = createClient();
 
@@ -8,7 +8,16 @@ const getTermGrades = async (termCourses: TermCourse[]): Promise<any> => {
     const { data, error } = await supabase
       .from("grades")
       .select(`
-	*
+	submitted_at,
+	grade,
+	assessments (
+	  weight,
+	  assessment_groups (
+	    outlines (
+	      code
+	    )
+	  )
+	)
       `);
 
     if (error) {
