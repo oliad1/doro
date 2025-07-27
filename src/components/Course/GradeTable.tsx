@@ -13,9 +13,11 @@ interface GradeTableProps {
   isLoading: boolean,
   courseMetadata: any[],
   setRecalculate: () => void,
+  upsertMetadata: (gradeObj: any[], grade: number) => void,
+  deleteMetadata: (gradeObj: any[]) => void
 };
 
-export default function GradeTable ({ isLoading, courseMetadata, setRecalculate }: GradeTableProps) {
+export default function GradeTable ({ isLoading, courseMetadata, setRecalculate, upsertMetadata, deleteMetadata }: GradeTableProps) {
   const [editingState, setEditingState] = useState<Record<string, boolean>>({});
   const [inputState, setInputState] = useState<Record<string, string>>({});
 
@@ -45,6 +47,7 @@ export default function GradeTable ({ isLoading, courseMetadata, setRecalculate 
     setRecalculate();
     toast.dismiss("upsert");
     if (newGrade) {
+      upsertMetadata(newGrade, Number(value));
       toast.success("New grades recalculated!", {
 	richColors: true
       });
@@ -71,11 +74,12 @@ export default function GradeTable ({ isLoading, courseMetadata, setRecalculate 
 	...prevState,
 	[id]: ''
       }));
+      deleteMetadata(deletedGrade);
       toast.success("New grades recalculated!", {
 	richColors: true
       });
     } else {
-      toast.error("Error inserting new grade", {
+      toast.error("Error deleting grade", {
 	richColors: true
       });
       return;

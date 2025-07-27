@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/client";
 
 const supabase = createClient();
 
-const getCourse = async (id: string) : Promise<any> => {
+const getCourse = async (course_id: string) : Promise<any> => {
   try {
     const { data, error } = await supabase
       .from("outlines")
@@ -14,7 +14,7 @@ const getCourse = async (id: string) : Promise<any> => {
 	  *,
 	  assessments (
 	    *,
-	    grades(
+	    grades (
 	      grade,
 	      submitted_at,
 	      assessment_id
@@ -22,7 +22,7 @@ const getCourse = async (id: string) : Promise<any> => {
 	  )
 	)
       `)
-      .eq("id", id)
+      .eq("id", course_id)
 //      .eq("assessment_groups.assessments.grades.profile", authId)
       .single();
 
@@ -39,5 +39,5 @@ const getCourse = async (id: string) : Promise<any> => {
 }
 
 export default {
-  getCourse
+  getCourse,
 }

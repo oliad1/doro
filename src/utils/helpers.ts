@@ -48,8 +48,6 @@ export const getCourseStats = (assessment_groups: any) => {
       const gradeObj = Array.isArray(assessment.grades) ? assessment.grades[0] : assessment.grades
 
       if (gradeObj) {
-	console.log(gradeObj);
-
 	sum += gradeObj.grade*assessment.weight;
 	sum_weights += assessment.weight;
       }
@@ -176,3 +174,4 @@ export const formatGrades = (grades: GradeDTO[]): any[] => {
   
   return sortedDates.map(date => mergedMap[date]);
 }
+

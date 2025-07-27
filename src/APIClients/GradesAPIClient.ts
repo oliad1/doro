@@ -41,14 +41,23 @@ const upsertGrade = async (id: string, value: number) : Promise<any> => {
 	  onConflict: ['assessment_id', 'profile'],
 	  ignoreDuplicates: false
 	})
-      .select();
+      .select(`
+	id,
+	submitted_at,
+	assessments (
+	  id,
+	  assessment_groups (
+	    id
+	  )
+	)
+      `);
 
     if (error) {
       console.log("Error: There was a problem querying the course outline");
       throw new Error(`Error: There was a problem querying the course outline`);
     }
 
-    return data;
+    return Array.isArray(data) ? data[0] : data;
   } catch (error) {
     console.log("Error:", error);
     return null;
@@ -61,14 +70,23 @@ const deleteGrade = async (id: string) : Promise<any> => {
       .from("grades")
       .delete()
       .eq("assessment_id", id)
-      .select();
+      .select(`
+	id,
+	submitted_at,
+	assessments (
+	  id,
+	  assessment_groups (
+	    id
+	  )
+	)
+      `);
 
     if (error) {
       console.log(`Error: There was a problem deleting the grade ${id}`);
       throw new Error(`Error: There was a problem deleting the grade ${id}`);
     }
 
-    return data;
+    return Array.isArray(data) ? data[0] : data;
   } catch (error) {
     console.log("Error:", error);
     return null;
