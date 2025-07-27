@@ -1,23 +1,29 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from "@/components/ui/chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LineChart, CartesianGrid, XAxis, Line, ComposedChart, Bar } from "recharts";
-import { COURSE_AVERAGE_CHART_CONFIG } from "@/constants/ChartConstants";
+import { CartesianGrid, XAxis, Line, ComposedChart, Bar } from "recharts";
+import { COURSE_AVERAGE_CHART_CONFIG, POSITIVE_MESSAGE, NEGATIVE_MESSAGE } from "@/constants/ChartConstants";
+import { TrendingUp, TrendingDown } from "lucide-react";
+import { getRecentAverageDelta } from "@/utils/helpers";
+import { CourseAverageData } from "@/types/Types";
 
 interface CourseAverageCardProps {
   isLoading: boolean,
-  averageChartData: any[]
+  averageChartData: CourseAverageData[]
 }
 
 export default function CourseAverageCard ({ isLoading, averageChartData }: CourseAverageCardProps) {
+  const averageDelta = getRecentAverageDelta(averageChartData) ?? 0;
+  const positiveDelta = averageDelta > 0;
+  
   return (
-    <Card className="lg:col-span-4 col-span-2 lg:row-span-10 h-min">
+    <Card className="lg:col-span-4 col-span-2 h-min">
       <CardHeader>
 	<CardTitle>Course Average</CardTitle>
-	<CardDescription>Your moving average, charted.</CardDescription>
+	<CardDescription>Track your progress with your latest moving average.</CardDescription>
       </CardHeader>
 
-      <CardContent> 
+      <CardContent className="pb-0">
 	{isLoading
 	  ? <Skeleton className="w-4 h-4"/>
 	  : <ChartContainer
@@ -33,15 +39,16 @@ export default function CourseAverageCard ({ isLoading, averageChartData }: Cour
 	      }}
 	    >
 	      <CartesianGrid vertical={false} />
+	      <ChartTooltip
+		cursor={false}
+		content={<ChartTooltipContent hideLabel />}
+	      />
 	      <XAxis
 		dataKey="date"
 		tickLine={false}
 		axisLine={false}
 		tickMargin={8}
-	      />
-	      <ChartTooltip
-		cursor={false}
-		content={<ChartTooltipContent hideLabel />}
+		tickFormatter={() => ''}
 	      />
 	      <Bar
 		dataKey="grade"
@@ -64,6 +71,23 @@ export default function CourseAverageCard ({ isLoading, averageChartData }: Cour
 	  </ChartContainer>
 	}
       </CardContent>
+      <CardFooter className="flex items-start flex-col gap-2 text-sm pb-3">
+	<div className="flex gap-2 font-medium leading-none">
+	  Your average has {" "}
+	  {positiveDelta ? "increased" : "decreased" } {" "}
+	  by {Math.abs(averageDelta).toPrecision(3)}%
+	  {positiveDelta 
+	    ? <TrendingUp className="size-4" />
+	    : <TrendingDown className="size-4" />
+	  }
+	</div>
+	<div className="leading-none text-muted-foreground mb-3">
+	  {positiveDelta
+	    ? POSITIVE_MESSAGE
+	    : NEGATIVE_MESSAGE
+	  }
+	</div>
+      </CardFooter>
     </Card>
   );
 }

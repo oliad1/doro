@@ -180,7 +180,7 @@ export default function DashboardSidebar({ user, loading, /*term, setTerm*/ }: S
 	      </DropdownMenuContent>
 	      <SidebarGroupContent className="flex flex-col justify-center items-center w-full">
 		{!termCourses || !termCourses?.length ?
-		  <span>{open && "Enroll in some courses!"}</span>
+		  <span>{open && !loading && "Enroll in some courses!"}</span>
 		  : termCourses.map((course) =>
 		    <a key={course.id} href={`/course/${course.id}`} className="w-full">
 		      {<SidebarMenuButton className="px-5">

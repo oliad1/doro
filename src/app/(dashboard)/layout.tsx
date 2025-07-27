@@ -34,8 +34,8 @@ export default function DashboardLayout({ children }: DashboardProps) {
 
     const fetchCourses = async (term: string) => {
       try {
-	const termCourses = await EnrollmentsAPIClient.getCourses(term);
-	setTermCourses(termCourses);
+	const termCourses = await EnrollmentsAPIClient.getCourses(term as Term);
+	setTermCourses(termCourses!);
       } catch (error) {
 	console.error("Error fetching courses:", error);
       }

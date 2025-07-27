@@ -107,7 +107,7 @@ export default function GradeTable ({ isLoading, courseMetadata, setRecalculate,
   }
 
   return (
-    <Card className="lg:col-span-4 col-span-2 lg:row-span-10 h-min">
+    <Card className="lg:col-span-4 col-span-2 lg:row-span-4 h-min">
       <CardHeader>
 	<CardTitle>
 	  {isLoading

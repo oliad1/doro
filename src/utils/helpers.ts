@@ -1,5 +1,5 @@
 import { SearchParams } from "@/constants/SearchConstants";
-import { GradeDTO, HomeGradeDTO } from "@/types/Types";
+import { GradeDTO, CourseAverageData } from "@/types/Types";
 
 export const capitalize = (str: string) => {
   return str.charAt(0).toUpperCase() + str.substring(1);
@@ -175,3 +175,12 @@ export const formatGrades = (grades: GradeDTO[]): any[] => {
   return sortedDates.map(date => mergedMap[date]);
 }
 
+export const getRecentAverageDelta = (averageChartData: CourseAverageData[]): number | null => {
+  if (!averageChartData || !averageChartData.length) return null;
+  
+  if (averageChartData.length===1) return averageChartData[0].average;
+  
+  const len = averageChartData.length;
+
+  return (averageChartData[len-1].average) - (averageChartData[len-2].average);
+}

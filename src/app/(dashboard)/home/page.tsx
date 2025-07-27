@@ -83,7 +83,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="grid lg:grid-cols-4 lg:grid-rows-3 gap-4 mx-2 my-4">
+    <div className="grid lg:grid-cols-4 lg:grid-rows-3 gap-2 mx-2 my-4">
       <GradetimeChart
 	grades={grades!}
 	isLoading={isLoading}

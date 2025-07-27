@@ -51,3 +51,8 @@ export type GradeDTO = {
   }
 };
 
+export type CourseAverageData = {
+  grade: number;
+  average: number;
+  date: string;
+}
