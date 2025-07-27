@@ -1,6 +1,5 @@
-import { createClient } from "@/../utils/supabase/client";
-import { Term } from "@/types/Types";
-import { TermCourse } from "@/types/ProfileTypes";
+import { createClient } from "@/utils/supabase/client";
+import { Term, TermCourse } from "@/types/Types";
 
 const supabase = createClient();
 

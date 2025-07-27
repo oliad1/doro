@@ -1,8 +1,7 @@
 "use server"
 import { Provider } from "@supabase/supabase-js";
 import { getRedirectUrl } from '@/utils/helpers';
-import { createClient } from '../../utils/supabase/server';
-import { LOGIN_PAGE } from '@/constants/Routes';
+import { createClient } from '@/utils/supabase/server';
 
 export const loginAction = async (provider: Provider) => {
   try {
