@@ -2,8 +2,6 @@
 import { Input } from "@/components/ui/input";
 import { ChevronDown, FilterX, Pin, PinOff, Plus, Search, Minus } from 'lucide-react';
 import React, { useEffect, useState, useRef } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,8 +15,6 @@ import { toast } from "sonner";
 import { useCounterStore } from "@/providers/dashboard-store-provider";
 
 export default function SearchPage(searchParams: Promise<SearchParams>) {
-  gsap.registerPlugin(useGSAP);
-
   const router = useRouter();
 
   const { termCourses, addTermCourse, deleteTermCourse, term } = useCounterStore(
@@ -72,72 +68,6 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
     setSearch("");
     setPage(1);
   }
-
-  const animateCourseItem = (course: string, isPinning: boolean) => {
-    if (resultsRef.current) {
-      const courseElement = resultsRef.current.querySelector(`[data-course="${course}"]`) as HTMLElement;
-      if (courseElement) {
-	const pinIcon = courseElement.querySelector('.pin-icon') as HTMLElement;
-	const tl = gsap.timeline();
-
-	// Faster initial animation
-	tl.to(courseElement, {
-	  backgroundColor: isPinning ? 'rgba(250, 204, 21, 0.2)' : 'transparent',
-	  scale: isPinning ? 1.02 : 1,
-	  duration: 0.2,
-	  ease: "power2.inOut"
-	});
-
-	// Faster pin icon animation
-	tl.to(pinIcon, {
-	  rotate: isPinning ? '45deg' : '0deg',
-	  scale: isPinning ? 1.2 : 1,
-	  duration: 0.15,
-	  ease: "back.out(1)"
-	}, "-=0.3");
-
-	// Faster and smoother disappearing animation
-	tl.to(courseElement, {
-	  opacity: 0,
-	  y: isPinning ? -10 : 10,
-	  duration: 0.3,
-	  ease: "power2.in",
-	  onComplete: () => {
-	    setPinnedItems(prevPinned => {
-	      if (isPinning) {
-		return [...prevPinned, course];
-	      } else {
-		return prevPinned.filter(id => id !== course);
-	      }
-	    });
-
-	    // Immediate state update and re-render
-
-	    // Faster reappearing animation
-	    gsap.to(courseElement, {
-	      opacity: 1,
-	      y: 0,
-	      duration: 0.3,
-	      scale: 1,
-	      ease: "power2.out"
-	    });
-
-	    // Faster background color fade
-	    gsap.to(courseElement, {
-	      backgroundColor: 'transparent',
-	      duration: 0.5,
-	      ease: "power2.out"
-	    });
-	  }
-	});
-      }
-    }
-  };
-
-  const togglePin = (course: {id: string, code: string, name: string, description: string}) => {
-    const isPinning = !pinnedItems.includes(course.id);
-    animateCourseItem(course.id, isPinning);
-  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -193,44 +123,6 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
     };
     fetchCourses();
   }, [searchParams]);
-
-  const addCourse = async (term: string, course: CourseDTO) => {
-    //const courses = await EnrollmentsAPIClient.addTermCourse(term, course);
-    //setCourses(courses);
-
-    // const coursesData = await fetch('/api/courses/sidebar')
-    // const res = await coursesData.json()
-
-    // console.log("COURSES RETURNED: ", res)
-    /*
-    const addedCourse = await fetch('/api/courses/sidebar/', {
-      method: 'POST',
-      headers: {
-	'Content-Type': 'application/json'
-      },
-      body: JSON.stringify([...courses, course])
-    });
-
-    const response = await addedCourse.json();
-
-    console.log("API POST RESPONSE: ", response)
-
-    */
-
-    // const { data, error } = await response.json();
-
-    // if (error){
-    //     console.error("ERROR:", error)
-    // }
-
-    // if (!data){
-    //     console.error("No courses returned by database")
-    // }
-    //fetchCourses().then(()=>{
-      /*window.history.pushState(null, '', '/search'+window.location.search)*/
-    //})
-  }
-  // <SidebarMenuButton key={course.id} onClick={()=>handleClick(course.id)}></SidebarMenuButton>
 
   return (
     <Pagination className="no-scrollbar">
