@@ -9,6 +9,7 @@ import CourseStatCard from "@/components/Course/CourseStatCard";
 import CourseWeightChart from "@/components/Course/CourseWeightChart";
 import GradeTable from "@/components/Course/GradeTable";
 import CourseAverageChart from "@/components/Course/CourseAverageChart";
+import { CourseAverageData } from "@/types/Types";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [courseId, setCourseId] = useState<string>()
@@ -18,7 +19,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [average, setAverage] = useState<number>(0);
   const [completion, setCompletion] = useState<number>(0);
   const [chartData, setChartData] = useState();
-  const [averageChartData, setAverageChartData] = useState<{grade: number, date: string}[]>();
+  const [averageChartData, setAverageChartData] = useState<CourseAverageData[]>();
   const [chartConfig, setChartConfig] = useState<ChartConfig>();
   let gpa = 0;
 
@@ -86,17 +87,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     const fetchCourseData = async () => {
       if (!courseMetadata || !courseMetadata.assessment_groups || !courseId) return;
 
-      toast.loading("Loading Grades", {
-	id: "loading",
-	richColors: true
-      });
-
-      toast.dismiss("loading");
-      toast.success("Successfully loaded", {
-	id: 1,
-	richColors: true
-      });
-
       const { newAverage, newCompletion } = getCourseStats(courseMetadata.assessment_groups);
       const newChartData = getMovingAverage(courseMetadata.assessment_groups);
 
@@ -155,6 +145,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     });
 
     setCourseMetadata(newData);
+    setRecalculate(true);
   }
 
 
@@ -165,9 +156,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	courseMetadata={courseMetadata}
 	upsertMetadata={(gradeObj: any[], grade: number) => updateMetadata(gradeObj, true, grade)}
 	deleteMetadata={(gradeObj: any[]) => updateMetadata(gradeObj, false)}
-	setRecalculate={()=>setRecalculate(true)}
       />
-      <CourseStatCard 
+      <CourseStatCard
 	average={average} 
 	completion={completion}
 	gpa={gpa}

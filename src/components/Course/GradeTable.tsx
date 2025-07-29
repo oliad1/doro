@@ -12,12 +12,11 @@ import GradesAPIClient from "@/APIClients/GradesAPIClient";
 interface GradeTableProps {
   isLoading: boolean,
   courseMetadata: any[],
-  setRecalculate: () => void,
   upsertMetadata: (gradeObj: any[], grade: number) => void,
   deleteMetadata: (gradeObj: any[]) => void
 };
 
-export default function GradeTable ({ isLoading, courseMetadata, setRecalculate, upsertMetadata, deleteMetadata }: GradeTableProps) {
+export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata, deleteMetadata }: GradeTableProps) {
   const [editingState, setEditingState] = useState<Record<string, boolean>>({});
   const [inputState, setInputState] = useState<Record<string, string>>({});
 
@@ -44,7 +43,6 @@ export default function GradeTable ({ isLoading, courseMetadata, setRecalculate,
       richColors: true
     });
     const newGrade = await GradesAPIClient.upsertGrade(id, Number(value));
-    setRecalculate();
     toast.dismiss("upsert");
     if (newGrade) {
       upsertMetadata(newGrade, Number(value));
@@ -64,8 +62,6 @@ export default function GradeTable ({ isLoading, courseMetadata, setRecalculate,
       id: "clearing",
       richColors: true,
     });
-
-    setRecalculate();
 
     const deletedGrade = await GradesAPIClient.deleteGrade(id);
     toast.dismiss("clearing");
