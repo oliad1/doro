@@ -42,7 +42,6 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json(
-      { message: "User data fetched successfully" },
       { status: 200 }
     )
   } catch (error) {
@@ -59,8 +58,6 @@ export async function DELETE(){
     const cookieStore = await cookies()
 
     const test = cookieStore.delete('user_metadata');
-
-    console.log("TESTING DELETE COOKIE", test);
 
     return NextResponse.json({data: test}, {status: 200});
   } catch (error){

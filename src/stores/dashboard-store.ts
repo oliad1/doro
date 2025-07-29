@@ -1,8 +1,6 @@
 import { createStore } from "zustand/vanilla";
-import { TermCourse } from "@/types/ProfileTypes";
-import { toast } from "sonner";
 import EnrollmentsAPIClient from "@/APIClients/EnrollmentsAPIClient";
-import { Term } from "@/types/Types";
+import { Term, TermCourse } from "@/types/Types";
 
 export type CounterState = {
   termCourses: TermCourse[];

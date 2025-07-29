@@ -15,6 +15,7 @@ import Link from 'next/link';
 import React from "react";
 import { Term } from "@/types/Types";
 import { useCounterStore } from "@/providers/dashboard-store-provider";
+import CookiesAPIClient from "@/APIClients/CookiesAPIClient";
 
 interface SidebarProps {
   user: User | null | undefined,
@@ -36,52 +37,53 @@ const items = [
 
 //TODO: Add a removeCourse function allowing the sidebar to delete courses 
 
-export default function DashboardSidebar({ user, loading, /*term, setTerm*/ }: SidebarProps) {
-  const { termCourses, term, setTerm, fetchTermCourses } = useCounterStore(
+export default function DashboardSidebar({ user, loading }: SidebarProps) {
+  const { termCourses, term, setTerm } = useCounterStore(
     (state) => state,
   );
+  
+  const { open, setOpen } = useSidebar();
 
+  useEffect(() => {
+    const fetchTerm = async () => {
+      const term = await CookiesAPIClient.getTerm();
+      setTerm(term as Term);
+    };
+
+    const fetchSidebarOpen = async () => {
+      const open = await CookiesAPIClient.getSidebarOpen();
+      console.log(open);
+      setOpen(open!); 
+    }
+
+    fetchTerm();
+    fetchSidebarOpen();
+  }, []);
 
   const [isPending, startTransition] = useTransition();
 
   const storeTerm = async (term: string) => {
-    try {
-      setTerm(term as Term);
-
-      const response = await fetch('/api/cookies/term/', {
-	method: 'POST',
-	headers: {
-	  'Content-Type': 'application/json'
-	},
-	body: JSON.stringify(term)
-      });
-
-      const { data, error } = await response.json();
-
-      if (error) {
-	console.error("Error setting term:", error);
-	return;
-      }
-    } catch (error) {
-      console.error("Error updating term:", error);
-    } finally {
-      console.log("TERM FETCH COMPLETED");
-    }
+    setTerm(term as Term);
+    await CookiesAPIClient.setTerm(term as Term);
   }
 
   const handleLoading = () => {
     startTransition(async () => {
       try {
+	toast.loading("Logging out", {
+	  id: "logout",
+	  richColors: true
+	});
 	const error = await logoutAction();
-	if (!error) {
-	  console.log("Successfully logged out!");
-	  navigate(LOGIN_PAGE);
-	} else {
-	  toast.error("Auth Error", {
-	    description: "Unexpected error logging out",
-	    richColors: true 
-	  });
+
+	if (error) {
+	  throw new Error(`Error: ${error}`);
 	}
+	toast.dismiss("logout");
+	toast.success("Successfully logged out", {
+	  richColors: true
+	});
+	navigate(LOGIN_PAGE);
       } catch (error) {
 	toast.error("Auth Error", {
 	  description: "Unexpected error logging out",
@@ -91,49 +93,16 @@ export default function DashboardSidebar({ user, loading, /*term, setTerm*/ }: S
     })
   }
 
-  useEffect(() => {
-    // Fetching the user data from the API
-    const fetchTerm = async () => {
-      try {
-	// GET Request
-	const response = await fetch('/api/cookies/term');
-	const { data, error } = await response.json();
-
-	if (error) {
-	  console.error("Error fetching term:", error);
-	  return;
-	}
-
-	if (!data){
-	  console.error("No term data returned (client side)", data)
-	  return;
-	}
-	
-	const { term } = data;
-	setTerm(term);
-	fetchTermCourses();
-      } catch (error) {
-	console.error("Error updating term:", error);
-      } finally {
-	console.log("TERM FETCH COMPLETED");
-      }
-    };
-
-    fetchTerm();
-  }, []);
-
-
-  const { open } = useSidebar();
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader>
-	  <div className="flex flex-row overflow-hidden w-full gap-2 p-2 h-8 items-center text-left">
-	    <TrendingUp />
-	    {open && (
-	      <span className="text-md font-semibold">Doro</span>
-	    )}
-	  </div>
+	<div className="flex flex-row overflow-hidden w-full gap-2 p-2 h-8 items-center text-left">
+	  <TrendingUp />
+	  {open && (
+	    <span className="text-md font-semibold">Doro</span>
+	  )}
+	</div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -159,8 +128,8 @@ export default function DashboardSidebar({ user, loading, /*term, setTerm*/ }: S
 	    <DropdownMenu>
 	      <DropdownMenuTrigger asChild>
 		<SidebarMenuButton>
-		  {loading ?
-		    <Skeleton className="h-4 w-[30px]" />
+		  {loading 
+		    ? <Skeleton className="h-4 w-[30px]" />
 		    : <SidebarGroupLabel>{term}</SidebarGroupLabel>
 		  }
 		  <div className="
@@ -179,8 +148,8 @@ export default function DashboardSidebar({ user, loading, /*term, setTerm*/ }: S
 		))}
 	      </DropdownMenuContent>
 	      <SidebarGroupContent className="flex flex-col justify-center items-center w-full">
-		{!termCourses || !termCourses?.length ?
-		  <span>{open && !loading && "Enroll in some courses!"}</span>
+		{!termCourses || !termCourses?.length 
+		  ? <span>{open && !loading && "Enroll in some courses!"}</span>
 		  : termCourses.map((course) =>
 		    <a key={course.id} href={`/course/${course.id}`} className="w-full">
 		      {<SidebarMenuButton className="px-5">
