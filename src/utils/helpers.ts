@@ -1,4 +1,5 @@
 import { SearchParams } from "@/constants/SearchConstants";
+import { MIN_GPA_THRESHOLD } from "@/constants/CourseConstants";
 import { GradeDTO, CourseAverageData } from "@/types/Types";
 
 export const capitalize = (str: string) => {
@@ -184,3 +185,11 @@ export const getRecentAverageDelta = (averageChartData: CourseAverageData[]): nu
 
   return (averageChartData[len-1].average) - (averageChartData[len-2].average);
 }
+
+export const gradeToGPA = (grade: number): number | null => {
+  for (const [min, gpa] of MIN_GPA_THRESHOLD) {
+    if (grade >= min) return gpa;
+  }
+
+  return null;
+};

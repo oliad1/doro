@@ -21,7 +21,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [chartData, setChartData] = useState();
   const [averageChartData, setAverageChartData] = useState<CourseAverageData[]>();
   const [chartConfig, setChartConfig] = useState<ChartConfig>();
-  let gpa = 0;
 
   useEffect(() => {
     const fetchCoursesInit = async () => {
@@ -160,7 +159,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       <CourseStatCard
 	average={average} 
 	completion={completion}
-	gpa={gpa}
       />
       <CourseCompletionChart 
 	isLoading={isLoading} 

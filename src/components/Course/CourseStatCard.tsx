@@ -1,12 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { gradeToGPA } from "@/utils/helpers";
 
 interface CourseStatCardProps {
   average: number | null,
-  gpa: number | null,
   completion: number | null,
 }
 
-export default function CourseStatCard ({ average, gpa, completion }: CourseStatCardProps) {
+export default function CourseStatCard ({ average, completion }: CourseStatCardProps) {
+  const gpa: number | null = gradeToGPA(average!);
+
   return (
     <Card className="col-span-2 lg:col-span-4 lg:row-start-1 lg:col-start-5">
       <CardHeader>
@@ -27,7 +29,7 @@ export default function CourseStatCard ({ average, gpa, completion }: CourseStat
 	    Your GPA
 	  </h2>
 	  <h2 className="lg:text-3xl text-xl font-semibold">
-	    {gpa ? gpa.toString() : "N/A"}
+	    {gpa ? gpa.toPrecision(3).toString() : "N/A"}
 	  </h2>
 	</div>
 	<div className="flex flex-col justify-center items-center">
