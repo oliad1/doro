@@ -29,7 +29,7 @@ export default function CourseStatCard ({ average, completion }: CourseStatCardP
 	    Your GPA
 	  </h2>
 	  <h2 className="lg:text-3xl text-xl font-semibold">
-	    {gpa ? gpa.toPrecision(3).toString() : "N/A"}
+	    {gpa ? gpa.toPrecision(3).toString() : 0}
 	  </h2>
 	</div>
 	<div className="flex flex-col justify-center items-center">

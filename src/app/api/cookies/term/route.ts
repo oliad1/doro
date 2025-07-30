@@ -39,8 +39,8 @@ export async function GET() {
 
     if (!cookieStore.has('term') || !term) {
       cookieStore.set('term', "1A");
-
-      return new NextResponse(null, { status: 204 });
+      
+      return NextResponse.json({ data: "1A" }, {status: 201})
     }
 
     return NextResponse.json({ data: term }, {status: 200})

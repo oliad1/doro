@@ -4,7 +4,7 @@ const supabase = createClient();
 
 const getCourse = async (course_id: string) : Promise<any> => {
   try {
-    const { data, error } = await supabase
+    const { data, error, status } = await supabase
       .from("outlines")
       .select(`
 	code,
@@ -27,8 +27,7 @@ const getCourse = async (course_id: string) : Promise<any> => {
       .single();
 
     if (error) {
-      console.log("Error: There was a problem querying the course outline");
-      throw new Error(`Error: There was a problem querying the course outline`);
+      throw new Error(`Response status ${status}`);
     }
 
     return data;

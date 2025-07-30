@@ -52,19 +52,3 @@ export async function POST(req: Request) {
     )
   }
 }
-
-export async function DELETE(){
-  try {
-    const cookieStore = await cookies()
-
-    const test = cookieStore.delete('user_metadata');
-
-    return NextResponse.json({data: test}, {status: 200});
-  } catch (error){
-    console.error("Unexpected error deleting auth cookie:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    )
-  }
-}

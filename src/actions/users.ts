@@ -2,11 +2,11 @@
 import { Provider } from "@supabase/supabase-js";
 import { getRedirectUrl } from '@/utils/helpers';
 import { createClient } from '@/utils/supabase/server';
+import { cookies } from "next/headers";
 
 export const loginAction = async (provider: Provider) => {
   try {
     const supabase = await createClient();
-
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -29,6 +29,7 @@ export const loginAction = async (provider: Provider) => {
 export const logoutAction = async () => {
   try {
     const supabase = await createClient();
+    const cookieStore = await cookies();
 
     const { error } = await supabase.auth.signOut();
 
@@ -37,14 +38,7 @@ export const logoutAction = async () => {
       return error;
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/cookies/user`, {
-      method: 'DELETE',
-      headers: {
-	'Content-Type': 'application/json'
-      },
-    });
-
-    console.log("DELETE TEST: ", response)
+    cookieStore.set('user_metadata', '', { maxAge: 0 });
 
     return null;
   } catch (error) {
