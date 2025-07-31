@@ -10,7 +10,7 @@ export default function CourseStatCard ({ average, completion }: CourseStatCardP
   const gpa: number | null = gradeToGPA(average!);
 
   return (
-    <Card className="col-span-2 lg:col-span-4 lg:row-start-1 lg:col-start-5">
+    <Card className="lg:col-span-2">
       <CardHeader>
 	<CardTitle>Your Stats</CardTitle>
 	<CardDescription>All of your statistics for this class.</CardDescription>

@@ -10,6 +10,9 @@ const getCourse = async (course_id: string) : Promise<any> => {
 	code,
 	name,
 	description,
+	personnels (
+	  *
+	),
 	assessment_groups ( 
 	  *,
 	  assessments (

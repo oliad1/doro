@@ -10,16 +10,16 @@ interface CourseCompletionChartProps {
 
 export default function CourseCompletionChart ({ isLoading, completion }: CourseCompletionChartProps) {
   return (
-    <Card className="lg:col-span-2 lg:row-start-2 lg:col-start-5 col-span-2">
+    <Card className="lg:col-span-1 lg:row-start-2 lg:mr-2">
       <CardHeader>
 	<CardTitle>Course Completion</CardTitle>
 	<CardDescription>The amount of weighting left, charted.</CardDescription>
       </CardHeader>
 
-      <CardContent className="flex-1 pb-0">
+      <CardContent> 
 	{isLoading?
 	  <>
-	    <Skeleton className="w-4 h-4"/>
+	    <Skeleton className="size-4"/>
 	  </>
 	  : <ChartContainer 
 	    config={{completion: { label: "completion" }}}

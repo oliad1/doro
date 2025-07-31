@@ -7,30 +7,36 @@ const getCourses = async (term: Term) => {
   try {
     const { data: auth } = await supabase.auth.getUser();
     const authId = auth?.user?.id;
+    
+    if (!authId) {
+      throw new Error(`User is not authenticated`);
+    };
 
-    if (authId){
-      const { data, error } = await supabase
-	.from("enrollments")
-	.select("*")
-	.eq("term", term)
-	.eq("profile", authId);
+    const { data, error, status } = await supabase
+      .from("enrollments")
+      .select(`
+	*,
+	outlines (
+	  code
+	)
+      `)
+      .eq("term", term)
+      .eq("profile", authId);
 
-      if (error) {
-	throw new Error(`Response status ${status}`)
-      }
-
-      if (Array.isArray(data) || data) {
-	const transformedData = data.map((course) => ({
-	  id: course.course_id,
-	  code: course.course_code
-	}));
-
-	console.log("TRANSFORMED DATA: ", transformedData);
-
-	return transformedData;
-      }
+    if (error) {
+      throw new Error(`Response status ${status}`)
     }
-    return null;
+
+    if (!data) {
+      throw new Error(`Response status ${status}`)
+    }
+
+    const transformedData = data.map((course) => ({
+      id: course.course_id,
+      code: course.outlines.code
+    }));
+
+    return transformedData;
   } catch (error) {
     console.log("Error:", error);
     return null;
@@ -46,7 +52,6 @@ const addCourse = async (course: TermCourse, term: Term) => {
       const payload = {
 	"term": term,
 	"course_id": course.id,
-	"course_code": course.code,
 	"profile": authId
       };
       

@@ -142,6 +142,7 @@ export function GradetimeChart({ grades, courses, visibleCourses, onToggleCourse
 	    {courses.map((course) => (
 	      (visibleCourses[course]) && [
 		<Bar
+		  radius={2}
 		  stackId="date"
 		  key={`${course}_grade`}
 		  dataKey={`${course}_grade`}

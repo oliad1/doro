@@ -9,11 +9,13 @@ import CourseStatCard from "@/components/Course/CourseStatCard";
 import CourseWeightChart from "@/components/Course/CourseWeightChart";
 import GradeTable from "@/components/Course/GradeTable";
 import CourseAverageChart from "@/components/Course/CourseAverageChart";
+import CoursePersonnelCard from "@/components/Course/CoursePersonnelCard";
 import { CourseAverageData } from "@/types/Types";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [courseId, setCourseId] = useState<string>()
   const [courseMetadata, setCourseMetadata] = useState<any>();
+  const [personnelData, setPersonnelData] = useState<any[]>();
   const [isLoading, setLoading] = useState<boolean>(true);
   const [recalculate, setRecalculate] = useState<boolean>(false);
   const [average, setAverage] = useState<number>(0);
@@ -38,6 +40,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       const data = await OutlinesAPIClient.getCourse(courseId);
 
       setCourseMetadata(data);
+      setPersonnelData(data.personnels);
 
       toast.dismiss(0);
       toast.success("Successfully loaded", {
@@ -149,30 +152,37 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-8 gap-2 p-4 h-min">
-      <GradeTable
-	isLoading={isLoading}
-	courseMetadata={courseMetadata}
-	upsertMetadata={(gradeObj: any[], grade: number) => updateMetadata(gradeObj, true, grade)}
-	deleteMetadata={(gradeObj: any[]) => updateMetadata(gradeObj, false)}
-      />
-      <CourseStatCard
-	average={average} 
-	completion={completion}
-      />
-      <CourseCompletionChart 
-	isLoading={isLoading} 
-	completion={completion} 
-      />
-      <CourseWeightChart 
-	isLoading={isLoading} 
-	chartData={chartData!} 
-	chartConfig={chartConfig!} 
-      />
-      <CourseAverageChart
-	isLoading={isLoading}
-	averageChartData={averageChartData || []}
-      />
+    <div className="grid lg:grid-cols-4 grid-cols-1 gap-2 p-4">
+      <div className="grid col-span-2 h-min space-y-2">
+	<GradeTable
+	  isLoading={isLoading}
+	  courseMetadata={courseMetadata}
+	  upsertMetadata={(gradeObj: any[], grade: number) => updateMetadata(gradeObj, true, grade)}
+	  deleteMetadata={(gradeObj: any[]) => updateMetadata(gradeObj, false)}
+	/>
+	<CoursePersonnelCard
+	  data={personnelData || []}
+	/>
+      </div>
+      <div className="grid col-span-2 space-y-2 h-min">
+	<CourseStatCard
+	  average={average} 
+	  completion={completion}
+	/>
+	<CourseCompletionChart
+	  isLoading={isLoading} 
+	  completion={completion} 
+	/>
+	<CourseWeightChart 
+	  isLoading={isLoading} 
+	  chartData={chartData!} 
+	  chartConfig={chartConfig!} 
+	/>
+	<CourseAverageChart
+	  isLoading={isLoading}
+	  averageChartData={averageChartData || []}
+	/>
+      </div>
     </div>
   )
 }
