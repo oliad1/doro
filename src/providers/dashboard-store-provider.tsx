@@ -1,47 +1,46 @@
 "use client"
-
 import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
 import {
-  type CounterStore,
-  createCounterStore,
+  type DashboardStore,
+  createDashboardStore,
   initDashboardStore,
 } from "@/stores/dashboard-store";
 
-export type CounterStoreApi = ReturnType<typeof createCounterStore>;
+export type DashboardStoreApi = ReturnType<typeof createDashboardStore>;
 
-export const CounterStoreContext = createContext<CounterStoreApi | undefined>(
+export const DashboardStoreContext = createContext<DashboardStoreApi | undefined>(
   undefined
 );
 
-export interface CounterStoreProviderProps {
+export interface DashboardStoreProviderProps {
   children: ReactNode
 }
 
-export const CounterStoreProvider = ({
+export const DashboardStoreProvider = ({
   children
-}: CounterStoreProviderProps) => {
-  const storeRef = useRef<CounterStoreApi | null>(null);
+}: DashboardStoreProviderProps) => {
+  const storeRef = useRef<DashboardStoreApi | null>(null);
 
   if (storeRef.current === null) {
-    storeRef.current = createCounterStore(initDashboardStore());
+    storeRef.current = createDashboardStore(initDashboardStore());
   }
 
   return (
-    <CounterStoreContext.Provider value={storeRef.current}>
+    <DashboardStoreContext.Provider value={storeRef.current}>
       {children}
-    </CounterStoreContext.Provider>
+    </DashboardStoreContext.Provider>
   )
 }
 
-export const useCounterStore = <T,>(
-  selector: (store: CounterStore) => T,
+export const useDashboardStore = <T,>(
+  selector: (store: DashboardStore) => T,
 ): T => {
-  const counterStoreContext = useContext(CounterStoreContext);
+  const counterStoreContext = useContext(DashboardStoreContext);
 
   if (!counterStoreContext) {
-    throw new Error(`useCounterStore must be used within CounterStoreProvider`);
+    throw new Error(`useDashboardStore must be used within DashboardStoreProvider`);
   }
 
   return useStore(counterStoreContext, selector)

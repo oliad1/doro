@@ -12,12 +12,12 @@ import { useRouter } from 'next/navigation';
 import { getSearchParams } from "@/utils/helpers";
 import { CourseDTO } from "@/types/Types";
 import { toast } from "sonner";
-import { useCounterStore } from "@/providers/dashboard-store-provider";
+import { useDashboardStore } from "@/providers/dashboard-store-provider";
 
 export default function SearchPage(searchParams: Promise<SearchParams>) {
   const router = useRouter();
 
-  const { termCourses, addTermCourse, deleteTermCourse, term } = useCounterStore(
+  const { termCourses, addTermCourse, deleteTermCourse, term } = useDashboardStore(
     (state) => state,
   );
 
@@ -247,20 +247,23 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 			    <div className="flex items-center space-x-2">
 			      <AccordionTrigger className="p-0 h-8 w-8" onClick={(e) => e.stopPropagation()}>
 			      </AccordionTrigger>
-			      <Button variant="ghost" className="p-0 h-8 w-8" onClick={()=>{
-				if (courseEnrolled) {
-				  deleteTermCourse({id: result.id, code: result.code});
-				  toast.info(`Removed ${result.code} from ${term}`, {
+			      <Button 
+				variant="ghost"
+				className="p-0 h-8 w-8"
+				onClick={()=>{
+				  if (courseEnrolled) {
+				    deleteTermCourse({id: result.id, code: result.code});
+				    toast.info(`Removed ${result.code} from ${term}`, {
+				      richColors: true
+				    });
+				    return;
+				  }
+				  addTermCourse({id: result.id, code: result.code});
+				  toast.success(`Added ${result.code} to ${term}`, {
 				    richColors: true
 				  });
-				  return;
-				}
-				addTermCourse({id: result.id, code: result.code});
-				toast.success(`Added ${result.code} to ${term}`, {
-				  richColors: true
-				});
-			      }
-			      }>
+				}}
+			      >
 				{courseEnrolled
 				    ? <Minus className="h-4 w-4" />
 				    : <Plus className="h-4 w-4" /> }
@@ -292,7 +295,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 	      </Accordion>
 	    )}
 
-	    <PaginationContent className="w-full flex flex-row justify-center items-center py-5">
+	    <PaginationContent className="w-full flex flex-row justify-center items-center py-5 h-min">
 	    {page > 1 && (
 	      <>
 		<PaginationItem>

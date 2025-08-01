@@ -1,7 +1,7 @@
 "use client"
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ChartConfig } from "@/components/ui/chart";
 import { useEffect, useState } from "react";
-import OutlinesAPIClient from "@/APIClients/OutlinesAPIClient";
+import EnrollmentsAPIClient from "@/APIClients/EnrollmentsAPIClient";
 import { getCourseStats, getMovingAverage } from "@/utils/helpers";
 import { toast } from "sonner";
 import CourseCompletionChart from "@/components/Course/CourseCompletionChart";
@@ -13,9 +13,9 @@ import CoursePersonnelCard from "@/components/Course/CoursePersonnelCard";
 import { CourseAverageData } from "@/types/Types";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
-  const [courseId, setCourseId] = useState<string>()
+  const [enrollmentId, setEnrollmentId] = useState<string>()
   const [courseMetadata, setCourseMetadata] = useState<any>();
-  const [personnelData, setPersonnelData] = useState<any[]>();
+  const [personnelData, setPersonnelData] = useState<any[] | null>();
   const [isLoading, setLoading] = useState<boolean>(true);
   const [recalculate, setRecalculate] = useState<boolean>(false);
   const [average, setAverage] = useState<number>(0);
@@ -26,10 +26,10 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   useEffect(() => {
     const fetchCoursesInit = async () => {
-      const courseId = (await params).id
+      const enrollmentId = (await params).id
 
-      if (courseId) {
-	setCourseId(courseId);
+      if (enrollmentId) {
+	setEnrollmentId(enrollmentId);
       }
 
       toast.loading("Loading Grades", {
@@ -37,7 +37,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	richColors: true
       });
 
-      const data = await OutlinesAPIClient.getCourse(courseId);
+      const data = await EnrollmentsAPIClient.getEnrollment(enrollmentId);
 
       setCourseMetadata(data);
       setPersonnelData(data.personnels);
@@ -87,7 +87,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   useEffect(() => {
     const fetchCourseData = async () => {
-      if (!courseMetadata || !courseMetadata.assessment_groups || !courseId) return;
+      if (!courseMetadata || !courseMetadata.assessment_groups || !enrollmentId) return;
 
       const { newAverage, newCompletion } = getCourseStats(courseMetadata.assessment_groups);
       const newChartData = getMovingAverage(courseMetadata.assessment_groups);
@@ -153,18 +153,19 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <div className="grid lg:grid-cols-4 grid-cols-1 gap-2 p-4">
-      <div className="grid col-span-2 h-min space-y-2">
+      <div className="flex flex-col col-span-2 h-min space-y-2 min-w-0">
 	<GradeTable
 	  isLoading={isLoading}
 	  courseMetadata={courseMetadata}
 	  upsertMetadata={(gradeObj: any[], grade: number) => updateMetadata(gradeObj, true, grade)}
 	  deleteMetadata={(gradeObj: any[]) => updateMetadata(gradeObj, false)}
+	  enrollmentId={enrollmentId!}
 	/>
 	<CoursePersonnelCard
 	  data={personnelData || []}
 	/>
       </div>
-      <div className="grid col-span-2 space-y-2 h-min">
+      <div className="grid col-span-2 space-y-2 h-min min-w-0">
 	<CourseStatCard
 	  average={average} 
 	  completion={completion}

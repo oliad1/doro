@@ -4,7 +4,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import ProfilesAPIClient from "@/APIClients/ProfilesAPIClient";
-import { CounterStoreProvider } from "@/providers/dashboard-store-provider";
+import { DashboardStoreProvider } from "@/providers/dashboard-store-provider";
 
 interface DashboardProps {
     children: React.ReactNode,
@@ -13,6 +13,7 @@ interface DashboardProps {
 export default function DashboardLayout({ children }: DashboardProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -25,7 +26,7 @@ export default function DashboardLayout({ children }: DashboardProps) {
   }, []);
 
   return <div className="flex flex-row overflow-x-hidden">
-    <CounterStoreProvider>
+    <DashboardStoreProvider>
       <SidebarProvider defaultOpen={false}>
 	<DashboardSidebar 
 	  user={user}
@@ -36,6 +37,6 @@ export default function DashboardLayout({ children }: DashboardProps) {
 	  {children}
 	</SidebarInset>
       </SidebarProvider>
-    </CounterStoreProvider>
+    </DashboardStoreProvider>
   </div>
 }

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GradetimeChart } from "@/components/GradetimeChart";
-import { YearProgressChart } from "@/components/YearProgressChart";
-import { UpcomingSummativesTable } from "@/components/UpcomingSummativesTable";
+import { GradetimeChart } from "@/components/Home/GradetimeChart";
+import { YearProgressChart } from "@/components/Home/YearProgressChart";
+import { UpcomingSummativesTable } from "@/components/Home/UpcomingSummativesTable";
 import GradesAPIClient from "@/APIClients/GradesAPIClient";
-import { useCounterStore } from "@/providers/dashboard-store-provider";
+import { useDashboardStore } from "@/providers/dashboard-store-provider";
 import HomeRadarChart from "@/components/Home/HomeRadarChart";
 import { formatGrades } from "@/utils/helpers";
 //import { HomeGradeDTO } from "@/types/Types";
@@ -38,14 +38,14 @@ export default function Dashboard() {
     },
   ];
 
-  const { termCourses } = useCounterStore(
+  const { term, termCourses } = useDashboardStore(
     (state) => state,
   );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-	const grades = await GradesAPIClient.getTermGrades(termCourses);
+	const grades = await GradesAPIClient.getTermGrades(term || "1A");
 	const formattedGrades = formatGrades(grades);
 	console.log("FORMATTED ", formattedGrades);
 	setGrades(formattedGrades);
