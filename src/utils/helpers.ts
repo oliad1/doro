@@ -201,9 +201,37 @@ export const getInitials = (name: string) => {
 };
 
 export const getAssessmentName = (assessment_group: any, index: number) => {
-  if (assessment_group.count==1) return assessment_group.name;
+  if (assessment_group.count===1) return assessment_group.name;
   if (assessment_group.name.includes("zes")) { //Quizzes
     return `${assessment_group.name?.slice(0, -3)} ${index + 1}`
   }
   return `${assessment_group.name?.slice(0, -1)} ${index + 1}`
+};
+
+export const getAdjustedWeights = (data: any) => {
+  data.assessment_groups.forEach((assessment_group: any) => {
+    const group = JSON.parse(JSON.stringify(assessment_group));
+    const sortedAssessments = group.assessments.sort(
+      (a: any, b: any) => {
+	const gradeA = a.grades[0] ? a.grades[0].grade : 0;
+	const gradeB = b.grades[0] ? b.grades[0].grade : 0
+	return gradeA - gradeB;
+      });
+
+    if (assessment_group.drop) {
+      let dropCount = assessment_group.drop;
+
+      assessment_group.assessments.forEach((assessment: any) => {
+	assessment.dropped = false;
+	assessment.weight = assessment_group.weight / (assessment_group.count - assessment_group.drop);
+	if (dropCount && assessment.id == sortedAssessments[dropCount-1].id) {
+	  assessment.weight = 0;
+	  assessment.dropped = true;
+	  dropCount--;
+	}
+      });
+    }
+  });
+
+  return data;
 };

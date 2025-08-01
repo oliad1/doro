@@ -54,7 +54,7 @@ export default function CourseCompletionChart ({ isLoading, completion }: Course
 			    y={viewBox.cy}
 			    className="fill-foreground text-4xl font-bold"
 			  >
-			    {completion ? completion.toPrecision(3) : 0}%
+			    {completion ? completion.toPrecision(3).replace(/(?:\.0+|(\.\d+?)0+)$/, "$1") : 0}%
 			  </tspan>
 			  <tspan
 			    x={viewBox.cx}

@@ -151,13 +151,16 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 		  <TableRow key={assessment.index}>
 		    <TableCell className="font-medium text-nowrap">
 		      {getAssessmentName(assessment_group, assessment.index)}
+		      {(assessment.dropped) && (
+			<Badge variant="secondary" className="ml-2" >Dropped</Badge>
+		      )}
 		      {(assessment_group.optional || assessment_group.type.includes("Bonus")) && (
 			<Badge variant="outline" className="ml-2" >Optional</Badge>
 		      )}
 		    </TableCell>
 
 		    <TableCell>
-		      {(assessment.weight).toPrecision(2)}
+		      {(assessment.weight).toPrecision(2).replace(/(?:\.0+|(\.\d+?)0+)$/, "$1")}
 		    </TableCell>
 
 		    <TableCell className="flex w-min max-w-sm justify-center items-center gap-2">

@@ -2,7 +2,7 @@
 import { ChartConfig } from "@/components/ui/chart";
 import { useEffect, useState } from "react";
 import EnrollmentsAPIClient from "@/APIClients/EnrollmentsAPIClient";
-import { getCourseStats, getMovingAverage } from "@/utils/helpers";
+import { getCourseStats, getMovingAverage, getAdjustedWeights } from "@/utils/helpers";
 import { toast } from "sonner";
 import CourseCompletionChart from "@/components/Course/CourseCompletionChart";
 import CourseStatCard from "@/components/Course/CourseStatCard";
@@ -39,7 +39,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
       const data = await EnrollmentsAPIClient.getEnrollment(enrollmentId);
 
-      setCourseMetadata(data);
+      const updatedData = getAdjustedWeights(data);
+
+      setCourseMetadata(updatedData);
       setPersonnelData(data.personnels);
 
       toast.dismiss(0);
@@ -88,6 +90,10 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   useEffect(() => {
     const fetchCourseData = async () => {
       if (!courseMetadata || !courseMetadata.assessment_groups || !enrollmentId) return;
+      
+      const updatedData = getAdjustedWeights(courseMetadata);
+
+      setCourseMetadata(updatedData);
 
       const { newAverage, newCompletion } = getCourseStats(courseMetadata.assessment_groups);
       const newChartData = getMovingAverage(courseMetadata.assessment_groups);
@@ -118,7 +124,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   }, [recalculate]);
 
   const updateMetadata = (gradeObj: any[], upsert: boolean, grade?: number) => {
-    const newData = { ... courseMetadata };
+    const newData = JSON.parse(JSON.stringify(courseMetadata));
 
     const { assessments, id, submitted_at } = gradeObj;
     const group_id = assessments.assessment_groups.id; 
