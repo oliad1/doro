@@ -6,7 +6,7 @@ import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart
 import { Checkbox } from "@/components/ui/checkbox";
 import { getChartColors } from "@/components/ui/helpers";
 import { isValid, format } from 'date-fns';
-import { Skeleton } from './ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import { getToolTipName } from "@/utils/helpers";
 
 interface GradetimeChartProps {
@@ -40,60 +40,58 @@ export function GradetimeChart({ grades, courses, visibleCourses, onToggleCourse
 	<CardDescription>Grade Trends Over Time</CardDescription>
       </CardHeader>
       <CardContent className="mb-4">
-	  <h3 className="text-lg font-semibold mb-2">Courses</h3>
-	  <div className="flex flex-wrap gap-2">
-	    {isLoading 
-	      ? <Skeleton className="h-5 w-1/2"/>
-	      : courses.map((course) => (
-		<div key={course} className="flex items-center space-x-1">
-		  <Checkbox
-		    id={course}
-		    checked={visibleCourses[course]}
-		    onCheckedChange={() => onToggleCourse(course)}
-		  />
-		  <label
-		    htmlFor={course}
-		    className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-		  >
-		    {course}
-		  </label>
-		</div>
-	      ))}
-	    <div className="flex items-center space-x-1">
-	      {!isLoading && (
-		<>
-		  <Checkbox
-		    id="average"
-		    checked={visibleCourses.average}
-		    onCheckedChange={() => onToggleCourse('average')}
-		  />
-		  <label
-		    htmlFor="average"
-		    className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-		  >
-		    Average
-		  </label>
-		</> 
-	      )}
+	<h3 className="text-lg font-semibold mb-2">Courses</h3>
+	<div className="flex flex-wrap gap-2">
+	  {courses.map((course) => (
+	    <div key={course} className="flex items-center space-x-1">
+	      <Checkbox
+		id={course}
+		checked={visibleCourses[course]}
+		onCheckedChange={() => onToggleCourse(course)}
+	      />
+	      <label
+		htmlFor={course}
+		className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+	      >
+		{course}
+	      </label>
 	    </div>
-	    <div className="flex items-center space-x-1">
-	      {!isLoading && (
-		<>
-		  <Checkbox
-		    id="all"
-		    checked={visibleCourses.all}
-		    onCheckedChange={() => onToggleCourse('all')}
-		  />
-		  <label
-		    htmlFor="all"
-		    className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-		  >
-		    All
-		  </label>
-		</> 
-	      )}
-	    </div>
+	  ))}
+	  <div className="flex items-center space-x-1">
+	    {!isLoading && (
+	      <>
+		<Checkbox
+		  id="average"
+		  checked={visibleCourses.average}
+		  onCheckedChange={() => onToggleCourse('average')}
+		/>
+		<label
+		  htmlFor="average"
+		  className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+		>
+		  Average
+		</label>
+	      </> 
+	    )}
 	  </div>
+	  <div className="flex items-center space-x-1">
+	    {!isLoading && (
+	      <>
+		<Checkbox
+		  id="all"
+		  checked={visibleCourses.all}
+		  onCheckedChange={() => onToggleCourse('all')}
+		/>
+		<label
+		  htmlFor="all"
+		  className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+		>
+		  All
+		</label>
+	      </> 
+	    )}
+	  </div>
+	</div>
 	<ChartContainer config={chartConfig} className="mt-4">
 	  <ComposedChart
 	    data={grades}
