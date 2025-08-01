@@ -1,15 +1,17 @@
 import { createClient } from "@/utils/supabase/client";
-import { TermCourse } from "@/types/Types";
 
 const supabase = createClient();
 
-const getTermGrades = async (termCourses: TermCourse[]): Promise<any> => {
+const getTermGrades = async (term: string): Promise<any> => {
   try {
-    const { data, error } = await supabase
+    const { data, error, status } = await supabase
       .from("grades")
       .select(`
 	submitted_at,
 	grade,
+	enrollments (
+	  term
+	),
 	assessments (
 	  weight,
 	  assessment_groups (
@@ -23,22 +25,26 @@ const getTermGrades = async (termCourses: TermCourse[]): Promise<any> => {
     if (error) {
       throw new Error(`Response status ${status}`)
     }
-    return data;
+
+    const filteredData = data.filter((grade) => grade.enrollments.term==term);
+
+    return filteredData;
   } catch (error) {
     console.log("Error:", error);
     return null;
   }
 }
 
-const upsertGrade = async (id: string, value: number) : Promise<any> => {
+const upsertGrade = async (id: string, value: number, enrollmentId: string) : Promise<any> => {
   try {
     const { data, error } = await supabase
       .from("grades")
       .upsert({
 	assessment_id: id,
-	grade: value
+	grade: value,
+	enrollment_id: enrollmentId,
       }, {
-	  onConflict: ['assessment_id', 'profile'],
+	  onConflict: ['assessment_id', 'enrollment_id'],
 	  ignoreDuplicates: false
 	})
       .select(`

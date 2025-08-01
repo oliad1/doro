@@ -25,7 +25,7 @@ export default function CourseAverageCard ({ isLoading, averageChartData }: Cour
 
       <CardContent className="pb-0">
 	{isLoading
-	  ? <Skeleton className="w-4 h-4"/>
+	  ? <></>
 	  : <ChartContainer
 	    config={COURSE_AVERAGE_CHART_CONFIG}
 	  >

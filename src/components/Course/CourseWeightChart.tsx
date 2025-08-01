@@ -19,7 +19,7 @@ export default function CourseWeightCard ({ isLoading, chartConfig, chartData }:
 
       <CardContent>
 	{isLoading 
-	  ? <Skeleton className="size-4"/>
+	  ? <></>
 	  : <ChartContainer 
 	    config={chartConfig!}
 	    className="mx-auto aspect-square max-h-[250px]"

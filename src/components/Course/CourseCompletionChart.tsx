@@ -18,9 +18,7 @@ export default function CourseCompletionChart ({ isLoading, completion }: Course
 
       <CardContent> 
 	{isLoading?
-	  <>
-	    <Skeleton className="size-4"/>
-	  </>
+	  <></>
 	  : <ChartContainer 
 	    config={{completion: { label: "completion" }}}
 	    className="mx-auto aspect-square max-h-[250px]"

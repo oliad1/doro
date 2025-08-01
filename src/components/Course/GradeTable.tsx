@@ -3,20 +3,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Pencil, Check, Eraser } from "lucide-react";
 import { COURSE_TITLE, COURSE_BIO, COURSE_ASSIGNMENTS } from "@/constants/SkeletonConstants";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import GradesAPIClient from "@/APIClients/GradesAPIClient";
+import { getAssessmentName } from "@/utils/helpers";
 
 interface GradeTableProps {
   isLoading: boolean,
   courseMetadata: any[],
   upsertMetadata: (gradeObj: any[], grade: number) => void,
-  deleteMetadata: (gradeObj: any[]) => void
+  deleteMetadata: (gradeObj: any[]) => void,
+  enrollmentId: string,
 };
 
-export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata, deleteMetadata }: GradeTableProps) {
+export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata, deleteMetadata, enrollmentId }: GradeTableProps) {
   const [editingState, setEditingState] = useState<Record<string, boolean>>({});
   const [inputState, setInputState] = useState<Record<string, string>>({});
 
@@ -42,7 +45,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
       id: "upsert",
       richColors: true
     });
-    const newGrade = await GradesAPIClient.upsertGrade(id, Number(value));
+    const newGrade = await GradesAPIClient.upsertGrade(id, Number(value), enrollmentId);
     toast.dismiss("upsert");
     if (newGrade) {
       upsertMetadata(newGrade, Number(value));
@@ -103,7 +106,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
   }
 
   return (
-    <Card className="lg:col-span-2 h-min">
+    <Card className="w-full h-min">
       <CardHeader>
 	<CardTitle>
 	  {isLoading
@@ -147,27 +150,23 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 		assessment_group.assessments.map((assessment: any) => (
 		  <TableRow key={assessment.index}>
 		    <TableCell className="font-medium text-nowrap">
-		      {(assessment_group.count > 1) ?
-			<>
-			  {assessment_group.name?.slice(0, -1)} {assessment.index + 1}
-			</>
-			: <>
-			  {assessment_group.name}
-			</>
-		      }
+		      {getAssessmentName(assessment_group, assessment.index)}
+		      {(assessment_group.optional || assessment_group.type.includes("Bonus")) && (
+			<Badge variant="outline" className="ml-2" >Optional</Badge>
+		      )}
 		    </TableCell>
 
 		    <TableCell>
 		      {(assessment.weight).toPrecision(2)}
 		    </TableCell>
 
-		    <TableCell className="flex w-full max-w-sm items-center gap-2">
+		    <TableCell className="flex w-min max-w-sm justify-center items-center gap-2">
 		      <Input
 			type="number"
 			onChange={(e)=>handleGradeChange(e, assessment.id)}
 			disabled={!(editingState[assessment.id as string]) as boolean}
 			value={inputState[assessment.id] || ''}
-			className="w-full sm:w-24"
+			className="min-w-24"
 			placeholder="Grade"
 		      />
 		      <Button

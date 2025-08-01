@@ -199,3 +199,11 @@ export const getInitials = (name: string) => {
 
   return `${names[0].charAt(0)} ${names[1].charAt(0)}`
 };
+
+export const getAssessmentName = (assessment_group: any, index: number) => {
+  if (assessment_group.count==1) return assessment_group.name;
+  if (assessment_group.name.includes("zes")) { //Quizzes
+    return `${assessment_group.name?.slice(0, -3)} ${index + 1}`
+  }
+  return `${assessment_group.name?.slice(0, -1)} ${index + 1}`
+};

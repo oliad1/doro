@@ -1,8 +1,10 @@
 "use client"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, useSidebar } from "@/components/ui/sidebar";
+import { SidebarTrigger, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, useSidebar, SidebarMenuAction } from "@/components/ui/sidebar";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
-import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Plus, Search, Settings, TrendingUp } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Plus, Search, Settings, TrendingUp, Trash2, RefreshCcw } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { User } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,12 +12,13 @@ import { logoutAction } from "@/actions/users";
 import { Skeleton } from "./ui/skeleton";
 import { navigate } from '@/actions/redirect';
 import { LOGIN_PAGE } from '@/constants/Routes';
-import { TERMS } from "@/constants/SidebarConstants";
+import { STUDY_TERMS, WORK_TERMS } from "@/constants/SidebarConstants";
 import Link from 'next/link';
 import React from "react";
 import { Term } from "@/types/Types";
-import { useCounterStore } from "@/providers/dashboard-store-provider";
+import { useDashboardStore } from "@/providers/dashboard-store-provider";
 import CookiesAPIClient from "@/APIClients/CookiesAPIClient";
+import { usePathname } from "next/navigation";
 
 interface SidebarProps {
   user: User | null | undefined,
@@ -38,7 +41,7 @@ const items = [
 //TODO: Add a removeCourse function allowing the sidebar to delete courses 
 
 export default function DashboardSidebar({ user, loading }: SidebarProps) {
-  const { termCourses, term, setTerm } = useCounterStore(
+  const { termCourses, term, setTerm, fetchTermCourses } = useDashboardStore(
     (state) => state,
   );
   
@@ -46,14 +49,19 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 
   useEffect(() => {
     const fetchTerm = async () => {
-      const term = await CookiesAPIClient.getTerm();
-      setTerm(term as Term);
+      const fetchedTerm = await CookiesAPIClient.getTerm();
+      console.log(termCourses);
+      if (fetchedTerm!=term) {
+	setTerm(fetchedTerm as Term);
+      } else {
+	fetchTermCourses();
+      }
     };
 
     const fetchSidebarOpen = async () => {
       const open = await CookiesAPIClient.getSidebarOpen();
       console.log(open);
-      setOpen(open!); 
+      setOpen(open!);
     }
 
     fetchTerm();
@@ -80,10 +88,10 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 	  throw new Error(`Error: ${error}`);
 	}
 	toast.dismiss("logout");
+	navigate(LOGIN_PAGE);
 	toast.success("Successfully logged out", {
 	  richColors: true
 	});
-	navigate(LOGIN_PAGE);
       } catch (error) {
 	toast.error("Auth Error", {
 	  description: "Unexpected error logging out",
@@ -92,7 +100,8 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
       }
     })
   }
-
+  
+  const pathname = usePathname();
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
@@ -141,7 +150,13 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 		</SidebarMenuButton>
 	      </DropdownMenuTrigger>
 	      <DropdownMenuContent side="bottom" className="w-[--radix--popper-anchor-width]">
-		{TERMS.map((term) => (
+		{STUDY_TERMS.map((term) => (
+		  <DropdownMenuItem key={term} onSelect={()=>storeTerm(term)}>
+		    <span>{term}</span>
+		  </DropdownMenuItem>
+		))}
+		<DropdownMenuSeparator />
+		{WORK_TERMS.map((term) => (
 		  <DropdownMenuItem key={term} onSelect={()=>storeTerm(term)}>
 		    <span>{term}</span>
 		  </DropdownMenuItem>
@@ -150,13 +165,59 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 	      <SidebarGroupContent className="flex flex-col justify-center items-center w-full">
 		{!termCourses || !termCourses?.length 
 		  ? <span>{open && !loading && "Enroll in some courses!"}</span>
-		  : termCourses.map((course) =>
-		    <a key={course.id} href={`/course/${course.id}`} className="w-full">
-		      {<SidebarMenuButton className="px-5">
-			<span>{course.code}</span>
-		      </SidebarMenuButton>}
-		    </a>
-		  )}
+		  : termCourses.map((course) => {
+		    const currentPage = pathname.includes(course.id);
+		    return (
+		      <AlertDialog key={course.id}>
+			<SidebarMenuItem
+			  className="w-full"
+			>
+			  <Link
+			    key={course.id}
+			    href={`/course/${course.id}`}
+			    aria-disabled={currentPage}
+			    className={"w-full disabled"}
+			  >
+			    <SidebarMenuButton 
+			      className={"px-5 "+(currentPage?"bg-sidebar-accent":"")}>
+			      <span>{course.code}</span>
+			    </SidebarMenuButton>
+			  </Link>
+			  <DropdownMenu>
+			    <DropdownMenuTrigger asChild>
+			      <SidebarMenuAction> 
+				<MoreHorizontal />
+			      </SidebarMenuAction>
+			    </DropdownMenuTrigger>
+			    <DropdownMenuContent side="right" align="start">
+			      <DropdownMenuItem>
+				<RefreshCcw/>
+				<span>Remix Course</span>
+			      </DropdownMenuItem>
+			      <AlertDialogTrigger asChild>
+				<DropdownMenuItem>
+				  <Trash2 />
+				  <span>Drop Course</span>
+				</DropdownMenuItem>
+			      </AlertDialogTrigger>
+			    </DropdownMenuContent>
+			  </DropdownMenu>
+			</SidebarMenuItem>
+			<AlertDialogContent>
+			  <AlertDialogHeader>
+			    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+			    <AlertDialogDescription>
+			      This action cannot be undone. This will permanently delete the grades related to this course.
+			    </AlertDialogDescription>
+			  </AlertDialogHeader>
+			  <AlertDialogFooter>
+			    <AlertDialogCancel>Cancel</AlertDialogCancel>
+			    <AlertDialogAction>Continue</AlertDialogAction>
+			  </AlertDialogFooter>
+			</AlertDialogContent>
+		      </AlertDialog>
+		    )
+		  })}
 	      </SidebarGroupContent>
 	    </DropdownMenu>
 	  </SidebarMenu>
