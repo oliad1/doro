@@ -5,23 +5,16 @@ const supabase = createClient();
 
 const getCourses = async (term: Term) => {
   try {
-    const { data: auth } = await supabase.auth.getUser();
-    const authId = auth?.user?.id;
-    
-    if (!authId) {
-      throw new Error(`User is not authenticated`);
-    };
-
     const { data, error, status } = await supabase
       .from("enrollments")
       .select(`
-	*,
+	id,
+	profile,
 	outlines (
 	  code
 	)
       `)
-      .eq("term", term)
-      .eq("profile", authId);
+      .eq("term", term);
 
     if (error) {
       throw new Error(`Response status ${status}`)
@@ -31,9 +24,9 @@ const getCourses = async (term: Term) => {
       throw new Error(`Response status ${status}`)
     }
 
-    const transformedData = data.map((course) => ({
-      id: course.course_id,
-      code: course.outlines.code
+    const transformedData = data.map((enrollment) => ({
+      id: enrollment.id,
+      code: enrollment.outlines.code
     }));
 
     return transformedData;
@@ -43,16 +36,56 @@ const getCourses = async (term: Term) => {
   }
 }
 
+const getEnrollment = async (enrollment_id: string) => {
+  try {
+    const { data, error, status } = await supabase
+      .from("enrollments")
+      .select(`
+	outlines (
+	  code,
+	  name,
+	  description,
+	  personnels (
+	    *
+	  ),
+	  assessment_groups ( 
+	    *,
+	    assessments (
+	      *,
+	      grades (
+		grade,
+		submitted_at,
+		assessment_id
+	      )
+	    )
+	  )
+	)
+      `)
+      .eq("id", enrollment_id)
+      .single();
+
+    if (error) {
+      throw new Error(`Response status ${status}`)
+    }
+
+    if (!data) {
+      throw new Error(`Response status ${status}`)
+    }
+
+    return data.outlines;
+  } catch (error) {
+    console.log("Error:", error);
+    return null;
+  }
+  
+};
+
 const addCourse = async (course: TermCourse, term: Term) => {
   try {
-    const { data: auth } = await supabase.auth.getUser();
-    const authId = auth?.user?.id;
-
-    if (authId && course && term) {
+    if (course && term) {
       const payload = {
 	"term": term,
 	"course_id": course.id,
-	"profile": authId
       };
       
       const { data, error, status } = await supabase
@@ -74,16 +107,12 @@ const addCourse = async (course: TermCourse, term: Term) => {
 
 const dropCourse = async (course: TermCourse, term: Term) => {
   try {
-    const { data: auth } = await supabase.auth.getUser();
-    const authId = auth?.user?.id;
-
-    if (authId && course && term) {
+    if (course && term) {
       const { data, error, status } = await supabase
 	.from("enrollments")
 	.delete()
 	.eq("term", term)
 	.eq("course_id", course.id)
-	.eq("profile", authId)
 	.single();
 
       if (error) {
@@ -100,6 +129,7 @@ const dropCourse = async (course: TermCourse, term: Term) => {
 
 export default {
   getCourses,
+  getEnrollment,
   addCourse,
   dropCourse,
 };
