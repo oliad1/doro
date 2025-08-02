@@ -4,10 +4,12 @@ import { ChevronDown, FilterX, Pin, PinOff, Plus, Search, Minus } from 'lucide-r
 import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SEARCH_RESULTS } from "@/constants/SkeletonConstants";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { DEPARTMENTS, FACULTIES, SearchParams } from '@/constants/SearchConstants';
+import { DELETE_COURSE_HEADER } from "@/constants/DialogConstants";
 import { useRouter } from 'next/navigation';
 import { getSearchParams } from "@/utils/helpers";
 import { CourseDTO } from "@/types/Types";
@@ -191,84 +193,65 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 	</div>
 
 	<div ref={resultsRef} className="max-h-[80vh]">
-	  {isLoading ? (
-	    Array.from({ length: 11 }, (_, index) => (
-	    <Accordion key={index} type="single" collapsible className="w-full">
-	      <AccordionItem value={""} className="border rounded-md mb-3 overflow-hidden">
-		{/*<div key={index} className="flex items-center space-x-4 rounded-md border p-4 mb-3">*/}
-		<div className="flex items-center space-x-4 p-4">
-		  <div className="flex-1 space-y-1">
-		    <Skeleton className="w-[72px]">
-		      <p  className="text-sm font-medium leading-none opacity-0">
-			Placeholder
-		      </p>
-		    </Skeleton>
-		    <Skeleton className="w-[336px]">
-		      <p className="text-sm text-muted-foreground opacity-0">
-			Placeholder
-		      </p>
-		    </Skeleton>
-		  </div>
-		  <div className="flex items-center space-x-2">
-		    <AccordionTrigger className="p-0 h-8 w-8" />
-		    <Button variant="ghost" className="p-0 h-8 w-8">
-		      <Plus className="h-4 w-4" />
-		    </Button>
-		      {/*
-		    <Button className="p-0 h-8 w-8" variant="ghost">
-		      <span className="pin-icon transition-transform duration-300">
-			<Pin className="h-4 w-4" />
-		      </span>
-		    </Button>
-		      */}
-		  </div>
-		</div>
-		</ AccordionItem>
-	      </Accordion>
-	    ))
-	  ) : (
-	      <Accordion type="single" collapsible className="w-full">
-		{
-		  (!results) ?
-		    <p className="leading-7 [&:not(:first-child)]:mt-6">No results.</p>
-		    : results.map((result) => { 
-		      const courseEnrolled = termCourses.some((course) => course.id === result.id);
-		      return (
-			<AccordionItem key={result.id} value={result.id} className="border rounded-md mb-3 overflow-hidden">
-			  <div data-course={result.id} className="flex items-center space-x-4 p-4">
-			    <div className="flex-1 space-y-1">
-			      <p className="text-sm font-medium leading-none">
-				{result.code}
-			      </p>
-			      <p className="text-sm text-muted-foreground">
-				{result.name}
-			      </p>
-			    </div>
-			    <div className="flex items-center space-x-2">
-			      <AccordionTrigger className="p-0 h-8 w-8" onClick={(e) => e.stopPropagation()}>
-			      </AccordionTrigger>
-			      <Button 
+	  {isLoading 
+	    ? <SEARCH_RESULTS />
+	    : <Accordion type="single" collapsible className="w-full">
+		{!results 
+		  ? <p className="leading-7 [&:not(:first-child)]:mt-6">No results.</p>
+		  : results.map((result) => {
+		    const courseEnrolled = termCourses.some((course) => course.code == result.code);
+		    return (
+		      <AlertDialog key={result.id}>
+		      <AccordionItem value={result.id} className="border rounded-md mb-3 overflow-hidden">
+			<div data-course={result.id} className="flex items-center space-x-4 p-4">
+			  <div className="flex-1 space-y-1">
+			    <p className="text-sm font-medium leading-none">
+			      {result.code}
+			    </p>
+			    <p className="text-sm text-muted-foreground">
+			      {result.name}
+			    </p>
+			  </div>
+			  <div className="flex items-center space-x-2">
+			    <AccordionTrigger className="p-0 size-8" onClick={(e) => e.stopPropagation()} />
+			    {courseEnrolled
+			      ? <AlertDialogTrigger asChild>
+				<Button
+				  variant="ghost"
+				  className="p-0 size-8"
+				>
+				  <Minus className="size-4" />
+				</Button>
+			      </AlertDialogTrigger>
+			      : <Button 
 				variant="ghost"
-				className="p-0 h-8 w-8"
-				onClick={()=>{
-				  if (courseEnrolled) {
-				    deleteTermCourse({id: result.id, code: result.code});
-				    toast.info(`Removed ${result.code} from ${term}`, {
-				      richColors: true
-				    });
-				    return;
-				  }
-				  addTermCourse({id: result.id, code: result.code});
+				className="p-0 size-8"
+				onClick={async () => {
+				  await addTermCourse({id: result.id, code: result.code});
 				  toast.success(`Added ${result.code} to ${term}`, {
 				    richColors: true
 				  });
 				}}
 			      >
-				{courseEnrolled
-				    ? <Minus className="h-4 w-4" />
-				    : <Plus className="h-4 w-4" /> }
-			      </Button>
-			      {/*
+				<Plus className="size-4" />
+			      </Button>}
+			    <AlertDialogContent>
+			      < DELETE_COURSE_HEADER />
+			      <AlertDialogFooter>
+				<AlertDialogCancel>Cancel</AlertDialogCancel>
+				<AlertDialogAction
+				  onClick={async () => {
+				    await deleteTermCourse({id: result.id, code: result.code});
+				    toast.info(`Removed ${result.code} from ${term}`, {
+				      richColors: true
+				    });
+				  }}
+				>
+				  Continue
+				</AlertDialogAction>
+			      </AlertDialogFooter>
+			    </AlertDialogContent>
+			    {/*
 			      <Button
 				className="p-0 h-8 w-8"
 				variant="ghost"
@@ -282,20 +265,20 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 				</span>
 			      </Button>
 			      */}
-			    </div>
 			  </div>
-			  <AccordionContent>
-			    <div className="px-4 pb-0">
-			      <p className="text-sm text-muted-foreground">{result.description}</p>
-			    </div>
-			  </AccordionContent>
-			</AccordionItem>
-		      )}
-		    )}
-	      </Accordion>
-	    )}
+			</div>
+			<AccordionContent>
+			  <div className="px-4 pb-0">
+			    <p className="text-sm text-muted-foreground">{result.description}</p>
+			  </div>
+			</AccordionContent>
+		      </AccordionItem>
+		    </AlertDialog>
+		  )}
+		)}
+	    </Accordion>}
 
-	    <PaginationContent className="w-full flex flex-row justify-center items-center py-5 h-min">
+	  <PaginationContent className="w-full flex flex-row justify-center items-center py-5 h-min">
 	    {page > 1 && (
 	      <>
 		<PaginationItem>
@@ -304,7 +287,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 		    onClick={()=>{
 		      setLoading(true);
 		      setPage(page-1)
-		      }
+		    }
 		    }
 		  />
 		</PaginationItem>
@@ -314,7 +297,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 		    onClick={()=>{
 		      setLoading(true);
 		      setPage(1)
-		      }
+		    }
 		    }
 		  >
 		    1
@@ -326,17 +309,17 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 		    <PaginationEllipsis />
 		  </PaginationItem>
 		)}
-		</>
-	      )}
+	      </>
+	    )}
 
-	      <PaginationItem>
-		<PaginationLink 
-		  style={{ userSelect: "none" }}
-		  isActive
-		>
-		  {page}
-		</PaginationLink>
-	      </PaginationItem>
+	    <PaginationItem>
+	      <PaginationLink 
+		style={{ userSelect: "none" }}
+		isActive
+	      >
+		{page}
+	      </PaginationLink>
+	    </PaginationItem>
 
 	    {(courses?.length > 10) && (//YOU CAN CHANGE THIS LATER <- REFERS TO MAX COURSES RETURNED
 	      <>
@@ -349,13 +332,13 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 		    onClick={()=>{
 		      setLoading(true);
 		      setPage(page+1);
-		      }
+		    }
 		    }
 		  />
 		</PaginationItem>
 	      </>
 	    )}
-	    </PaginationContent>
+	  </PaginationContent>
 	</div>
       </div>
     </Pagination>

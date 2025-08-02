@@ -1,8 +1,9 @@
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { Eraser, Pencil } from "lucide-react";
+import { Eraser, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Accordion, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion";
 
 
 export const COURSE_TITLE = `
@@ -70,5 +71,36 @@ export const COURSE_ASSIGNMENTS = () => {
 	</TableRow>
       )}
     </TableBody>
+  )
+};
+
+export const SEARCH_RESULTS = () => {
+  return (
+    Array.from({ length: 11 }, (_, index) => (
+      <Accordion key={index} type="single" collapsible className="w-full">
+	<AccordionItem value={""} className="border rounded-md mb-3 overflow-hidden">
+	  <div className="flex items-center space-x-4 p-4">
+	    <div className="flex-1 space-y-1">
+	      <Skeleton className="w-[72px]">
+		<p className="text-sm font-medium leading-none opacity-0">
+		  Placeholder
+		</p>
+	      </Skeleton>
+	      <Skeleton className="w-[336px]">
+		<p className="text-sm text-muted-foreground opacity-0">
+		  Placeholder
+		</p>
+	      </Skeleton>
+	    </div>
+	    <div className="flex items-center space-x-2">
+	      <AccordionTrigger className="p-0 h-8 w-8" />
+	      <Button variant="ghost" className="p-0 h-8 w-8">
+		<Plus className="h-4 w-4" />
+	      </Button>
+	    </div>
+	  </div>
+	</ AccordionItem>
+      </Accordion>
+    ))
   )
 };

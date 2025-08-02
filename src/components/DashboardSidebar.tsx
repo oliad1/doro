@@ -13,12 +13,13 @@ import { Skeleton } from "./ui/skeleton";
 import { navigate } from '@/actions/redirect';
 import { LOGIN_PAGE } from '@/constants/Routes';
 import { STUDY_TERMS, WORK_TERMS } from "@/constants/SidebarConstants";
+import { DELETE_COURSE_HEADER } from "@/constants/DialogConstants";
 import Link from 'next/link';
 import React from "react";
 import { Term } from "@/types/Types";
 import { useDashboardStore } from "@/providers/dashboard-store-provider";
 import CookiesAPIClient from "@/APIClients/CookiesAPIClient";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface SidebarProps {
   user: User | null | undefined,
@@ -33,7 +34,7 @@ const items = [
   },
   {
     title: "Search",
-    url: "search?page=1",
+    url: "search?page=1&search=",
     icon: Search
   },
 ]
@@ -41,7 +42,9 @@ const items = [
 //TODO: Add a removeCourse function allowing the sidebar to delete courses 
 
 export default function DashboardSidebar({ user, loading }: SidebarProps) {
-  const { termCourses, term, setTerm, fetchTermCourses } = useDashboardStore(
+  const router = useRouter();
+
+  const { termCourses, term, setTerm, fetchTermCourses, deleteTermCourse } = useDashboardStore(
     (state) => state,
   );
   
@@ -117,18 +120,24 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
       <SidebarContent>
 	<SidebarGroup>
 	  <SidebarMenu>
-	    {items.map((item) => (
-	      <SidebarMenuItem key={item.title}>
-		<Link id={item.url} href={`${process.env.NEXT_PUBLIC_SITE_URL}/${item.url}`} passHref>
-		  <SidebarMenuButton asChild>
-		    <div>
-		      < item.icon />
-		      <span>{item.title}</span>
-		    </div>
-		  </SidebarMenuButton>
-		</Link>
-	      </SidebarMenuItem>
-	    ))}
+	    {items.map((item) => {
+	      const currentPage = ('/'+item.url).includes(pathname);
+	      return (
+		<SidebarMenuItem key={item.title}>
+		  <Link id={item.url} href={`${process.env.NEXT_PUBLIC_SITE_URL}/${item.url}`} passHref>
+		    <SidebarMenuButton
+		      className={currentPage?"bg-sidebar-accent":""}
+		      asChild
+		    >
+		      <div>
+			< item.icon />
+			<span>{item.title}</span>
+		      </div>
+		    </SidebarMenuButton>
+		  </Link>
+		</SidebarMenuItem>
+	      )
+	    })}
 	  </SidebarMenu>
 	</SidebarGroup>
 
@@ -165,7 +174,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 	      <SidebarGroupContent className="flex flex-col justify-center items-center w-full">
 		{!termCourses || !termCourses?.length 
 		  ? <span>{open && !loading && "Enroll in some courses!"}</span>
-		  : termCourses.map((course) => {
+		  : termCourses.map((course, i) => {
 		    const currentPage = pathname.includes(course.id);
 		    return (
 		      <AlertDialog key={course.id}>
@@ -204,15 +213,21 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 			  </DropdownMenu>
 			</SidebarMenuItem>
 			<AlertDialogContent>
-			  <AlertDialogHeader>
-			    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-			    <AlertDialogDescription>
-			      This action cannot be undone. This will permanently delete the grades related to this course.
-			    </AlertDialogDescription>
-			  </AlertDialogHeader>
+			  < DELETE_COURSE_HEADER />
 			  <AlertDialogFooter>
 			    <AlertDialogCancel>Cancel</AlertDialogCancel>
-			    <AlertDialogAction>Continue</AlertDialogAction>
+			    <AlertDialogAction
+			      onClick={()=>{
+				if (pathname.includes(course.id)) {
+				  router.push(
+				    (termCourses.length > 1)?`/course/${termCourses[i-1].id}`:`/home`
+				  );
+				}
+				deleteTermCourse(course);
+			      }}
+			    >
+			      Continue
+			    </AlertDialogAction>
 			  </AlertDialogFooter>
 			</AlertDialogContent>
 		      </AlertDialog>
