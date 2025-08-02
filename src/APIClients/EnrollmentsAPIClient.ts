@@ -41,10 +41,23 @@ const getEnrollment = async (enrollment_id: string) => {
     const { data, error, status } = await supabase
       .from("enrollments")
       .select(`
+	grades (
+	  grade,
+	  submitted_at,
+	  assessment_id
+	),
 	outlines (
 	  code,
 	  name,
 	  description,
+	  conditions (
+	    scheme,
+	    group_id:group_id (
+	      name
+	    ),
+	    lower,
+	    upper
+	  ),
 	  personnels (
 	    *
 	  ),
@@ -82,23 +95,22 @@ const getEnrollment = async (enrollment_id: string) => {
 
 const addCourse = async (course: TermCourse, term: Term) => {
   try {
-    if (course && term) {
-      const payload = {
-	"term": term,
-	"course_id": course.id,
-      };
-      
-      const { data, error, status } = await supabase
-	.from("enrollments")
-	.upsert(payload)
-	.select();
+    const payload = {
+      "term": term,
+      "course_id": course.id,
+    };
 
-      if (error) {
-	throw new Error(`Response status ${status}`)
-      }
-      return Array.isArray(data) ? data[0] : data;
+    const { data, error, status } = await supabase
+      .from("enrollments")
+      .upsert(payload)
+      .select(`
+	id
+      `);
+
+    if (error) {
+      throw new Error(`Response status ${status}`)
     }
-    return null;
+    return Array.isArray(data) ? data[0] : data;
   } catch (error) {
     console.log("Error:", error);
     return null;
@@ -107,20 +119,36 @@ const addCourse = async (course: TermCourse, term: Term) => {
 
 const dropCourse = async (course: TermCourse, term: Term) => {
   try {
-    if (course && term) {
-      const { data, error, status } = await supabase
-	.from("enrollments")
-	.delete()
-	.eq("term", term)
-	.eq("course_id", course.id)
-	.single();
+    const { data, error, status } = await supabase
+      .from("enrollments")
+      .delete()
+      .eq("term", term)
+      .eq("course_id", course.id)
+      .select()
+      .single();
 
-      if (error) {
-	throw new Error(`Response status ${status}`)
-      }
-      return Array.isArray(data) ? data[0] : data;
+    if (error) {
+      throw new Error(`Response status ${status}`)
     }
+    return Array.isArray(data) ? data[0] : data;
+  } catch (error) {
+    console.log("Error:", error);
     return null;
+  }
+}
+
+const dropEnrollment = async (enrollmentId: string) => {
+  try {
+    const { data, error, status } = await supabase
+      .from("enrollments")
+      .delete()
+      .eq("id", enrollmentId)
+      .single();
+
+    if (error) {
+      throw new Error(`Response status ${status}`)
+    }
+    return Array.isArray(data) ? data[0] : data;
   } catch (error) {
     console.log("Error:", error);
     return null;
@@ -132,4 +160,5 @@ export default {
   getEnrollment,
   addCourse,
   dropCourse,
+  dropEnrollment,
 };

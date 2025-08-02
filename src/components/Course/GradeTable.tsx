@@ -1,11 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Check, Eraser } from "lucide-react";
+import { Pencil, Check, Eraser, Info, Eye, EyeOff } from "lucide-react";
 import { COURSE_TITLE, COURSE_BIO, COURSE_ASSIGNMENTS } from "@/constants/SkeletonConstants";
+import CourseInfoDialog from "@/components/Course/CourseInfoDialog";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import GradesAPIClient from "@/APIClients/GradesAPIClient";
@@ -13,7 +15,7 @@ import { getAssessmentName } from "@/utils/helpers";
 
 interface GradeTableProps {
   isLoading: boolean,
-  courseMetadata: any[],
+  courseMetadata: any,
   upsertMetadata: (gradeObj: any[], grade: number) => void,
   deleteMetadata: (gradeObj: any[]) => void,
   enrollmentId: string,
@@ -132,6 +134,20 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 	    </p>
 	  }
 	</CardDescription>
+	<CardAction>
+	  <Dialog>
+	    <DialogTrigger asChild>
+		<Button variant="ghost" className="p-0 aspect-square">
+		  <Info/>
+	      </Button>
+	    </DialogTrigger>
+	    {!isLoading && (
+	      <CourseInfoDialog
+		conditions={courseMetadata.conditions}
+	      />
+	    )}
+	  </Dialog>
+	</CardAction>
       </CardHeader>
 
       <CardContent>

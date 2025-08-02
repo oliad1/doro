@@ -4,7 +4,7 @@ import { SidebarTrigger, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, S
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
-import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Plus, Search, Settings, TrendingUp, Trash2, RefreshCcw } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Search, Settings, TrendingUp, Trash2, RefreshCcw, Cpu } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { User } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
