@@ -10,7 +10,7 @@ export default function CourseInfoDialog ({conditions}: CourseInfoDialogProps) {
     <DialogContent>
       <DialogHeader>
 	<DialogTitle>Course Info</DialogTitle>
-	<DialogDescription>
+	<DialogDescription asChild>
 	  <Table>
 	    <TableHeader>
 	      <TableRow className="text-nowrap">

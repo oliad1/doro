@@ -17,7 +17,7 @@ export default function CourseAverageCard ({ isLoading, averageChartData }: Cour
   const positiveDelta = averageDelta > 0;
   
   return (
-    <Card className="lg:col-span-2 col-span-1 h-min">
+    <Card className="lg:col-span-2 col-span-1 h-min pb-3">
       <CardHeader>
 	<CardTitle>Course Average</CardTitle>
 	<CardDescription>Track your progress with your latest moving average.</CardDescription>
@@ -71,7 +71,7 @@ export default function CourseAverageCard ({ isLoading, averageChartData }: Cour
 	  </ChartContainer>
 	}
       </CardContent>
-      <CardFooter className="flex items-start flex-col gap-2 text-sm pb-3">
+      <CardFooter className="flex items-start flex-col gap-2 text-sm pb-0">
 	<div className="flex gap-2 font-medium leading-none">
 	  Your average has {" "}
 	  {positiveDelta ? "increased" : "decreased" } {" "}

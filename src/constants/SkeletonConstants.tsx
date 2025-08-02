@@ -46,11 +46,11 @@ export const COURSE_ASSIGNMENTS = () => {
 	    </Skeleton>
 	  </TableCell>
 
-	  <TableCell className="flex w-full max-w-sm items-center gap-2">
+	  <TableCell className="flex w-min max-w-sm justify-center items-center gap-2">
 	    <Input
 	      type="number"
 	      disabled={true}
-	      className="w-full sm:w-24"
+	      className="min-w-24"
 	      value={'...'}
 	    />
 	    <Button

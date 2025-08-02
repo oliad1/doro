@@ -15,10 +15,10 @@ export default function CoursePersonnelCard ({ data }: CoursePersonnelCardProps)
 	<CardTitle>Course Personnel</CardTitle>
 	<CardDescription>All important personnel related to this course.</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col space-y-4 lg:space-x-4 lg:flex-row lg:space-y-0 lg:items-center">
+      <CardContent className="flex flex-col space-y-1 lg:grid lg:grid-cols-2 lg:gap-x-2 lg:gap-y-3 h-min">
 	{data.map((person) => {
 	  const isProf = person.role==="Professor";
-	  return <div key={person.id} className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+	  return <div key={person.id} className="flex items-center gap-2 px-1 text-left text-sm">
 	    <Avatar className="size-8 rounded-lg">
 	      <AvatarImage
 		draggable={false}
