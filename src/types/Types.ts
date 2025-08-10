@@ -56,3 +56,5 @@ export type CourseAverageData = {
   average: number;
   date: string;
 }
+
+export type CourseType = "general" | "formula";

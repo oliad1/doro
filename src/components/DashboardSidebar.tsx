@@ -1,25 +1,26 @@
 "use client"
+import { useEffect, useTransition } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from 'next/link';
+import React from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, useSidebar, SidebarMenuAction } from "@/components/ui/sidebar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Search, Settings, TrendingUp, Trash2, RefreshCcw, Globe, SquarePlus } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
-import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Search, Settings, TrendingUp, Trash2, RefreshCcw, Cpu } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
 import { User } from "@supabase/supabase-js";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { logoutAction } from "@/actions/users";
-import { Skeleton } from "./ui/skeleton";
 import { navigate } from '@/actions/redirect';
 import { LOGIN_PAGE } from '@/constants/Routes';
 import { STUDY_TERMS, WORK_TERMS } from "@/constants/SidebarConstants";
 import { DELETE_COURSE_HEADER } from "@/constants/DialogConstants";
-import Link from 'next/link';
-import React from "react";
 import { Term } from "@/types/Types";
 import { useDashboardStore } from "@/providers/dashboard-store-provider";
 import CookiesAPIClient from "@/APIClients/CookiesAPIClient";
-import { useRouter, usePathname } from "next/navigation";
 
 interface SidebarProps {
   user: User | null | undefined,
@@ -30,16 +31,28 @@ const items = [
   {
     title: "Home",
     url: "home",
-    icon: Home
+    icon: Home,
+    beta: false,
   },
   {
     title: "Search",
     url: "search?page=1&search=",
-    icon: Search
+    icon: Search,
+    beta: false,
   },
+  {
+    title: "Community",
+    url: "community",
+    icon: Globe,
+    beta: true,
+  },
+  {
+    title: "Create",
+    url: "create",
+    icon: SquarePlus,
+    beta: true,
+  }
 ]
-
-//TODO: Add a removeCourse function allowing the sidebar to delete courses 
 
 export default function DashboardSidebar({ user, loading }: SidebarProps) {
   const router = useRouter();
@@ -132,6 +145,9 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 		      <div>
 			< item.icon />
 			<span>{item.title}</span>
+			{(item.beta) && (
+			  <Badge variant="secondary" className="bg-[var(--primary)]/30 py-0 rounded-md">beta</Badge>
+			)}
 		      </div>
 		    </SidebarMenuButton>
 		  </Link>
@@ -204,7 +220,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 				<span>Remix Course</span>
 			      </DropdownMenuItem>
 			      <AlertDialogTrigger asChild>
-				<DropdownMenuItem>
+				<DropdownMenuItem variant="destructive">
 				  <Trash2 />
 				  <span>Drop Course</span>
 				</DropdownMenuItem>
@@ -250,19 +266,20 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 		>
 		  {!isPending ?
 		    <>
-		      {loading ?
-			<Skeleton className="h-8 w-8 rounded-lg" />
-			: <Avatar className="h-8 w-8 rounded-lg">
-			  <AvatarImage src={user?.user_metadata?.avatar_url} />
-			  <AvatarFallback className="rounded-lg"></AvatarFallback>
-			</Avatar>
-		      }
+		      <Avatar className="h-8 w-8 rounded-lg">
+			<AvatarImage src={user?.user_metadata?.avatar_url} />
+			<AvatarFallback className="rounded-lg"></AvatarFallback>
+		      </Avatar>
 		      <div className="grid flex-1 text-left text-sm leading-tight">
 			{loading ?
 			  <>
-			    <Skeleton className="h-3 w-[90px]" />
-			    <div className="h-2"></div>
-			    <Skeleton className="h-2 w-[120px]" />
+			    {open && (
+			      <>
+				<Skeleton className="h-3 w-[90px]" />
+				<div className="h-2"></div>
+				<Skeleton className="h-2 w-[120px]" />
+			      </>
+			    )}
 			  </>
 			  :
 			  <>
@@ -271,7 +288,9 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 			  </>
 			}
 		      </div>
-		      <ChevronsUpDown className="ml-auto size-4" />
+		      {open && (
+			<ChevronsUpDown className="size-4" />
+		      )}
 		    </>
 		    : <div className="flex items-center w-full justify-center">
 		      <Loader2 className="animate-spin" />

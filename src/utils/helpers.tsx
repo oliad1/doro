@@ -1,6 +1,14 @@
 import { SearchParams } from "@/constants/SearchConstants";
 import { MIN_GPA_THRESHOLD } from "@/constants/CourseConstants";
 import { GradeDTO, CourseAverageData } from "@/types/Types";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
 export const capitalize = (str: string) => {
   return str.charAt(0).toUpperCase() + str.substring(1);
@@ -234,4 +242,74 @@ export const getAdjustedWeights = (data: any) => {
   });
 
   return data;
+};
+
+export const getZodUnderMessage = (name: string, value: number) => {
+  return `${capitalize(name)} must be at least ${value}`;
+}
+
+export const getZodOverMessage = (name: string, value: number) => {
+  return `${capitalize(name)} can't be over ${value}`;
+};
+
+export const renderFormField = (field: any, type: string, dropdownValues?: any[]) => {
+  switch (type) {
+    case "text":
+      return <Input {...field} />
+    case "number":
+      return <Input type="number" {...field} />
+    case "date":
+      return (
+	<Popover>
+	  <PopoverTrigger asChild>
+	    <Button
+	      variant="outline"
+	      id="date-picker"
+	      className="justify-between font-normal"
+	    >
+	      { field.value ? format(field.value as Date, "PP") : "Select Date" }
+	      <CalendarIcon />
+	    </Button>
+	  </PopoverTrigger>
+	  <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+	    <Calendar
+	      mode="single"
+	      captionLayout="dropdown"
+	      selected={field.value as Date}
+	      onSelect={(value) => field.onChange(value)}
+	    />
+	  </PopoverContent>
+	</Popover>
+      );
+    case "boolean":
+      return <Checkbox onCheckedChange={field.onChange} />
+    case "dropdown":
+      return (
+	<DropdownMenu>
+	  <DropdownMenuTrigger asChild>
+	    <Button variant="outline">{field.value ? field.value : "Select"}</Button>
+	  </DropdownMenuTrigger>
+	  {(dropdownValues) && (
+	    <DropdownMenuContent className="w-full">
+	      <DropdownMenuRadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
+		{(dropdownValues ?? []).map((dropdown) => (
+		  <DropdownMenuRadioItem key={dropdown.id} value={renderDropdown(dropdown)}>{renderDropdown(dropdown)}</DropdownMenuRadioItem>
+		))}
+	      </DropdownMenuRadioGroup>
+	    </DropdownMenuContent>
+	  )}
+	</DropdownMenu>
+      );
+    default:
+      return null;
+  }
+};
+
+const renderDropdown = (dropdown: any) => {
+  if (dropdown.name) return dropdown.name;
+  if (dropdown.symbol) return dropdown.symbol;
+  if (dropdown.formula) return dropdown.formula;
+  if (dropdown.role) return dropdown.role;
+  if (dropdown.schemeNum) return dropdown.schemeNum;
+  if (dropdown.id) return dropdown.id;
 };

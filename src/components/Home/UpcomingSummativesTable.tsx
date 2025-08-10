@@ -155,17 +155,6 @@ export function UpcomingSummativesTable({ summatives = [], isLoading }: TablePro
            timeRegex.test(summative.time.trim())
   }
 
-  if (isLoading) {
-    return (
-      <Card className="flex flex-col h-full">
-        <CardHeader className="flex-shrink-0">
-          <CardTitle>Upcoming Deliverables</CardTitle>
-          <CardDescription>Loading...</CardDescription>
-        </CardHeader>
-      </Card>
-    )
-  }
-
   return (
     <Card className="lg:col-span-4">
       <CardHeader className="flex-shrink-0">
