@@ -32,7 +32,8 @@ export async function GET(request: NextRequest){
       .select("id, code, name, description")
       .like("code", `%${search ?? ''}%`)
       .like('code', `%${dept ?? ''}%`)
-      .range(start, (start + 10));
+      .range(start, (start + 10))
+      .is("author", null);
 
     if (searchParams.has('fac')){
       const facFilters = DEPARTMENTS[facultyIndex].map((code) => `code.ilike.${code}%`).join(',');

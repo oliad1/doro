@@ -39,7 +39,33 @@ const getCourse = async (course_id: string) : Promise<any> => {
     console.log("Error:", error);
     return null;
   }
-}
+};
+
+const getCommunityCourses = async () => {
+  try {
+    const { data, error, status } = await supabase
+      .from("outlines")
+      .select(`
+	id,
+	code,
+	name,
+	description,
+	enrollments,
+	author
+      `)
+      .not("author", "is", null);
+
+    if (error) {
+      throw new Error(`Response status ${status}. Error: ${JSON.stringify(error)}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.log("Error:", error);
+    return null;
+  }
+};
+
 
 const createCourse = async (course_data: CreateCourseState) => {
   try {
@@ -70,4 +96,5 @@ const createCourse = async (course_data: CreateCourseState) => {
 export default {
   getCourse,
   createCourse,
+  getCommunityCourses,
 }

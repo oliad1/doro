@@ -174,7 +174,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 		  </div>
 		</SidebarMenuButton>
 	      </DropdownMenuTrigger>
-	      <DropdownMenuContent side="bottom" className="w-[--radix--popper-anchor-width]">
+	      <DropdownMenuContent side="bottom" className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg">
 		{STUDY_TERMS.map((term) => (
 		  <DropdownMenuItem key={term} onSelect={()=>storeTerm(term)}>
 		    <span>{term}</span>
@@ -235,8 +235,9 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 			    <AlertDialogAction
 			      onClick={()=>{
 				if (pathname.includes(course.id)) {
+				  const nextId = i==0 ? i + 1 : i - 1;
 				  router.push(
-				    (termCourses.length > 1)?`/course/${termCourses[i-1].id}`:`/home`
+				    (termCourses.length > 1)?`/course/${termCourses[nextId].id}`:`/home`
 				  );
 				}
 				deleteTermCourse(course);

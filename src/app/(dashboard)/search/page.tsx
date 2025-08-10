@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SEARCH_RESULTS } from "@/constants/SkeletonConstants";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Pagination } from "@/components/ui/pagination";
+import PaginationFooter from "@/components/Pagination/Pagination";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { DEPARTMENTS, FACULTIES, SearchParams } from '@/constants/SearchConstants';
 import { DELETE_COURSE_HEADER } from "@/constants/DialogConstants";
@@ -62,6 +63,11 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
       setPage(1);
     }
   }
+
+  const handlePageChange = (value: number) => {
+    setLoading(true);
+    setPage(value);
+  };
 
   const clearFilters = () => {
     setFaculty("Faculty");
@@ -277,68 +283,14 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 		  )}
 		)}
 	    </Accordion>}
-
-	  <PaginationContent className="w-full flex flex-row justify-center items-center py-5 h-min">
-	    {page > 1 && (
-	      <>
-		<PaginationItem>
-		  <PaginationPrevious 
-		    style={{ userSelect: "none" }}
-		    onClick={()=>{
-		      setLoading(true);
-		      setPage(page-1)
-		    }
-		    }
-		  />
-		</PaginationItem>
-		<PaginationItem>
-		  <PaginationLink 
-		    style={{ userSelect: "none" }}
-		    onClick={()=>{
-		      setLoading(true);
-		      setPage(1)
-		    }
-		    }
-		  >
-		    1
-		  </PaginationLink>
-		</PaginationItem>
-
-		{(page > 2) && ( 
-		  <PaginationItem>
-		    <PaginationEllipsis />
-		  </PaginationItem>
-		)}
-	      </>
-	    )}
-
-	    <PaginationItem>
-	      <PaginationLink 
-		style={{ userSelect: "none" }}
-		isActive
-	      >
-		{page}
-	      </PaginationLink>
-	    </PaginationItem>
-
-	    {(courses?.length > 10) && (//YOU CAN CHANGE THIS LATER <- REFERS TO MAX COURSES RETURNED
-	      <>
-		<PaginationItem>
-		  <PaginationEllipsis />
-		</PaginationItem>
-		<PaginationItem>
-		  <PaginationNext
-		    style={{ userSelect: "none" }}
-		    onClick={()=>{
-		      setLoading(true);
-		      setPage(page+1);
-		    }
-		    }
-		  />
-		</PaginationItem>
-	      </>
-	    )}
-	  </PaginationContent>
+	  
+	  <PaginationFooter
+	    page={page}
+	    incrementPage={() => handlePageChange(page+1)}
+	    decrementPage={() => handlePageChange(page-1)}
+	    resetPage={() => handlePageChange(1)}
+	    hasNextPage={courses?.length > 10}
+	  />
 	</div>
       </div>
     </Pagination>

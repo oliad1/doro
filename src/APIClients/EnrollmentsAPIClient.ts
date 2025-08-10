@@ -56,7 +56,10 @@ const getEnrollment = async (enrollment_id: string) => {
 	      name
 	    ),
 	    lower,
-	    upper
+	    formula,
+	    condition_group_id (
+	      symbol
+	    )
 	  ),
 	  personnels (
 	    *

@@ -134,20 +134,20 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 	    </p>
 	  }
 	</CardDescription>
-	<CardAction>
-	  <Dialog>
-	    <DialogTrigger asChild>
-		<Button variant="ghost" className="p-0 aspect-square">
-		  <Info/>
-	      </Button>
-	    </DialogTrigger>
-	    {!isLoading && (
+	{!isLoading && courseMetadata.conditions[0]?.formula && (
+	  <CardAction>
+	    <Dialog>
+	      <DialogTrigger asChild>
+		  <Button variant="ghost" className="p-0 aspect-square">
+		    <Info/>
+		</Button>
+	      </DialogTrigger>
 	      <CourseInfoDialog
 		conditions={courseMetadata.conditions}
 	      />
-	    )}
-	  </Dialog>
-	</CardAction>
+	    </Dialog>
+	  </CardAction>
+	)}
       </CardHeader>
 
       <CardContent>
@@ -170,7 +170,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 		      {(assessment.dropped) && (
 			<Badge variant="secondary" className="ml-2" >Dropped</Badge>
 		      )}
-		      {(assessment_group.optional || assessment_group.type.includes("Bonus")) && (
+		      {(assessment_group.optional || assessment_group.type?.includes("Bonus")) && (
 			<Badge variant="outline" className="ml-2" >Optional</Badge>
 		      )}
 		    </TableCell>

@@ -14,26 +14,22 @@ export default function CourseInfoDialog ({conditions}: CourseInfoDialogProps) {
 	  <Table>
 	    <TableHeader>
 	      <TableRow className="text-nowrap">
-		<TableHead>Scheme</TableHead>
-		<TableHead>Assessment</TableHead>
+		<TableHead>Formula</TableHead>
+		<TableHead>Symbol</TableHead>
 		<TableHead>Lower Bound</TableHead>
-		<TableHead>Upper Bound</TableHead>
 	      </TableRow>
 	    </TableHeader>
 	    <TableBody>
 	      {conditions.map((condition) => (
-		<TableRow key={condition.scheme}>
+		<TableRow key={condition.lower}>
 		  <TableCell className="">
-		    {condition.scheme}
+		    {condition.formula}
 		  </TableCell>
 		  <TableCell className="">
-		    {condition.group_id.name}
+		    {condition.condition_group_id?.symbol}
 		  </TableCell>
 		  <TableCell className="">
 		    {condition.lower}
-		  </TableCell>
-		  <TableCell className="">
-		    {condition.upper}
 		  </TableCell>
 		</TableRow>
 	      ))}
