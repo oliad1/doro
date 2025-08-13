@@ -48,6 +48,17 @@ export const getSearchParams = (searchParams: SearchParams) => {
     + (searchParams?.dept=="Department"?'':`&dept=${searchParams?.dept}`);
 }
 
+export const getParamsFromUrl = (search: string): SearchParams => {
+  const trimmedSearch = search.startsWith("?") ? search.substring(1) : search;
+  const params = trimmedSearch.split("&");
+  return { 
+    page: params[0].split("=")[1], 
+    search: params[1].split("=")[1].replace("%20", " "),
+    fac: params[2]?.split("=")[1] || '',
+    dept: params[3]?.split("=")[1] || ''
+  };
+};
+
 export const getCourseStats = (assessment_groups: any) => {
   let sum = 0;
   let sum_weights = 0;

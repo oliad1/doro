@@ -76,7 +76,7 @@ export const COURSE_ASSIGNMENTS = () => {
 
 export const SEARCH_RESULTS = () => {
   return (
-    Array.from({ length: 11 }, (_, index) => (
+    Array.from({ length: 10 }, (_, index) => (
       <Accordion key={index} type="single" collapsible className="w-full">
 	<AccordionItem value={""} className="border rounded-md mb-3 overflow-hidden">
 	  <div className="flex items-center space-x-4 p-4">

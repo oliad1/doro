@@ -1,6 +1,6 @@
 "use client"
 import { Input } from "@/components/ui/input";
-import { ChevronDown, FilterX, Pin, PinOff, Plus, Search, Minus } from 'lucide-react';
+import { ChevronDown, FilterX, Plus, Search, Minus } from 'lucide-react';
 import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -16,6 +16,7 @@ import { getSearchParams } from "@/utils/helpers";
 import { CourseDTO } from "@/types/Types";
 import { toast } from "sonner";
 import { useDashboardStore } from "@/providers/dashboard-store-provider";
+import OutlinesAPIClient from "@/APIClients/OutlinesAPIClient";
 
 export default function SearchPage(searchParams: Promise<SearchParams>) {
   const router = useRouter();
@@ -27,14 +28,13 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
   const [faculty, setFaculty] = useState("Faculty");
   const [facultyIndex, setFacultyIndex] = useState<number>(0);
   const [dept, setDept] = useState("Department");
-  const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
-  const [results, setResults] = useState<CourseDTO[]>([]);
-  const [pinnedItems, setPinnedItems] = useState<string[]>([]);
+  const [results, setResults] = useState<CourseDTO[] | null>([]);
   const resultsRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
 
   useEffect(() => {
     router.push(
@@ -80,54 +80,29 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
-      try {
-	const { searchParams } = new URL(window.location.href);
-	if (searchParams.has('page')){
-	  let pageVal = Number.parseInt(searchParams.get('page')!)!;
-	  setPage(pageVal > 0 ? pageVal : 1);
-	}
-	if (searchParams.has('search')){
-	  setQuery(searchParams.get('search')!)
-	}
-	if (searchParams.has('fac')){
-	  setFacultyIndex(Number.parseInt(searchParams.get('fac')!));
-	  setFaculty(FACULTIES.find(item => item.index == (searchParams.get('fac') ?? 0))!.title)
-	}
-	if (searchParams.has('dept')){
-	  setDept(searchParams.get('dept')!);
-	}
 
-	const res = await fetch(`/api/search/courses${window.location.search}`);
-	const { ids, courseCodes, courseNames, courseDescriptions, error } = await res.json();
+      const { searchParams } = new URL(window.location.href);
 
-	if (error) {
-	  console.error("ERROR ", error);
-	  return;
-	}
-
-	if (!courseCodes || !courseCodes[0]) {
-	  console.log("No courses returned by API.");
-	  setCourses(courseCodes);
-	  setResults(courseCodes);
-	  return;
-	}
-
-	const combinedData = ids.map((id: string, index: number) => ({
-	  id: id,
-	  code: courseCodes[index],
-	  name: courseNames[index],
-	  description: courseDescriptions[index]
-	}));
-
-	console.log("IMPORTANT INFO: ", combinedData)
-
-	setCourses(combinedData);
-	setResults(combinedData);
-      } catch (error) {
-	console.error("Error fetching course data:", error);
-      } finally {
-	setLoading(false);
+      if (searchParams.has('page')){
+	let pageVal = Number.parseInt(searchParams.get('page')!)!;
+	setPage(pageVal > 0 ? pageVal : 1);
       }
+      if (searchParams.has('search')){
+	setQuery(searchParams.get('search')!)
+      }
+      if (searchParams.has('fac')){
+	setFacultyIndex(Number.parseInt(searchParams.get('fac')!));
+	setFaculty(FACULTIES.find(item => item.index == (searchParams.get('fac') ?? 0))!.title)
+      }
+      if (searchParams.has('dept')){
+	setDept(searchParams.get('dept')!);
+      }
+
+      const { data, hasNextPage } = await OutlinesAPIClient.searchCourses(window.location.search) || {data: null, hasNextPage: false};
+
+      setHasNextPage(hasNextPage);
+      setResults(data!);
+      setLoading(false);
     };
     fetchCourses();
   }, [searchParams]);
@@ -202,7 +177,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 	  {isLoading 
 	    ? <SEARCH_RESULTS />
 	    : <Accordion type="single" collapsible className="w-full">
-		{!results 
+		{!results || !results[0]
 		  ? <p className="leading-7 [&:not(:first-child)]:mt-6">No results.</p>
 		  : results.map((result) => {
 		    const courseEnrolled = termCourses.some((course) => course.code == result.code);
@@ -289,7 +264,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 	    incrementPage={() => handlePageChange(page+1)}
 	    decrementPage={() => handlePageChange(page-1)}
 	    resetPage={() => handlePageChange(1)}
-	    hasNextPage={courses?.length > 10}
+	    hasNextPage={hasNextPage}
 	  />
 	</div>
       </div>

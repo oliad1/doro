@@ -1,5 +1,7 @@
 import { createClient } from "@/utils/supabase/client";
 import { CreateCourseState } from "@/stores/create-course-store";
+import { DEPARTMENTS } from '@/constants/SearchConstants';
+import { getParamsFromUrl } from "@/utils/helpers";
 
 const supabase = createClient();
 
@@ -38,6 +40,51 @@ const getCourse = async (course_id: string) : Promise<any> => {
   } catch (error) {
     console.log("Error:", error);
     return null;
+  }
+};
+
+const searchCourses = async (searchParams: string): Promise<{ data: any[], hasNextPage: boolean } | void> => {
+  try {
+    const { page, search, dept, fac } = getParamsFromUrl(searchParams);
+
+    const pageValue = Number.parseInt(page!);
+    const facultyIndex = Number.parseInt(fac!);
+    const start = 10*(pageValue-1); //0, 10
+
+    let searchQuery = supabase
+      .from("outlines")
+      .select(`
+	id,
+	code,
+	name,
+	description
+      `)
+      .like("code", `%${search ?? ''}%`)
+      .like('code', `%${dept ?? ''}%`)
+      .range(start, (start + 10))
+      .is("author", null);
+
+    if (fac){
+      const facFilters = DEPARTMENTS[facultyIndex].map((code) => `code.ilike.${code}%`).join(',');
+      searchQuery = searchQuery.or(facFilters)
+    }
+
+    const { data, error, status } = await searchQuery;
+
+    if (error) {
+      throw new Error(`Response status ${status}`);
+    }
+
+    const hasNextPage = data.length > 10;
+
+    if (hasNextPage) {
+      data.pop();
+    }
+
+    return { data, hasNextPage };
+  } catch (error) {
+    console.log("Error:", error);
+    return;
   }
 };
 
@@ -97,4 +144,5 @@ export default {
   getCourse,
   createCourse,
   getCommunityCourses,
+  searchCourses,
 }
