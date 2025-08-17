@@ -13,3 +13,15 @@ services:
       - 3000:3000
     env_file:
     - ./frontend/.env
+  backend:
+    container_name: doro_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - 8080:8080
+    env_file:
+    - ./backend/.env
