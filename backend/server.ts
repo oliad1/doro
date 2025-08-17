@@ -5,7 +5,10 @@ import { config } from "dotenv";
 config();
 
 const CORS_ALLOW_LIST = [
-  "http://localhost:3000"  
+  "http://localhost:3000",
+  "https://doro-study-git-main-oliad-rs-projects.vercel.app",
+  "http://ec2-18-222-29-243.us-east-2.compute.amazonaws.com",
+  "https://www.doro.study",
 ];
 
 const CORS_OPTIONS: cors.CorsOptions = {
