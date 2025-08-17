@@ -1,0 +1,23 @@
+{
+  "main": "server.ts",
+  "scripts": {
+    "dev": "nodemon server",
+    "start": "cross-env NODE_ENV=production && tsc --build && node build/server.js",
+    "build": "cross-env NODE_ENV=production && tsc --build"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.55.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.10",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
