@@ -28,7 +28,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~/doro-study
+            cd ~/doro-study/backend
             git stash --include-untracked
             git pull
             
