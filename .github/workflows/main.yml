@@ -1,0 +1,48 @@
+name: EC2 CI Action
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.HOST_DNS }}
+          REMOTE_USER: ${{ secrets.USERNAME }}
+          TARGET: ${{ secrets.TARGET_DIR }}
+
+      - name: Executing Remote SSH Commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_DNS }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/doro-study/backend
+            git stash --include-untracked
+            git pull
+            
+            echo "Installing dependencies..."
+            bun install
+
+            echo "Checking if process is already running..."
+
+            if pm2 list | grep "bun dev"; then
+              echo "Restarting process..."
+              pm2 restart "bun dev"
+            else
+              echo "Starting new process..."
+              pm2 start "bun dev"
+            fi
+
+            pm2 save
