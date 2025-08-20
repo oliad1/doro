@@ -7,42 +7,58 @@ on:
     paths:
       - 'backend/**'
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.HOST_DNS }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: ${{ secrets.TARGET_DIR }}
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Executing Remote SSH Commands
-        uses: appleboy/ssh-action@master
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
         with:
-          host: ${{ secrets.HOST_DNS }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/doro-study/backend
-            git stash --include-untracked
-            git pull
-            
-            echo "Installing dependencies..."
-            bun install
+          role-to-assume: arn:aws:iam::808285223016:role/github-actions-role
+          role-session-name: githubactions
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: Stash Local Changes and Pull Code
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ secrets.INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=["cd ~/doro-study/backend && git stash --include-untracked && git pull"]' \
+            --comment "Stashing and pulling the latest code" \
+            --timeout-seconds 600
 
-            echo "Checking if process is already running..."
+      - name: Install Dependencies
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ secrets.INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=["echo Installing dependencies... && bun ci"]' \
+            --comment "Installing project dependencies" \
+            --timeout-seconds 600
 
-            if pm2 list | grep "bun dev"; then
-              echo "Restarting process..."
-              pm2 restart "bun dev"
-            else
-              echo "Starting new process..."
-              pm2 start "bun dev"
-            fi
+      - name: Restart/Start PM2
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ secrets.INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=["echo Checking if process is already running... && if pm2 list | grep \"bun dev\"; then echo Restarting process... && pm2 restart \"bun dev\"; else echo Starting new process... && pm2 start \"bun dev\"; fi"]' \
+            --comment "Checking if PM2 process is running and restarting or starting" \
+            --timeout-seconds 600
 
-            pm2 save
+      - name: Save PM2 State
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ secrets.INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=["pm2 save"]' \
+            --comment "Saving PM2 process list" \
+            --timeout-seconds 600
