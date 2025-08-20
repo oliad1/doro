@@ -34,12 +34,11 @@ jobs:
             --instance-ids ${{ secrets.INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
-              "source ~/.bashrc",
-              "cd ~/doro-study/backend",
+              "cd /home/ubuntu/doro-study/backend",
               "git stash --include-untracked",
               "git pull",
               "bun ci",
-              "pm2 restart bun-dev || pm2 start --name bun-dev -- bash -c \"bun dev\"",
+              "pm2 restart \"bun dev\" || pm2 start \"bun dev\"",
               "pm2 save"
             ]' \
             --comment "Full deploy script" \
