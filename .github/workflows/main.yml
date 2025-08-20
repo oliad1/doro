@@ -35,9 +35,12 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
               "cd /home/ubuntu/doro-study/backend",
+              "export HOME=/home/ubuntu",
+              "git config --global --add safe.directory /home/ubuntu/doro-study",
               "git stash --include-untracked",
               "git pull",
               "bun ci",
+              "if pm2 describe \"bun dev\" > /dev/null; then pm2 restart \"bun dev\"; else pm2 start \"bun dev\"; fi",
               "pm2 restart \"bun dev\" || pm2 start \"bun dev\"",
               "pm2 save"
             ]' \
