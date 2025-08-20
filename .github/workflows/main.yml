@@ -41,7 +41,6 @@ jobs:
               "git pull",
               "bun ci",
               "if pm2 describe \"bun dev\" > /dev/null; then pm2 restart \"bun dev\"; else pm2 start \"bun dev\"; fi",
-              "pm2 restart \"bun dev\" || pm2 start \"bun dev\"",
               "pm2 save"
             ]' \
             --comment "Full deploy script" \
