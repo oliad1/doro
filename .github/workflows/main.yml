@@ -28,38 +28,23 @@ jobs:
           role-session-name: githubactions
           aws-region: ${{ secrets.AWS_REGION }}
       
-      - name: Stash Local Changes and Pull Code
+      - name: Deploy on EC2 (full script)
         run: |
-          aws ssm send-command \
+          CMD_ID=$(aws ssm send-command \
             --instance-ids ${{ secrets.INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
-            --parameters 'commands=["cd ~/doro-study/backend && git stash --include-untracked && git pull"]' \
-            --comment "Stashing and pulling the latest code" \
-            --timeout-seconds 600
-
-      - name: Install Dependencies
-        run: |
-          aws ssm send-command \
-            --instance-ids ${{ secrets.INSTANCE_ID }} \
-            --document-name "AWS-RunShellScript" \
-            --parameters 'commands=["echo Installing dependencies... && bun ci"]' \
-            --comment "Installing project dependencies" \
-            --timeout-seconds 600
-
-      - name: Restart/Start PM2
-        run: |
-          aws ssm send-command \
-            --instance-ids ${{ secrets.INSTANCE_ID }} \
-            --document-name "AWS-RunShellScript" \
-            --parameters 'commands=["echo Checking if process is already running... && if pm2 list | grep \"bun dev\"; then echo Restarting process... && pm2 restart \"bun dev\"; else echo Starting new process... && pm2 start \"bun dev\"; fi"]' \
-            --comment "Checking if PM2 process is running and restarting or starting" \
-            --timeout-seconds 600
-
-      - name: Save PM2 State
-        run: |
-          aws ssm send-command \
-            --instance-ids ${{ secrets.INSTANCE_ID }} \
-            --document-name "AWS-RunShellScript" \
-            --parameters 'commands=["pm2 save"]' \
-            --comment "Saving PM2 process list" \
-            --timeout-seconds 600
+            --parameters 'commands=[
+              "source ~/.bashrc",
+              "cd ~/doro-study/backend",
+              "git stash --include-untracked",
+              "git pull",
+              "bun ci",
+              "pm2 restart bun-dev || pm2 start --name bun-dev -- bash -c \"bun dev\"",
+              "pm2 save"
+            ]' \
+            --comment "Full deploy script" \
+            --query "Command.CommandId" --output text)
+      
+          aws ssm wait command-executed --command-id $CMD_ID --instance-id ${{ secrets.INSTANCE_ID }}
+      
+          aws ssm get-command-invocation --command-id $CMD_ID --instance-id ${{ secrets.INSTANCE_ID }}
