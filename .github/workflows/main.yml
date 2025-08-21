@@ -6,6 +6,11 @@ on:
       - main
     paths:
       - 'backend/**'
+  workflow_dispatch:
+  
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   deploy:
@@ -13,36 +18,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.HOST_DNS }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: ${{ secrets.TARGET_DIR }}
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Executing Remote SSH Commands
-        uses: appleboy/ssh-action@master
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
         with:
-          host: ${{ secrets.HOST_DNS }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/doro-study/backend
-            git stash --include-untracked
-            git pull
-            
-            echo "Installing dependencies..."
-            bun install
-
-            echo "Checking if process is already running..."
-
-            if pm2 list | grep "bun dev"; then
-              echo "Restarting process..."
-              pm2 restart "bun dev"
-            else
-              echo "Starting new process..."
-              pm2 start "bun dev"
-            fi
-
-            pm2 save
+          role-to-assume: arn:aws:iam::808285223016:role/github-actions-role
+          role-session-name: githubactions
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: Deploy on EC2 (full script)
+        run: |
+          CMD_ID=$(aws ssm send-command \
+            --instance-ids ${{ secrets.INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "cd /home/ubuntu/doro-study/backend",
+              "export HOME=/home/ubuntu",
+              "git config --global --add safe.directory /home/ubuntu/doro-study",
+              "git stash --include-untracked",
+              "git pull",
+              "bun ci",
+              "if pm2 describe \"bun dev\" > /dev/null; then pm2 restart \"bun dev\"; else pm2 start \"bun dev\"; fi",
+              "pm2 save"
+            ]' \
+            --comment "Full deploy script" \
+            --query "Command.CommandId" --output text)
+      
+          aws ssm wait command-executed --command-id $CMD_ID --instance-id ${{ secrets.INSTANCE_ID }}
+      
+          aws ssm get-command-invocation --command-id $CMD_ID --instance-id ${{ secrets.INSTANCE_ID }}
