@@ -1,30 +1,26 @@
 import { createClient } from "@/utils/supabase/client";
 import { Term, TermCourse } from "@/types/Types";
+import { isSuccess } from "@/utils/apiUtils";
+import baseAPIClient from "@/APIClients/BaseAPIClient";
 
 const supabase = createClient();
+const base = await baseAPIClient();
 
-const getCourses = async (term: Term) => {
+const getEnrollments = async (term: Term) => {
   try {
-    const { data, error, status } = await supabase
-      .from("enrollments")
-      .select(`
-	id,
-	profile,
-	outlines (
-	  code
-	)
-      `)
-      .eq("term", term);
+    const { data: { session } } = await supabase.auth.getSession();
+    const jwt = session!.access_token;
+    
+    const res = await base.get(
+      `/enrollments/term/${term}`, {
+      headers: { Authorization: `Bearer ${jwt}` }
+    });
 
-    if (error) {
-      throw new Error(`Response status ${status}`)
+    if (!isSuccess(res)) {
+      throw new Error(`Response status ${res.status}`);
     }
 
-    if (!data) {
-      throw new Error(`Response status ${status}`)
-    }
-
-    const transformedData = data.map((enrollment) => ({
+    const transformedData = res.data.map((enrollment: any) => ({
       id: enrollment.id,
       code: enrollment.outlines.code
     }));
@@ -38,120 +34,67 @@ const getCourses = async (term: Term) => {
 
 const getEnrollment = async (enrollment_id: string) => {
   try {
-    const { data, error, status } = await supabase
-      .from("enrollments")
-      .select(`
-	grades (
-	  grade,
-	  submitted_at,
-	  assessment_id
-	),
-	outlines (
-	  code,
-	  name,
-	  description,
-	  conditions (
-	    scheme,
-	    group_id:group_id (
-	      name
-	    ),
-	    lower,
-	    formula,
-	    condition_group_id (
-	      symbol
-	    )
-	  ),
-	  personnels (
-	    *
-	  ),
-	  assessment_groups ( 
-	    *,
-	    assessments (
-	      *,
-	      grades (
-		grade,
-		submitted_at,
-		assessment_id
-	      )
-	    )
-	  )
-	)
-      `)
-      .eq("id", enrollment_id)
-      .single();
+    const { data: { session } } = await supabase.auth.getSession();
+    const jwt = session!.access_token;
+    
+    const res = await base.get(
+      `/enrollments/course/${enrollment_id}`, {
+      headers: { Authorization: `Bearer ${jwt}` }
+    });
 
-    if (error) {
-      throw new Error(`Response status ${status}`)
+    if (!isSuccess(res)) {
+      throw new Error(`Response status ${res.status}`);
     }
 
-    if (!data) {
-      throw new Error(`Response status ${status}`)
-    }
-
-    return data.outlines;
-  } catch (error) {
-    console.log("Error:", error);
-    return null;
-  }
-  
-};
-
-const addCourse = async (course: TermCourse, term: Term) => {
-  try {
-    const payload = {
-      "term": term,
-      "course_id": course.id,
-    };
-
-    const { data, error, status } = await supabase
-      .from("enrollments")
-      .upsert(payload)
-      .select(`
-	id
-      `);
-
-    if (error) {
-      throw new Error(`Response status ${status}`)
-    }
-    return Array.isArray(data) ? data[0] : data;
+    return res.data;
   } catch (error) {
     console.log("Error:", error);
     return null;
   }
 };
 
-const dropCourse = async (course: TermCourse, term: Term) => {
+const addEnrollment = async (course: TermCourse, term: Term) => {
   try {
-    const { data, error, status } = await supabase
-      .from("enrollments")
-      .delete()
-      .eq("term", term)
-      .eq("course_id", course.id)
-      .select()
-      .single();
+    const { data: { session } } = await supabase.auth.getSession();
+    const jwt = session!.access_token;
+    
+    const res = await base.post(
+      `/enrollments/course`, {
+	term: term,
+	course_id: course.id
+      }, {
+      headers: { Authorization: `Bearer ${jwt}` },
+    });
 
-    if (error) {
-      throw new Error(`Response status ${status}`)
+    if (!isSuccess(res)) {
+      throw new Error(`Response status ${res.status}`);
     }
-    return Array.isArray(data) ? data[0] : data;
+
+    return res.data; 
   } catch (error) {
     console.log("Error:", error);
     return null;
   }
-}
+};
 
-const dropEnrollment = async (enrollmentId: string) => {
+const dropEnrollment = async (id: string) => {
   try {
-    const { data, error, status } = await supabase
-      .from("enrollments")
-      .delete()
-      .eq("id", enrollmentId)
-      .single();
+    const { data: { session } } = await supabase.auth.getSession();
+    const jwt = session!.access_token;
+    
+    const res = await base.delete(
+      `/enrollments/course`, {
+      headers: { Authorization: `Bearer ${jwt}` },
+      data: {
+	id: id,
+      }
+    });
 
-    if (error) {
-      throw new Error(`Response status ${status}`)
+    if (!isSuccess(res)) {
+      throw new Error(`Response status ${res.status}`);
     }
-    return Array.isArray(data) ? data[0] : data;
+
+    return res.data; 
   } catch (error) {
     console.log("Error:", error);
     return null;
@@ -159,9 +102,8 @@ const dropEnrollment = async (enrollmentId: string) => {
 }
 
 export default {
-  getCourses,
+  getEnrollments,
   getEnrollment,
-  addCourse,
-  dropCourse,
+  addEnrollment,
   dropEnrollment,
 };

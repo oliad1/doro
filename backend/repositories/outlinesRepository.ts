@@ -1,50 +1,8 @@
-import { CourseInfoDTO, CourseSearchDTO, GetCoursesProps } from "../types/outlinesTypes";
+import { CourseSearchDTO, GetCoursesProps } from "../types/outlinesTypes";
 import { DEPARTMENTS } from "../constants/RepositoryConstants";
 import { supabase } from "../models/index";
 
 class OutlinesRepository {
-  async getCourse(id: string): Promise<CourseInfoDTO> {
-    const { data, error } = await supabase
-      .from("outlines")
-      .select(`
-	code,
-	name,
-	description,
-	personnels (
-	  name,
-	  email,
-	  role
-	),
-	assessment_groups ( 
-	  weight,
-	  count,
-	  drop,
-	  name,
-	  type,
-	  optional,
-	  assessments (
-	    weight,
-	    index,
-	    due_date,
-	    name,
-	    grades (
-	      grade,
-	      submitted_at,
-	      assessment_id
-	    )
-	  )
-	)
-      `)
-      .eq("id", id)
-      .single();
-    
-    if (!data || error) {
-      throw new Error(`Course ${id} not found.`);
-    }
-
-    return data;
-  };
-
   async getCourses(props: GetCoursesProps): Promise<CourseSearchDTO[]> {
     const { isVerified, page } = props; 
     const search = props.search;

@@ -227,7 +227,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 				<AlertDialogCancel>Cancel</AlertDialogCancel>
 				<AlertDialogAction
 				  onClick={async () => {
-				    await deleteTermCourse({id: result.id, code: result.code});
+				    await deleteTermCourse(termCourses.find((item)=>item.code==result.code)!.id);
 				    toast.info(`Removed ${result.code} from ${term}`, {
 				      richColors: true
 				    });

@@ -3,7 +3,7 @@ import AuthService from "../services/implementations/authService";
 
 const authService = new AuthService();
 
-const getJWTHeader = (req: Request): string | null => {
+export const getJWTHeader = (req: Request): string | null => {
   return req.headers.authorization?.split("Bearer ")[1] || null;
 };
 

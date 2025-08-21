@@ -9,16 +9,6 @@ const outlinesRouter: Router = Router();
 
 const outlinesService: IOutlinesService = new OutlinesService();
 
-outlinesRouter.get("/course/:id", async (req, res) => {
-  try {
-    const courseId: string = req.params.id;
-    const data = await outlinesService.getCourse(courseId);
-    res.status(200).json(data);
-  } catch (error: unknown) {
-    res.status(500).json({ error: getErrorMessage(error) });
-  }
-});
-
 outlinesRouter.get("/courses", isAuthorizedByExistence(), async (req, res) => {
   try {
     const isVerified = req.query.isVerified ? req.query.isVerified=="true" : false;

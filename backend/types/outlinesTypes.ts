@@ -1,5 +1,6 @@
 import { PersonnelsDTO } from "./personnelsTypes";
 import { AssessmentGroupsDTO } from "./assessmentGroupsTypes";
+import { ConditionsDTO } from "./conditionsTypes";
 
 export type GetCoursesProps = {
   isVerified: boolean,
@@ -22,6 +23,7 @@ export type Outlines = {
 export type CourseInfoDTO = Omit<Outlines, "id" | "term" | "author" | "enrollments"> & {
   personnels: PersonnelsDTO[];
   assessment_groups: AssessmentGroupsDTO[];
+  conditions: ConditionsDTO[];
 };
 
 export type CourseSearchDTO = Omit<Outlines, "term" | "author" | "enrollments"> & {

@@ -240,7 +240,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 				    (termCourses.length > 1)?`/course/${termCourses[nextId].id}`:`/home`
 				  );
 				}
-				deleteTermCourse(course);
+				deleteTermCourse(course.id);
 			      }}
 			    >
 			      Continue

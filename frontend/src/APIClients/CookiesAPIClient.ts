@@ -22,7 +22,7 @@ const getTerm = async (): Promise<string | null> => {
 
 const setTerm = async (term: Term): Promise<void> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/cookies/term/`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/cookies/term`, {
       method: 'POST',
       headers: {
 	'Content-Type': 'application/json'
