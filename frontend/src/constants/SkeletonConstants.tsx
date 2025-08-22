@@ -80,20 +80,21 @@ export const SEARCH_RESULTS = () => {
       <Accordion key={index} type="single" collapsible className="w-full">
 	<AccordionItem value={""} className="border rounded-md mb-3 overflow-hidden">
 	  <div className="flex items-center space-x-4 p-4">
-	    <div className="flex-1 space-y-1">
-	      <Skeleton className="w-[72px]">
-		<p className="text-sm font-medium leading-none opacity-0">
-		  Placeholder
-		</p>
-	      </Skeleton>
-	      <Skeleton className="w-[336px]">
-		<p className="text-sm text-muted-foreground opacity-0">
-		  Placeholder
-		</p>
-	      </Skeleton>
-	    </div>
+	    <AccordionTrigger className="py-0">
+	      <div className="flex-1 space-y-1">
+		<Skeleton className="w-[72px]">
+		  <p className="text-sm font-medium leading-none opacity-0">
+		    Placeholder
+		  </p>
+		</Skeleton>
+		<Skeleton className="w-[80%] lg:w-[336px]">
+		  <p className="text-sm text-muted-foreground opacity-0">
+		    Placeholder
+		  </p>
+		</Skeleton>
+	      </div>
+	    </AccordionTrigger>
 	    <div className="flex items-center space-x-2">
-	      <AccordionTrigger className="p-0 h-8 w-8" />
 	      <Button variant="ghost" className="p-0 h-8 w-8">
 		<Plus className="h-4 w-4" />
 	      </Button>

@@ -108,98 +108,103 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
   return (
     <Pagination className="no-scrollbar">
       <div className="w-full mx-4">
-	<div className="w-full sticky py-3 flex items-center justify-center gap-2">
-	  <Input 
-	    value={query.toUpperCase()}
-	    onChange={handleSearch}
-	    onKeyDown={handlePress}
-	    placeholder="Search"
-	    leadingIcon={<Search className="h-4" />}
-	  />
-	  <DropdownMenu>
-	    <DropdownMenuTrigger asChild className="faculty">
-	      <Button variant="outline">
-		{validFaculty ? FACULTIES[facultyIndex!] : "Faculty"}
-		<ChevronDown />
-	      </Button>
-	    </DropdownMenuTrigger>
-	    <DropdownMenuContent>
-	      <DropdownMenuRadioGroup value={validFaculty ? FACULTIES[facultyIndex!] : ""}>
-		{FACULTIES.map((facultyOption, i) => (
-		  <DropdownMenuRadioItem
-		    key={facultyOption}
-		    value={facultyOption}
-		    onSelect={() => { 
-		      setLoading(true);
-		      setFacultyIndex(i);
-		      setSearch(query);
-		      setDept("Department");
-		      setPage(1);
-		    }
-		  }>
-		  {facultyOption}
-		  </DropdownMenuRadioItem>
-		))}
-	      </DropdownMenuRadioGroup>
-	    </DropdownMenuContent>
-	  </DropdownMenu>
-
-	  <DropdownMenu>
-	    <DropdownMenuTrigger asChild className="department">
-	      <Button variant="outline">
-		{dept}
-		<ChevronDown />
-	      </Button>
-	    </DropdownMenuTrigger>
-	    {validFaculty && (
+	<div className="w-full sticky py-3 flex flex-col lg:flex-row items-center justify-center gap-2">
+	  <>
+	    <Input 
+	      value={query.toUpperCase()}
+	      onChange={handleSearch}
+	      onKeyDown={handlePress}
+	      placeholder="Search"
+	      leadingIcon={<Search className="h-4" />}
+	    />
+	  </>
+	  <div className="flex flex-row self-start gap-2">
+	    <DropdownMenu>
+	      <DropdownMenuTrigger asChild className="faculty">
+		<Button variant="outline"> 
+		  {validFaculty ? FACULTIES[facultyIndex!] : "Faculty"}
+		  <ChevronDown />
+		</Button>
+	      </DropdownMenuTrigger>
 	      <DropdownMenuContent>
-		<DropdownMenuRadioGroup value={dept}>
-		  {DEPARTMENTS[facultyIndex!].map((departmentOption) => (
-		    <DropdownMenuRadioItem 
-		      key={departmentOption} 
-		      value={departmentOption}
+		<DropdownMenuRadioGroup value={validFaculty ? FACULTIES[facultyIndex!] : ""}>
+		  {FACULTIES.map((facultyOption, i) => (
+		    <DropdownMenuRadioItem
+		      key={facultyOption}
+		      value={facultyOption}
 		      onSelect={() => {
 			setLoading(true);
-			setDept(departmentOption); 
+			setFacultyIndex(i);
 			setSearch(query);
+			setDept("Department");
 			setPage(1);
 		      }
 		      }>
-		      {departmentOption}
+		      {facultyOption}
 		    </DropdownMenuRadioItem>
 		  ))}
 		</DropdownMenuRadioGroup>
 	      </DropdownMenuContent>
-	    )}
-	  </DropdownMenu>
+	    </DropdownMenu>
 
-	  <Button onClick={clearFilters}>
-	    <FilterX/>
-	  </Button>
+	    <DropdownMenu>
+	      <DropdownMenuTrigger asChild className="department">
+		<Button variant="outline">
+		  {dept}
+		  <ChevronDown />
+		</Button>
+	      </DropdownMenuTrigger>
+	      {validFaculty && (
+		<DropdownMenuContent>
+		  <DropdownMenuRadioGroup value={dept}>
+		    {DEPARTMENTS[facultyIndex!].map((departmentOption) => (
+		      <DropdownMenuRadioItem 
+			key={departmentOption} 
+			value={departmentOption}
+			onSelect={() => {
+			  setLoading(true);
+			  setDept(departmentOption); 
+			  setSearch(query);
+			  setPage(1);
+			}
+			}>
+			{departmentOption}
+		      </DropdownMenuRadioItem>
+		    ))}
+		  </DropdownMenuRadioGroup>
+		</DropdownMenuContent>
+	      )}
+	    </DropdownMenu>
+
+	    <Button onClick={clearFilters}>
+	      <FilterX/>
+	    </Button>
+	  </div>
 	</div>
 
 	<div ref={resultsRef} className="max-h-[80vh]">
 	  {isLoading 
 	    ? <SEARCH_RESULTS />
-	    : <Accordion type="single" collapsible className="w-full">
+	    : <Accordion type="multiple" className="w-full">
 		{!results || !results[0]
 		  ? <p className="leading-7 [&:not(:first-child)]:mt-6">No results.</p>
 		  : results.map((result, i) => {
 		    const courseEnrolled = termCourses.some((course) => course.code == result.code);
 		    return (
 		      <AlertDialog key={i}>
-		      <AccordionItem value={i.toString()} className="border rounded-md mb-3 overflow-hidden">
-			<div data-course={i.toString()} className="flex items-center space-x-4 p-4">
-			  <div className="flex-1 space-y-1">
-			    <p className="text-sm font-medium leading-none">
-			      {result.code}
-			    </p>
-			    <p className="text-sm text-muted-foreground">
-			      {result.name}
-			    </p>
-			  </div>
+		      <AccordionItem value={i.toString()} className="border rounded-md mb-3 overflow-hidden hover:bg-card/80">
+			<div data-course={i.toString()} className="flex items-center space-x-4 p-4 w-[-webkit-fill-available]">
+			  <AccordionTrigger className="py-0">
+			    <div className="flex-1 space-y-1">
+			      <p className="text-sm font-medium leading-none">
+				{result.code}
+			      </p>
+			      <p className="text-sm text-muted-foreground">
+				{result.name}
+			      </p>
+			    </div>
+			  </AccordionTrigger>
 			  <div className="flex items-center space-x-2">
-			    <AccordionTrigger className="p-0 size-8" onClick={(e) => e.stopPropagation()} />
 			    {courseEnrolled
 			      ? <AlertDialogTrigger asChild>
 				<Button
@@ -237,20 +242,6 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 				</AlertDialogAction>
 			      </AlertDialogFooter>
 			    </AlertDialogContent>
-			    {/*
-			      <Button
-				className="p-0 h-8 w-8"
-				variant="ghost"
-				onClick={(e) => {
-				  e.stopPropagation();
-				  togglePin(result);
-				}}
-			      >
-				<span className="pin-icon transition-transform duration-300">
-				  {pinnedItems.includes(result.id) ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
-				</span>
-			      </Button>
-			      */}
 			  </div>
 			</div>
 			<AccordionContent>

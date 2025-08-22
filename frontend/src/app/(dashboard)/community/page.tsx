@@ -109,7 +109,7 @@ export default function Community (searchParams: Promise<SearchParams>) {
 	  <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight " >Community Courses</h1>
 	  <p className="text-muted-foreground">Created by the community. For the community.</p>
 	</div>
-	<div className="w-full sticky py-3 flex items-center justify-center gap-2 mb-5">
+	<div className="w-full sticky py-3 flex flex-col lg:flex-row items-center justify-center gap-2 lg:mb-5">
 	  <Input 
 	    value={query.toUpperCase()}
 	    onChange={handleSearch}
@@ -117,66 +117,68 @@ export default function Community (searchParams: Promise<SearchParams>) {
 	    placeholder="Search"
 	    leadingIcon={<Search className="h-4" />}
 	  />
-	  <DropdownMenu>
-	    <DropdownMenuTrigger asChild className="faculty">
-	      <Button variant="outline">
-		{validFaculty ? FACULTIES[facIndex!] : "Faculty"}
-		<ChevronDown />
-	      </Button>
-	    </DropdownMenuTrigger>
-	    <DropdownMenuContent>
-	      <DropdownMenuRadioGroup value={validFaculty ? FACULTIES[facIndex!] : ""}>
-		{FACULTIES.map((facultyOption, i) => (
-		  <DropdownMenuRadioItem
-		    key={facultyOption}
-		    value={facultyOption}
-		    onSelect={() => { 
-		      setLoading(true);
-		      setFacIndex(i);
-		      setSearch(query);
-		      setDept("Department");
-		      setPage(1);
-		    }
-		  }>
-		  {facultyOption}
-		  </DropdownMenuRadioItem>
-		))}
-	      </DropdownMenuRadioGroup>
-	    </DropdownMenuContent>
-	  </DropdownMenu>
-
-	  <DropdownMenu>
-	    <DropdownMenuTrigger asChild className="department">
-	      <Button variant="outline">
-		{dept}
-		<ChevronDown />
-	      </Button>
-	    </DropdownMenuTrigger>
-	    {validFaculty && (
+	  <div className="flex flex-row self-start gap-2">
+	    <DropdownMenu>
+	      <DropdownMenuTrigger asChild className="faculty">
+		<Button variant="outline">
+		  {validFaculty ? FACULTIES[facIndex!] : "Faculty"}
+		  <ChevronDown />
+		</Button>
+	      </DropdownMenuTrigger>
 	      <DropdownMenuContent>
-		<DropdownMenuRadioGroup value={dept}>
-		  {DEPARTMENTS[facIndex!].map((departmentOption) => (
-		    <DropdownMenuRadioItem 
-		      key={departmentOption} 
-		      value={departmentOption}
-		      onSelect={() => {
+		<DropdownMenuRadioGroup value={validFaculty ? FACULTIES[facIndex!] : ""}>
+		  {FACULTIES.map((facultyOption, i) => (
+		    <DropdownMenuRadioItem
+		      key={facultyOption}
+		      value={facultyOption}
+		      onSelect={() => { 
 			setLoading(true);
-			setDept(departmentOption); 
+			setFacIndex(i);
 			setSearch(query);
+			setDept("Department");
 			setPage(1);
 		      }
-		      }>
-		      {departmentOption}
+		    }>
+		    {facultyOption}
 		    </DropdownMenuRadioItem>
 		  ))}
 		</DropdownMenuRadioGroup>
 	      </DropdownMenuContent>
-	    )}
-	  </DropdownMenu>
+	    </DropdownMenu>
 
-	  <Button onClick={clearFilters}>
-	    <FilterX/>
-	  </Button>
+	    <DropdownMenu>
+	      <DropdownMenuTrigger asChild className="department">
+		<Button variant="outline">
+		  {dept}
+		  <ChevronDown />
+		</Button>
+	      </DropdownMenuTrigger>
+	      {validFaculty && (
+		<DropdownMenuContent>
+		  <DropdownMenuRadioGroup value={dept}>
+		    {DEPARTMENTS[facIndex!].map((departmentOption) => (
+		      <DropdownMenuRadioItem 
+			key={departmentOption} 
+			value={departmentOption}
+			onSelect={() => {
+			  setLoading(true);
+			  setDept(departmentOption); 
+			  setSearch(query);
+			  setPage(1);
+			}
+			}>
+			{departmentOption}
+		      </DropdownMenuRadioItem>
+		    ))}
+		  </DropdownMenuRadioGroup>
+		</DropdownMenuContent>
+	      )}
+	    </DropdownMenu>
+
+	    <Button onClick={clearFilters}>
+	      <FilterX/>
+	    </Button>
+	  </div>
 	</div>
 	<PaginationContent className="w-full">
 	  {loading || !results
@@ -222,7 +224,7 @@ export default function Community (searchParams: Promise<SearchParams>) {
 			      <AlertDialogCancel>Cancel</AlertDialogCancel>
 			      <AlertDialogAction
 				onClick={async () => {
-				  await deleteTermCourse({id: result.id, code: result.code});
+				  await deleteTermCourse(termCourses.find((item)=>item.code==result.code)!.id);
 				  toast.info(`Removed ${result.code} from ${term}`, {
 				    richColors: true
 				  });
