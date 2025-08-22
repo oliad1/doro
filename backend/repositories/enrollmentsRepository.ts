@@ -1,9 +1,9 @@
 import { EnrollmentsInfoDTO, EnrollmentsSidebarDTO, EnrollmentsCourseActionDTO } from "../types/enrollmentsTypes";
-import { enrollmentsSupabaseClient } from "../models/index";
+import { jwtSupabaseClient } from "../models/index";
 
 class EnrollmentsRepository {
   async getEnrollment(jwt: string, id: string): Promise<EnrollmentsInfoDTO> {
-    const { data, error } = await enrollmentsSupabaseClient(jwt)
+    const { data, error } = await jwtSupabaseClient(jwt)
       .from("enrollments")
       .select(`
 	outlines (
@@ -50,7 +50,7 @@ class EnrollmentsRepository {
   };
 
   async getEnrollments(jwt: string, term: string): Promise<EnrollmentsSidebarDTO[]> {
-    const { data, error } = await enrollmentsSupabaseClient(jwt)
+    const { data, error } = await jwtSupabaseClient(jwt)
       .from("enrollments")
       .select(`
 	id,
@@ -68,7 +68,7 @@ class EnrollmentsRepository {
   };
 
   async addEnrollment(jwt: string, term: string, course_id: string): Promise<EnrollmentsCourseActionDTO> {
-    const { data, error } = await enrollmentsSupabaseClient(jwt)
+    const { data, error } = await jwtSupabaseClient(jwt)
       .from("enrollments")
       .insert({
 	term: term,
@@ -85,7 +85,7 @@ class EnrollmentsRepository {
   };
 
   async dropEnrollment(jwt: string, id: string): Promise<EnrollmentsCourseActionDTO> {
-    const { data, error } = await enrollmentsSupabaseClient(jwt)
+    const { data, error } = await jwtSupabaseClient(jwt)
       .from("enrollments")
       .delete()
       .eq("id", id)

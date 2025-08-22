@@ -22,9 +22,11 @@ app.use(express.json());
 
 import outlinesRouter from "./controllers/outlinesController";
 import enrollmentsRouter from "./controllers/enrollmentsController";
+import gradesRouter from "./controllers/gradesController";
 
 app.use("/outlines", outlinesRouter);
 app.use("/enrollments", enrollmentsRouter);
+app.use("/grades", gradesRouter);
 
 app.listen({ port: process.env.PORT || 8080 }, () => {
   console.info(`Server is listening on port ${process.env.PORT || 8080}`);

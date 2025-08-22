@@ -6,7 +6,7 @@ export const supabase = createClient<Database>(
   process.env.SUPABASE_ANON_KEY!
 );
 
-export const enrollmentsSupabaseClient = (jwt: string) => createClient<Database>(
+export const jwtSupabaseClient = (jwt: string) => createClient<Database>(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_ANON_KEY!, {
     global: {
