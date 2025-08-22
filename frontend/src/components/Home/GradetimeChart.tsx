@@ -34,7 +34,7 @@ export function GradetimeChart({ grades, courses, visibleCourses, onToggleCourse
   };
 
   return (
-    <Card className="lg:row-span-2 lg:col-span-3">
+    <Card className="xl:row-span-2 xl:col-span-3">
       <CardHeader> 
 	<CardTitle>Course Performance</CardTitle>
 	<CardDescription>Grade Trends Over Time</CardDescription>

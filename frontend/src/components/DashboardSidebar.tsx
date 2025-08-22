@@ -109,6 +109,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 	  richColors: true
 	});
       } catch (error) {
+	toast.dismiss("logout");
 	toast.error("Auth Error", {
 	  description: "Unexpected error logging out",
 	  richColors: true 

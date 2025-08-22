@@ -12,51 +12,40 @@ import { formatGrades } from "@/utils/helpers";
 
 export default function Dashboard() {
   const [grades, setGrades] = useState<any[]>();
+  const [radarData, setRadarData] = useState<any[]>();
   const [visibleCourses, setVisibleCourses] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [upcomingSummatives, setUpcomingSummatives] = useState<any[]>([]);
-  const radarChartData = [
-    {
-      code: "ECE 222",
-      average: 89
-    },
-    {
-      code: "ECE 444",
-      average: 72
-    },
-    {
-      code: "ECE 333",
-      average: 79
-    },
-    {
-      code: "ECE 111",
-      average: 65
-    },
-    {
-      code: "ECE 667",
-      average: 100
-    },
-  ];
 
   const { term, termCourses } = useDashboardStore(
     (state) => state,
   );
-
+  
   useEffect(() => {
     const fetchData = async () => {
+      if (!term) return;
       try {
-	const grades = await GradesAPIClient.getTermGrades(term || "1A");
+	const grades = await GradesAPIClient.getTermGrades(term);
 	const formattedGrades = formatGrades(grades);
-	console.log("FORMATTED ", formattedGrades);
 	setGrades(formattedGrades);
-      } catch (error) {
-	console.error("Error fetching data:", error);
+	const data = termCourses.map((course) => {
+	  const courseKey = `${course.code}_average`
+	  return {
+	    code: course.code,
+	    average: formattedGrades.filter((entry) => courseKey in entry).at(-1)?.[courseKey] ?? 0
+	  }
+	});
+	setRadarData(data);
+	const initState: Record<string, boolean> = {'average': false};
+	termCourses.map((course)=>initState[course.code] = false);
+	setVisibleCourses(initState);
       } finally {
 	setIsLoading(false);
       }
     };
+
     fetchData();
-  }, []);
+  }, [term, termCourses]);
 
   const handleToggleCourse = (course: string) => {
     setVisibleCourses(prev => {
@@ -83,7 +72,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="grid lg:grid-cols-4 lg:grid-rows-3 gap-2 mx-2 my-4">
+    <div className="grid xl:grid-cols-4 auto-rows-min gap-2 mx-2 my-4 h-min">
       <GradetimeChart
 	grades={grades!}
 	isLoading={isLoading}
@@ -92,7 +81,7 @@ export default function Dashboard() {
 	onToggleCourse={handleToggleCourse}
       />
       <YearProgressChart />
-      <HomeRadarChart chartData={radarChartData} />
+      <HomeRadarChart chartData={radarData!} />
       <UpcomingSummativesTable 
 	summatives={upcomingSummatives} 
 	isLoading={isLoading}

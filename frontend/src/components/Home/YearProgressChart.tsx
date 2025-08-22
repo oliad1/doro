@@ -24,7 +24,7 @@ export function YearProgressChart () {
   } satisfies ChartConfig;
 
   return (
-    <Card> 
+    <Card>
       <CardHeader className="text-center pb-0">
 	<CardTitle>Semester Progress</CardTitle>
 	<CardDescription>
