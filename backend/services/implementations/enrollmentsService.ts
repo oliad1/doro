@@ -1,4 +1,5 @@
 import EnrollmentsRepository from "../../repositories/enrollmentsRepository";
+import OutlinesRepository from "../../repositories/outlinesRepository";
 import { EnrollmentsInfoDTO, EnrollmentsSidebarDTO, EnrollmentsCourseActionDTO } from "../../types/enrollmentsTypes";
 import IEnrollmentsService from "../interfaces/enrollmentsService.interface";
 import logger from "../../utils/logger";
@@ -8,9 +9,11 @@ const Logger = logger(__filename);
 
 class EnrollmentsService implements IEnrollmentsService {
   enrollmentsRepository: EnrollmentsRepository;
+  outlinesRepository: OutlinesRepository;
 
   constructor () {
     this.enrollmentsRepository = new EnrollmentsRepository();
+    this.outlinesRepository = new OutlinesRepository();
   }
 
   async getEnrollment(jwt: string, id: string): Promise<EnrollmentsInfoDTO> {
@@ -44,6 +47,7 @@ class EnrollmentsService implements IEnrollmentsService {
     
     try {
       data = this.enrollmentsRepository.addEnrollment(jwt, term, course_id);
+      this.outlinesRepository.incrementEnrollment(jwt, course_id);
     } catch (error: unknown) {
       Logger.error(`Failed to add enrollment. Reason: ${getErrorMessage(error)}`);
       throw error;
@@ -57,6 +61,7 @@ class EnrollmentsService implements IEnrollmentsService {
     
     try {
       data = this.enrollmentsRepository.dropEnrollment(jwt, id);
+      this.outlinesRepository.decrementEnrollment(jwt, id);
     } catch (error: unknown) {
       Logger.error(`Failed to drop enrollment. Reason: ${getErrorMessage(error)}`);
       throw error;
@@ -64,7 +69,6 @@ class EnrollmentsService implements IEnrollmentsService {
 
     return data;
   };
-
 };
 
 export default EnrollmentsService;

@@ -43,9 +43,10 @@ export const getRedirectUrl = () => {
 }
 
 export const getSearchParams = (searchParams: SearchParams) => {
-  return `?page=${searchParams.page}&search=${searchParams.search?.toUpperCase()}`
+  return `?page=${searchParams.page}`
+    + (!searchParams.search ? '' : `&search=${searchParams.search?.toUpperCase()}`)
     + (!searchParams.fac ? '' :`&fac=${searchParams.fac}`) 
-    + (searchParams?.dept=="Department"?'':`&dept=${searchParams?.dept}`);
+    + (searchParams?.dept=="Department" ? '' :`&dept=${searchParams?.dept}`);
 }
 
 export const getParamsFromUrl = (search: string): SearchParams => {

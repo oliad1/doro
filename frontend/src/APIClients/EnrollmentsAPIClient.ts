@@ -22,7 +22,9 @@ const getEnrollments = async (term: Term) => {
 
     const transformedData = res.data.map((enrollment: any) => ({
       id: enrollment.id,
-      code: enrollment.outlines.code
+      code: enrollment.outlines.code,
+      verified: enrollment.outlines.author==null,
+      c_id: enrollment.outlines.id
     }));
 
     return transformedData;

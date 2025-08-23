@@ -13,7 +13,9 @@ export type EnrollmentsInfoDTO = {
 
 export type EnrollmentsSidebarDTO = Omit<Enrollments, "profile" | "term" | "course_id"> & {
   outlines: {
+    id: string;
     code: string;
+    author: string | null;
   }
 };
 

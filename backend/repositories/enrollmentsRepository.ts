@@ -55,7 +55,9 @@ class EnrollmentsRepository {
       .select(`
 	id,
 	outlines (
-	  code
+	  id,
+	  code,
+	  author
 	)
       `)
       .eq("term", term);

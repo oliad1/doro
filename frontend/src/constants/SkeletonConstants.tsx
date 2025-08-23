@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Accordion, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion";
 import { Card, CardHeader, CardContent, CardAction, CardTitle, CardDescription } from "@/components/ui/card";
 
-export const COURSE_TITLE = `
-  ACTSC 363: Casualty and Health Insurance
-`;
+export const COURSE_CODE = `ACTSC 363`;
+
+export const COURSE_NAME = `Casualty and Health Insurance`;
+
+export const COURSE_TITLE = `${COURSE_CODE}: ${COURSE_NAME}`;
 
 export const COURSE_BIO = ` 
   Introduction to the collective risk model; models for loss frequency: (a, b, 0) and (a, b, 1) 
@@ -113,15 +115,21 @@ export const COMMUNITY_RESULTS = () => {
 	<Card key={index}>
 	  <CardHeader>
 	    <CardTitle>
-	      <Skeleton>
-		<p className="opacity-0">{COURSE_TITLE}</p>
+	      <Skeleton className="w-fit">
+		<p className="w-fit opacity-0">{COURSE_CODE}</p>
 	      </Skeleton>
 	    </CardTitle>
-	    <CardDescription className="flex gap-1 items-center">
+	    <CardDescription className="flex flex-col items-start gap-1">
+	      {/*{course.author}*/}
 	      <Skeleton>
-		<p className="opacity-0">{123}</p>
+		<p className="opacity-0">{COURSE_NAME}</p>
 	      </Skeleton>
-	      <Download className="size-4" />
+	      <div className="flex flex-row gap-1 items-center">
+		<Skeleton>
+		  <p className="font-medium opacity-0">{10}</p>
+		</Skeleton>
+		<Download className="size-4" />
+	      </div>
 	    </CardDescription>
 	    <CardAction>
 	      <Button variant="ghost">
@@ -129,11 +137,6 @@ export const COMMUNITY_RESULTS = () => {
 	      </Button>
 	    </CardAction>
 	  </CardHeader>
-	  <CardContent>
-	    <Skeleton>
-	      <p className="opacity-0">{COURSE_BIO.substring(0,30)}</p>
-	    </Skeleton>
-	  </CardContent>
 	</Card>
       ))}
     </div>

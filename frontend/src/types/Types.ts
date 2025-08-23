@@ -35,6 +35,8 @@ export type Term =
 export type TermCourse = {
   id: string;
   code: string;
+  verified: boolean;
+  c_id: string;
 };
 
 export type GradeDTO = {

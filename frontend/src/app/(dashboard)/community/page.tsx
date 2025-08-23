@@ -96,10 +96,10 @@ export default function Community (searchParams: Promise<SearchParams>) {
       const { data, hasNextPage } = await OutlinesAPIClient.searchCourses(window.location.search, false) || {data: null, hasNextPage: false};
       setResults(data!);
       setHasNextPage(hasNextPage);
+      setLoading(false);
     }
 
     fetchData();
-    setLoading(false);
   }, [searchParams]);
 
   return (
@@ -181,20 +181,25 @@ export default function Community (searchParams: Promise<SearchParams>) {
 	  </div>
 	</div>
 	<PaginationContent className="w-full">
-	  {loading || !results
+	  {loading
 	  ? <COMMUNITY_RESULTS />
 	  : <div className="grid lg:grid-cols-3 gap-3 w-full">
-	      {results?.map((result, i) => {
-		const courseEnrolled = termCourses.some((course) => course.code == result.code);
+	      {!results || !results.length 
+	      ? <p>No results.</p>
+	      : results?.map((result, i) => {
+		const courseEnrolled = termCourses.some((course) => course.c_id == result.id);
 		return (
 		  <AlertDialog key={i}>
 		    <Card key={i}>
 		      <CardHeader>
 			<CardTitle>{result.code}</CardTitle>
-			<CardDescription className="flex gap-1 items-center">
+			<CardDescription className="flex flex-col items-start gap-1">
 			  {/*{course.author}*/}
-			  {result.enrollments}
-			  <Download className="size-4" />
+			  <p>{result.name}</p>
+			  <div className="flex flex-row gap-1 items-center">
+			    <p className="font-medium">{result.enrollments}</p>
+			    <Download className="size-4" />
+			  </div>
 			</CardDescription>
 			<CardAction>
 			  {courseEnrolled
@@ -210,7 +215,8 @@ export default function Community (searchParams: Promise<SearchParams>) {
 			      variant="ghost"
 			      className="p-0 size-8"
 			      onClick={async () => {
-				await addTermCourse({id: result.id, code: result.code});
+				result.enrollments += 1;
+				await addTermCourse({id: result.id, code: result.code, verified: false, c_id: result.id});
 				toast.success(`Added ${result.code} to ${term}`, {
 				  richColors: true
 				});
@@ -224,6 +230,7 @@ export default function Community (searchParams: Promise<SearchParams>) {
 			      <AlertDialogCancel>Cancel</AlertDialogCancel>
 			      <AlertDialogAction
 				onClick={async () => {
+				  result.enrollments -= 1;
 				  await deleteTermCourse(termCourses.find((item)=>item.code==result.code)!.id);
 				  toast.info(`Removed ${result.code} from ${term}`, {
 				    richColors: true
@@ -236,9 +243,6 @@ export default function Community (searchParams: Promise<SearchParams>) {
 			  </AlertDialogContent>
 			</CardAction>
 		      </CardHeader>
-		      <CardContent>
-			<p className="text-muted-foreground">{result.description}</p>
-		      </CardContent>
 		    </Card>
 		  </AlertDialog>
 		)

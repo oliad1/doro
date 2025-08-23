@@ -6,7 +6,7 @@ import React from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, useSidebar, SidebarMenuAction } from "@/components/ui/sidebar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Search, Settings, TrendingUp, Trash2, RefreshCcw, Globe, SquarePlus } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Search, Settings, TrendingUp, Trash2, RefreshCcw, Globe, SquarePlus, Check, BadgeCheckIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,7 @@ const items = [
   },
   {
     title: "Search",
-    url: "search?page=1&search=",
+    url: "search?page=1",
     icon: Search,
     beta: false,
   },
@@ -44,7 +44,7 @@ const items = [
     title: "Community",
     url: "community",
     icon: Globe,
-    beta: true,
+    beta: false,
   },
   {
     title: "Create",
@@ -207,6 +207,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 			    <SidebarMenuButton 
 			      className={"px-5 "+(currentPage?"bg-sidebar-accent":"")}>
 			      <span>{course.code}</span>
+			      {course.verified && <BadgeCheckIcon/>}
 			    </SidebarMenuButton>
 			  </Link>
 			  <DropdownMenu>
@@ -216,7 +217,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 			      </SidebarMenuAction>
 			    </DropdownMenuTrigger>
 			    <DropdownMenuContent side="right" align="start">
-			      <DropdownMenuItem>
+			      <DropdownMenuItem disabled>
 				<RefreshCcw/>
 				<span>Remix Course</span>
 			      </DropdownMenuItem>

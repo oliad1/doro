@@ -218,7 +218,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 				variant="ghost"
 				className="p-0 size-8"
 				onClick={async () => {
-				  await addTermCourse({id: result.id, code: result.code});
+				  await addTermCourse({id: result.id, code: result.code, verified: true, c_id: result.id});
 				  toast.success(`Added ${result.code} to ${term}`, {
 				    richColors: true
 				  });
