@@ -207,7 +207,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 			    <SidebarMenuButton 
 			      className={"px-5 "+(currentPage?"bg-sidebar-accent":"")}>
 			      <span>{course.code}</span>
-			      {course.verified && <BadgeCheckIcon/>}
+			      {course.verified && open && <BadgeCheckIcon/>}
 			    </SidebarMenuButton>
 			  </Link>
 			  <DropdownMenu>

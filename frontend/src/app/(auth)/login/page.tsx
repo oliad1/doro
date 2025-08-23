@@ -33,7 +33,7 @@ export default function LogIn(){
 
   return (
     <div className="flex container lg:grid h-screen w-screen items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="lg:flex flex-col justify-between hidden h-full bg-muted p-10">
+      <div className="lg:flex flex-col justify-between hidden h-full bg-[var(--primary)]/40 p-10">
 	<div className="flex items-center gap-x-3">
 	  <TrendingUp />
 	  <h3 className="scroll-m-20 text-2xl font-medium tracking-tight">
@@ -58,7 +58,7 @@ export default function LogIn(){
 	      Create an account
 	    </h3>
 	    <p className="text-sm text-muted-foreground">
-	      Click the link below to create your account
+	      Click the button below to create your account
 	    </p>
 	    <div className="pt-3">
 	      <Button variant={"outline"} onClick={()=>handleLoading('google')} disabled={isPending}> 
