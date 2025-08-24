@@ -60,20 +60,58 @@ export const getParamsFromUrl = (search: string): SearchParams => {
   };
 };
 
-export const getCourseStats = (assessment_groups: any) => {
+export const getCourseStats = (assessment_groups: any, isFormula: boolean, conditions?: any[]) => {
   let sum = 0;
   let sum_weights = 0;
-
+  let total_weights = 0;
+  let symbolValues: Record<string, number> = {}
+  
   assessment_groups.forEach((group: any) => {
+
     group.assessments.forEach((assessment: any) => {
-      const gradeObj = Array.isArray(assessment.grades) ? assessment.grades[0] : assessment.grades
+      const gradeObj = assessment.grades[0];
+
+      total_weights += 1;
 
       if (gradeObj) {
-	sum += gradeObj.grade*assessment.weight;
-	sum_weights += assessment.weight;
+	if (isFormula) {
+	  const symbol = group?.condition_group_id?.symbol ?? '';
+
+	  if (typeof symbolValues[symbol]!="number") {
+	    symbolValues[symbol] = 0;
+	  }
+
+	  symbolValues[symbol] += (assessment.weight * group.weight * gradeObj.grade);
+	  sum_weights += 1;
+	} else {
+	  sum += gradeObj.grade*assessment.weight;
+	  sum_weights += assessment.weight;
+	}
       }
     });
   });
+
+  if (isFormula) {
+    const symbolArr = [];
+    for (const condition of conditions!) {
+      if (symbolValues[condition.condition_group_id.symbol] >= condition.lower) {
+	let formula = condition.formula;
+	console.log(condition.formula);
+
+	for (const symbol in symbolValues) {
+	  symbolArr.push({
+	    symbol: symbol,
+	    value: symbolValues[symbol]
+	  });
+
+	  formula = formula.replaceAll(symbol, symbolValues[symbol].toString());
+	  console.log(symbol, symbolValues[symbol]);
+	}
+
+	return { newAverage: eval(formula), newCompletion: (sum_weights/total_weights)*100, symbolValues: symbolArr, formula: condition.formula };
+      }
+    };
+  }
 
   if (sum && sum_weights) {
     return {newAverage: (sum / sum_weights), newCompletion: sum_weights*100 };
@@ -109,6 +147,7 @@ export const getMovingAverage = (assessment_groups: any) => {
 };
 
 const getMovingAverageFromGrades = (grades: GradeDTO[]) => {
+  /*TODO: Fix for dropped assignments & formula-based courses */
   const gradesByCourse: Record<string, GradeDTO[]> = {};
 
   for (const grade of grades) {

@@ -66,7 +66,6 @@ export default function Dashboard() {
 
 	newState[course] = !prev[course];
       }
-      console.log("NEW STATE", newState);
       return newState;
     });
   };
@@ -82,10 +81,10 @@ export default function Dashboard() {
       />
       <YearProgressChart />
       <HomeRadarChart chartData={radarData!} />
-      <UpcomingSummativesTable 
+      {/*<UpcomingSummativesTable 
 	summatives={upcomingSummatives} 
 	isLoading={isLoading}
-      />
+      />*/}
     </div>
   );
 }

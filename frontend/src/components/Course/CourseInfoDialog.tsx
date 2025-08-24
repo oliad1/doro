@@ -2,10 +2,11 @@ import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/c
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface CourseInfoDialogProps {
+  currFormula: string,
   conditions: any[],
 };
 
-export default function CourseInfoDialog ({conditions}: CourseInfoDialogProps) {
+export default function CourseInfoDialog ({currFormula, conditions}: CourseInfoDialogProps) {
   return (
     <DialogContent>
       <DialogHeader>
@@ -21,7 +22,7 @@ export default function CourseInfoDialog ({conditions}: CourseInfoDialogProps) {
 	    </TableHeader>
 	    <TableBody>
 	      {conditions.map((condition) => (
-		<TableRow key={condition.lower}>
+		<TableRow key={condition.lower} className={currFormula==condition.formula?"bg-muted/50":""}>
 		  <TableCell className="">
 		    {condition.formula}
 		  </TableCell>

@@ -7,4 +7,4 @@ export type Assessments = {
   name: string | null;
 };
 
-export type AssessmentsDTO = Omit<Assessments, "id" | "group_id">;
+export type AssessmentsDTO = Omit<Assessments, "group_id">;

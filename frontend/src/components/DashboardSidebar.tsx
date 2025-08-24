@@ -8,6 +8,7 @@ import { SidebarTrigger, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, S
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Search, Settings, TrendingUp, Trash2, RefreshCcw, Globe, SquarePlus, Check, BadgeCheckIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal } from "lucide-react";
@@ -15,7 +16,7 @@ import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import { logoutAction } from "@/actions/users";
 import { navigate } from '@/actions/redirect';
-import { LOGIN_PAGE } from '@/constants/Routes';
+import { LOGIN_PAGE, SEARCH_PAGE } from '@/constants/Routes';
 import { STUDY_TERMS, WORK_TERMS } from "@/constants/SidebarConstants";
 import { DELETE_COURSE_HEADER } from "@/constants/DialogConstants";
 import { Term } from "@/types/Types";
@@ -190,7 +191,14 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 	      </DropdownMenuContent>
 	      <SidebarGroupContent className="flex flex-col justify-center items-center w-full">
 		{!termCourses || !termCourses?.length 
-		  ? <span>{open && !loading && "Enroll in some courses!"}</span>
+		  ? <>{open && !loading && (
+		    <Link href={SEARCH_PAGE}>
+		      <Button className="mt-2">
+			<Search/>
+			Find some courses 
+		      </Button>
+		    </Link>
+		  )}</>
 		  : termCourses.map((course, i) => {
 		    const currentPage = pathname.includes(course.id);
 		    return (

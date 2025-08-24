@@ -10,6 +10,7 @@ import CourseWeightChart from "@/components/Course/CourseWeightChart";
 import GradeTable from "@/components/Course/GradeTable";
 import CourseAverageChart from "@/components/Course/CourseAverageChart";
 import CoursePersonnelCard from "@/components/Course/CoursePersonnelCard";
+import CourseConditionTable from "@/components/Course/CourseConditionTable";
 import { CourseAverageData } from "@/types/Types";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
@@ -23,6 +24,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const [chartData, setChartData] = useState();
   const [averageChartData, setAverageChartData] = useState<CourseAverageData[]>();
   const [chartConfig, setChartConfig] = useState<ChartConfig>();
+  const [formula, setFormula] = useState<string>("");
+  const [symbolValues, setSymbolValues] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchCoursesInit = async () => {
@@ -50,12 +53,20 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	richColors: true
       });
 
-      const { newAverage, newCompletion } = getCourseStats(data.assessment_groups);
-      const newChartData = getMovingAverage(data.assessment_groups);
+      const stats = getCourseStats(data.assessment_groups, !!data.conditions.length && data.author, data.conditions);
+      const newAverage = stats.newAverage;
+      const newCompletion = stats.newCompletion;
+      if (!!data.conditions.length && data.author) {
+	setFormula(stats.formula);
+	setSymbolValues(stats.symbolValues!);
+      }
 
+      const newChartData = getMovingAverage(data.assessment_groups);
+      
+      console.log(newAverage);
       setAverageChartData(newChartData);
-      setAverage(newAverage || 0);
-      setCompletion(newCompletion || 0);
+      setAverage(newAverage ?? 0);
+      setCompletion(newCompletion ?? 0);
 
       const chartData = data.assessment_groups.map((group: any, index: number) => {
 	return { 
@@ -95,8 +106,18 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
       setCourseMetadata(updatedData);
 
-      const { newAverage, newCompletion } = getCourseStats(courseMetadata.assessment_groups);
-      const newChartData = getMovingAverage(courseMetadata.assessment_groups);
+      const assessment_groups = courseMetadata.assessment_groups;
+      const conditions = courseMetadata.conditions;
+      
+      const stats = getCourseStats(assessment_groups, !!conditions.length && courseMetadata.author, conditions);
+      const newAverage = stats.newAverage;
+      const newCompletion = stats.newCompletion;
+      if (!!conditions.length && courseMetadata.author) {
+	setFormula(stats.formula);
+	setSymbolValues(stats.symbolValues!);
+      }
+
+      const newChartData = getMovingAverage(assessment_groups);
 
       setAverageChartData(newChartData);
       setAverage(newAverage || 0);
@@ -106,7 +127,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       const updatedChartConfig: ChartConfig = {};
 
       // Loop over the assessments and populate the chartConfig
-      courseMetadata.assessment_groups.forEach((assessment: any) => {
+      assessment_groups.forEach((assessment: any) => {
 	updatedChartConfig[assessment.name] = {
 	  label: assessment.name,
 	  color: "var(--chart-5)",
@@ -123,10 +144,12 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     fetchCourseData();
   }, [recalculate]);
 
-  const updateMetadata = (gradeObj: any[], upsert: boolean, grade?: number) => {
+  const updateMetadata = (gradeObj: any, upsert: boolean, grade?: number) => {
     const newData = JSON.parse(JSON.stringify(courseMetadata));
 
-    const { assessments, id, submitted_at } = gradeObj;
+    const assessments = gradeObj.assessments;
+    const id = gradeObj.id;
+    const submitted_at = gradeObj.submitted_at;
     const group_id = assessments.assessment_groups.id; 
     const assessment_id = assessments.id;
 
@@ -166,6 +189,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	  upsertMetadata={(gradeObj: any[], grade: number) => updateMetadata(gradeObj, true, grade)}
 	  deleteMetadata={(gradeObj: any[]) => updateMetadata(gradeObj, false)}
 	  enrollmentId={enrollmentId!}
+	  currFormula={formula}
 	/>
 	<CoursePersonnelCard
 	  data={personnelData || []}
@@ -180,11 +204,16 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	  isLoading={isLoading} 
 	  completion={completion} 
 	/>
-	<CourseWeightChart 
-	  isLoading={isLoading} 
-	  chartData={chartData!} 
-	  chartConfig={chartConfig!} 
-	/>
+	{!(!!courseMetadata?.conditions && courseMetadata.author) 
+	  ? <CourseWeightChart 
+	    isLoading={isLoading} 
+	    chartData={chartData!} 
+	    chartConfig={chartConfig!} 
+	  />
+	  : <CourseConditionTable
+	    symbolValues={symbolValues}
+	  />
+	}
 	<CourseAverageChart
 	  isLoading={isLoading}
 	  averageChartData={averageChartData || []}

@@ -1,4 +1,5 @@
 import { AssessmentsDTO } from "./assessmentsTypes";
+import { ConditionGroupsDTO } from "./conditionGroupsTypes";
 
 export type AssessmentGroups = {
   id: string;
@@ -9,8 +10,8 @@ export type AssessmentGroups = {
   name: string;
   type: string | null;
   optional: boolean;
-  //condition_group_id: string;
+  condition_group_id: ConditionGroupsDTO | null;
   assessments: AssessmentsDTO[],
 };
 
-export type AssessmentGroupsDTO = Omit<AssessmentGroups, "id" | "course_id">;
+export type AssessmentGroupsDTO = Omit<AssessmentGroups, "course_id">;

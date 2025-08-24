@@ -7,6 +7,7 @@ class EnrollmentsRepository {
       .from("enrollments")
       .select(`
 	outlines (
+	  author,
 	  code,
 	  name,
 	  description,
@@ -26,10 +27,23 @@ class EnrollmentsRepository {
 	    role,
 	    email
 	  ),
-	  assessment_groups ( 
-	    *,
+	  assessment_groups (
+	    id,
+	    weight,
+	    count,
+	    drop,
+	    name,
+	    type,
+	    optional,
+	    condition_group_id (
+	      symbol
+	    ),
 	    assessments (
-	      *,
+	      id,
+	      weight,
+	      index,
+	      due_date,
+	      name,
 	      grades (
 		grade,
 		submitted_at,

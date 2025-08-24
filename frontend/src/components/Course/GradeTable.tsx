@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Check, Eraser, Info, Eye, EyeOff } from "lucide-react";
+import { Pencil, Check, Eraser, Info } from "lucide-react";
 import { COURSE_TITLE, COURSE_BIO, COURSE_ASSIGNMENTS } from "@/constants/SkeletonConstants";
 import CourseInfoDialog from "@/components/Course/CourseInfoDialog";
 import { useState, useEffect } from "react";
@@ -19,23 +19,26 @@ interface GradeTableProps {
   upsertMetadata: (gradeObj: any[], grade: number) => void,
   deleteMetadata: (gradeObj: any[]) => void,
   enrollmentId: string,
+  currFormula: string,
 };
 
-export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata, deleteMetadata, enrollmentId }: GradeTableProps) {
+export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata, deleteMetadata, enrollmentId, currFormula }: GradeTableProps) {
   const [editingState, setEditingState] = useState<Record<string, boolean>>({});
   const [inputState, setInputState] = useState<Record<string, string>>({});
+  const formula = !!courseMetadata?.conditions?.length;
+  console.log("FORMULA", currFormula);
 
   useEffect(() => {
     const newEditingState: Record<string, boolean> = {};
     const newInputState: Record<string, string> = {};
 
     if (!isLoading) {
-      courseMetadata!.assessment_groups?.map((assessment_group: any) =>
-	assessment_group.assessments.map((assessment: any) => { 
+      courseMetadata!.assessment_groups?.map((assessment_group: any) => {
+	return assessment_group.assessments.map((assessment: any) => { 
 	  newEditingState[assessment.id as string] = false;
 	  newInputState[assessment.id as string] = (assessment.grades.length) ? assessment.grades[0].grade : "";
 	})
-      );
+      });
 
       setEditingState(newEditingState);
       setInputState(newInputState);
@@ -100,7 +103,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
   };
 
   const handleGradeChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
-    console.log(e.target.value);
+    //console.log(e.target.value);
     setInputState((prevState) => ({
       ...prevState,
       [id]: e.target.value.replace(/[^0-9.]/g, '')
@@ -134,7 +137,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 	    </p>
 	  }
 	</CardDescription>
-	{!isLoading && courseMetadata.conditions[0]?.formula && (
+	{!isLoading && formula && (
 	  <CardAction>
 	    <Dialog>
 	      <DialogTrigger asChild>
@@ -143,6 +146,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 		</Button>
 	      </DialogTrigger>
 	      <CourseInfoDialog
+		currFormula={currFormula}
 		conditions={courseMetadata.conditions}
 	      />
 	    </Dialog>
@@ -175,8 +179,15 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 		      )}
 		    </TableCell>
 
-		    <TableCell>
-		      {(assessment.weight).toPrecision(2).replace(/(?:\.0+|(\.\d+?)0+)$/, "$1")}
+		    <TableCell> 
+		      <div className="flex flex-row gap-2 items-center">
+			{(!formula ? assessment.weight : assessment.weight * assessment_group.weight).toPrecision(2).replace(/(?:\.0+|(\.\d+?)0+)$/, "$1")}
+			{assessment_group?.condition_group_id?.symbol && (
+			  <Button size="icon" variant="outline" className="p-0 size-5">
+			    {assessment_group.condition_group_id.symbol}
+			  </Button>
+			)}
+		      </div>
 		    </TableCell>
 
 		    <TableCell className="flex w-min max-w-sm justify-center items-center gap-2">
