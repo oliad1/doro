@@ -8,6 +8,7 @@ class OutlinesRepository {
     const search = props.search;
     const dept = props.dept;
     const fac = props.fac;
+    const term = props.term;
 
     let coursesModel = supabase
       .from("outlines")
@@ -17,7 +18,9 @@ class OutlinesRepository {
 	name,
 	description,
 	author,
-	enrollments
+	enrollments,
+	term,
+	url
       `);
 
     if (!isVerified) {
@@ -43,6 +46,10 @@ class OutlinesRepository {
     if (typeof fac == "number") {
       const facFilters = DEPARTMENTS[fac].map((code) => `code.ilike.${code}%`).join(',');
       coursesModel = coursesModel.or(facFilters);
+    }
+
+    if (typeof term == "number") {
+      coursesModel = coursesModel.eq("term", term);
     }
 
     const { data, error } = await coursesModel;

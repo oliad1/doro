@@ -46,7 +46,8 @@ export const getSearchParams = (searchParams: SearchParams) => {
   return `?page=${searchParams.page}`
     + (!searchParams.search ? '' : `&search=${searchParams.search?.toUpperCase()}`)
     + (!searchParams.fac ? '' :`&fac=${searchParams.fac}`) 
-    + (searchParams?.dept=="Department" ? '' :`&dept=${searchParams?.dept}`);
+    + (searchParams?.dept=="Department" ? '' :`&dept=${searchParams.dept}`)
+    + (searchParams?.term=="Term" ? '' : `&term=${searchParams.term}`);
 }
 
 export const getParamsFromUrl = (search: string): SearchParams => {
@@ -364,3 +365,25 @@ const renderDropdown = (dropdown: any) => {
   if (dropdown.schemeNum) return dropdown.schemeNum;
   if (dropdown.id) return dropdown.id;
 };
+
+export const getTermName = (term: string) => {
+  let name: string = '';
+  switch (term[3]) {
+    case "1":
+      name += "Winter "+term.substring(1,3)
+      break
+
+    case "5":
+      name += "Spring "+term.substring(1,3)
+      break
+
+    case "9":
+      name += "Fall "+term.substring(1,3)
+      break
+
+    default:
+      break
+    }
+
+  return name;
+}

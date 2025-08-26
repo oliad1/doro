@@ -7,7 +7,8 @@ export type GetCoursesProps = {
   page: number,
   search?: string,
   dept?: string,
-  fac?: number 
+  fac?: number,
+  term?: number,
 };
 
 export type Outlines = {
@@ -18,15 +19,16 @@ export type Outlines = {
   term: number | null;
   author: string | null;
   enrollments: number | null;
+  url: string | null;
 };
 
-export type CourseInfoDTO = Omit<Outlines, "id" | "term" | "author" | "enrollments"> & {
+export type CourseInfoDTO = Omit<Outlines, "id" | "term" | "author" | "enrollments" | "url"> & {
   personnels: PersonnelsDTO[];
   assessment_groups: AssessmentGroupsDTO[];
   conditions: ConditionsDTO[];
 };
 
-export type CourseSearchDTO = Omit<Outlines, "term" | "author" | "enrollments"> & {
+export type CourseSearchDTO = Omit<Outlines, "author" | "enrollments"> & {
   author?: string | null;
   enrollments?: number | null;
 };

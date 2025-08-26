@@ -24,7 +24,8 @@ const getEnrollments = async (term: Term) => {
       id: enrollment.id,
       code: enrollment.outlines.code,
       verified: enrollment.outlines.author==null,
-      c_id: enrollment.outlines.id
+      c_id: enrollment.outlines.id,
+      url: enrollment.outlines.url
     }));
 
     return transformedData;

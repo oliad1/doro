@@ -25,6 +25,9 @@ outlinesRouter.get("/courses", isAuthorizedByExistence(), async (req, res) => {
       ...(Number.isInteger(Number(req.query.fac))) && {
 	fac: Number(req.query.fac)
       },
+      ...(Number.isInteger(Number(req.query.term))) && {
+	term: Number(req.query.term)
+      },
     };
     const data = await outlinesService.getCourses(props);
     res.status(200).json(data);

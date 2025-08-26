@@ -16,6 +16,7 @@ export type EnrollmentsSidebarDTO = Omit<Enrollments, "profile" | "term" | "cour
     id: string;
     code: string;
     author: string | null;
+    url: string | null;
   }
 };
 

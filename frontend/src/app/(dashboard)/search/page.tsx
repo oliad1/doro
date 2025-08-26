@@ -1,20 +1,23 @@
 "use client"
-import { Input } from "@/components/ui/input";
-import { ChevronDown, FilterX, Plus, Search, Minus } from 'lucide-react';
 import React, { useEffect, useState, useRef } from "react";
+import { useRouter } from 'next/navigation';
+import { toast } from "sonner";
+import { ChevronDown, FilterX, Plus, Search, Minus, ExternalLink, CircleDot } from 'lucide-react';
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { SEARCH_RESULTS } from "@/constants/SkeletonConstants";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
 import { Pagination } from "@/components/ui/pagination";
-import PaginationFooter from "@/components/Pagination/Pagination";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { DEPARTMENTS, FACULTIES, SearchParams } from '@/constants/SearchConstants';
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import PaginationFooter from "@/components/Pagination/Pagination";
+import { DEPARTMENTS, FACULTIES, TERMS, SearchParams } from '@/constants/SearchConstants';
 import { DELETE_COURSE_HEADER } from "@/constants/DialogConstants";
-import { useRouter } from 'next/navigation';
-import { getSearchParams } from "@/utils/helpers";
+import { OUTLINE_PAGE, UW_FLOW_PAGE } from "@/constants/Routes";
+import { SEARCH_RESULTS } from "@/constants/SkeletonConstants";
+import { getSearchParams, getTermName } from "@/utils/helpers";
 import { CourseDTO } from "@/types/Types";
-import { toast } from "sonner";
 import { useDashboardStore } from "@/providers/dashboard-store-provider";
 import OutlinesAPIClient from "@/APIClients/OutlinesAPIClient";
 
@@ -27,6 +30,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 
   const [facultyIndex, setFacultyIndex] = useState<number>();
   const [dept, setDept] = useState("Department");
+  const [searchTerm, setSearchTerm] = useState("Term");
   const [isLoading, setLoading] = useState<boolean>(true);
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
@@ -43,12 +47,13 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 	page: page.toString(),
 	...(validFaculty) && { fac: facultyIndex!.toString() },
 	dept: dept,
-	search: search
+	search: search,
+	term: searchTerm
       })
     , {
       scroll: false,
     });
-  }, [facultyIndex, dept, page, search, router]);
+  }, [facultyIndex, dept, page, search, router, searchTerm]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -72,6 +77,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
     setFacultyIndex(NaN);
     setDept("Department");
     setSearch("");
+    setSearchTerm("Term");
     setPage(1);
   }
 
@@ -93,6 +99,9 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
       }
       if (searchParams.has('dept')){
 	setDept(searchParams.get('dept')!);
+      }
+      if (searchParams.has('term')){
+	setSearchTerm(searchParams.get('term')!);
       }
 
       const { data, hasNextPage } = await OutlinesAPIClient.searchCourses(window.location.search, true) || {data: null, hasNextPage: false};
@@ -154,26 +163,50 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 		  <ChevronDown />
 		</Button>
 	      </DropdownMenuTrigger>
-	      {validFaculty && (
-		<DropdownMenuContent>
-		  <DropdownMenuRadioGroup value={dept}>
-		    {DEPARTMENTS[facultyIndex!].map((departmentOption) => (
-		      <DropdownMenuRadioItem 
-			key={departmentOption} 
-			value={departmentOption}
-			onSelect={() => {
-			  setLoading(true);
-			  setDept(departmentOption); 
-			  setSearch(query);
-			  setPage(1);
-			}
-			}>
-			{departmentOption}
-		      </DropdownMenuRadioItem>
-		    ))}
-		  </DropdownMenuRadioGroup>
-		</DropdownMenuContent>
-	      )}
+	      <DropdownMenuContent>
+		<DropdownMenuRadioGroup value={dept}>
+		  {[...(validFaculty ? DEPARTMENTS[facultyIndex!] : DEPARTMENTS.flat())].map((departmentOption) => (
+		    <DropdownMenuRadioItem 
+		      key={departmentOption} 
+		      value={departmentOption}
+		      onSelect={() => {
+			setLoading(true);
+			setDept(departmentOption); 
+			setSearch(query);
+			setPage(1);
+		      }}>
+		      {departmentOption}
+		    </DropdownMenuRadioItem>
+		  ))}
+		</DropdownMenuRadioGroup>
+	      </DropdownMenuContent>
+	    </DropdownMenu>
+
+	    <DropdownMenu>
+	      <DropdownMenuTrigger asChild>
+		<Button variant="outline">
+		  {getTermName(searchTerm) || "Term"}
+		  <ChevronDown />
+		</Button>
+	      </DropdownMenuTrigger>
+	      <DropdownMenuContent>
+		<DropdownMenuRadioGroup value={searchTerm}>
+		  {TERMS.map((termOption) => (
+		    <DropdownMenuRadioItem 
+		      key={termOption}
+		      value={termOption.toString()}
+		      onSelect={() => {
+			setLoading(true);
+			setSearchTerm(termOption.toString())
+			setDept("Department"); 
+			setSearch(query);
+			setPage(1);
+		      }}>
+		      {getTermName(termOption.toString())}
+		    </DropdownMenuRadioItem>
+		  ))}
+		</DropdownMenuRadioGroup>
+	      </DropdownMenuContent>
 	    </DropdownMenu>
 
 	    <Button onClick={clearFilters}>
@@ -189,22 +222,53 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 		{!results || !results[0]
 		  ? <p className="leading-7 [&:not(:first-child)]:mt-6">No results.</p>
 		  : results.map((result, i) => {
-		    const courseEnrolled = termCourses.some((course) => course.code == result.code);
+		    const courseEnrolled = termCourses.some((course) => course.c_id == result.id);
 		    return (
 		      <AlertDialog key={i}>
 		      <AccordionItem value={i.toString()} className="border rounded-md mb-3 overflow-hidden hover:bg-card/80">
 			<div data-course={i.toString()} className="flex items-center space-x-4 p-4 w-[-webkit-fill-available]">
 			  <AccordionTrigger className="py-0">
 			    <div className="flex-1 space-y-1">
-			      <p className="text-sm font-medium leading-none">
-				{result.code}
-			      </p>
+			      <div className="flex flex-row space-x-2 py-0 items-center">
+				<p className="text-sm font-medium leading-none">
+				  {result.code}
+				</p>
+				{(result.term && searchTerm=="Term") && (
+				  <Badge variant="secondary" className="rounded-full text-[10.5px] py-0 my-0">
+				    {getTermName(result.term.toString())}
+				  </Badge>)}
+			      </div>
 			      <p className="text-sm text-muted-foreground">
 				{result.name}
 			      </p>
 			    </div>
 			  </AccordionTrigger>
 			  <div className="flex items-center space-x-2">
+			    <Tooltip>
+			      <TooltipTrigger asChild>
+				<Button
+				  variant="ghost"
+				  className="p-0 size-8"
+				>
+				  <a 
+				    href={UW_FLOW_PAGE+result.code.split("/")[0].toLowerCase().replaceAll(" ", "")}
+				    target="_blank">
+				    <CircleDot/>
+				  </a>
+				</Button>
+			      </TooltipTrigger>
+			      <TooltipContent>
+				UW Flow
+			      </TooltipContent>
+			    </Tooltip>
+			    {(result.url) && (
+			      <Button
+				variant="ghost"
+				className="p-0 size-8"
+			      >
+				<a href={OUTLINE_PAGE+result.url} target="_blank"><ExternalLink/></a>
+			      </Button>
+			    )}
 			    {courseEnrolled
 			      ? <AlertDialogTrigger asChild>
 				<Button
@@ -218,7 +282,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 				variant="ghost"
 				className="p-0 size-8"
 				onClick={async () => {
-				  await addTermCourse({id: result.id, code: result.code, verified: true, c_id: result.id});
+				  await addTermCourse({id: result.id, code: result.code, verified: true, c_id: result.id, ...(result.url) && { url: result.url! }});
 				  toast.success(`Added ${result.code} to ${term}`, {
 				    richColors: true
 				  });
@@ -246,7 +310,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 			</div>
 			<AccordionContent>
 			  <div className="px-4 pb-0">
-			    <p className="text-sm text-muted-foreground">{result.description}</p>
+			    <p className="text-sm text-muted-foreground">{result.description ?? 'No description provided'}</p>
 			  </div>
 			</AccordionContent>
 		      </AccordionItem>

@@ -5,6 +5,8 @@ export type CourseDTO = {
   code: string;
   name: string;
   description: string;
+  url: string | null;
+  term: string | null;
 };
 
 export type SidebarCourseDTO = {
@@ -37,6 +39,7 @@ export type TermCourse = {
   code: string;
   verified: boolean;
   c_id: string;
+  url?: string;
 };
 
 export type GradeDTO = {

@@ -42,7 +42,8 @@ const addTermCourse = async (course: TermCourse, termCourses: TermCourse[], term
     id: newCourse.id,
     code: course.code,
     verified: course.verified,
-    c_id: course.id
+    c_id: course.id,
+    ...(course.url) && { url: course.url }
   };
   return [...termCourses, transformedCourse];
 };

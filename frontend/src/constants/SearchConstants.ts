@@ -18,6 +18,11 @@ export const DEPARTMENTS = [
     ["BET", "PD", "SAF", "ARCH", "DAC", "ENBUS", "SFM"]
 ];
 
+export const TERMS = [
+  1255,
+  1251,
+];
+
 export const enum SEARCH_PARAMS {
   FACULTY = 'fac',
   DEPARTMENT = 'dept',
@@ -31,4 +36,5 @@ export interface SearchParams {
   fac?: string;
   dept?: string;
   facName?: string;
+  term?: string;
 };
