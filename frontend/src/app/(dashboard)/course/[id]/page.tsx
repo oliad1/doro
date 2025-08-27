@@ -144,7 +144,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     fetchCourseData();
   }, [recalculate]);
 
-  const updateMetadata = (gradeObj: any, upsert: boolean, grade?: number) => {
+  const updateMetadata = (gradeObj: any, upsert: boolean, value?: any, isGrade?: boolean) => {
     const newData = JSON.parse(JSON.stringify(courseMetadata));
 
     const assessments = gradeObj.assessments;
@@ -158,17 +158,37 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	assessment_group.assessments.forEach((assessment: any) => {
 	  if (assessment.id === assessment_id) {
 	    if (upsert) {
-	      assessment.grades = [
-		{
-		  ...assessment.grades[0],
-		  assessment_id: assessment_id,
-		  grade: grade,
-		  id: id,
-		  submitted_at: submitted_at
+	      if (isGrade) {
+		assessment.grades = [
+		  {
+		    ...assessment.grades[0],
+		    assessment_id,
+		    grade: value,
+		    id,
+		    submitted_at
+		  }
+		];
+	      } else {
+		if (!!assessment.dates.length) {
+		  assessment.dates[0] = {
+		    id,
+		    date: value
+		  };
+		} else {
+		  assessment.dates = [
+		    {
+		      id,
+		      date: value
+		    }
+		  ]
 		}
-	      ];
+	      }
 	    } else {
-	      assessment.grades = [];
+	      if (isGrade) {
+		assessment.grades = [];
+	      } else {
+		assessment.dates = [];
+	      }
 	    }
 	  }
 	}
@@ -186,7 +206,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	<GradeTable
 	  isLoading={isLoading}
 	  courseMetadata={courseMetadata}
-	  upsertMetadata={(gradeObj: any[], grade: number) => updateMetadata(gradeObj, true, grade)}
+	  upsertMetadata={(gradeObj: any[], value: any, isGrade: boolean) => updateMetadata(gradeObj, true, value, isGrade)}
 	  deleteMetadata={(gradeObj: any[]) => updateMetadata(gradeObj, false)}
 	  enrollmentId={enrollmentId!}
 	  currFormula={formula}

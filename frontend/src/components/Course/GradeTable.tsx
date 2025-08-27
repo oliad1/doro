@@ -1,22 +1,26 @@
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Check, Eraser, Info } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Pencil, Check, Eraser, Info, Calendar as CalendarIcon, Trash2 } from "lucide-react";
 import { COURSE_TITLE, COURSE_BIO, COURSE_ASSIGNMENTS } from "@/constants/SkeletonConstants";
+import { CHANGE_COURSE_HEADER } from "@/constants/DialogConstants";
 import CourseInfoDialog from "@/components/Course/CourseInfoDialog";
-import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import GradesAPIClient from "@/APIClients/GradesAPIClient";
+import DatesAPIClient from "@/APIClients/DatesAPIClient";
 import { getAssessmentName } from "@/utils/helpers";
+import { format } from "date-fns"; 
 
 interface GradeTableProps {
   isLoading: boolean,
   courseMetadata: any,
-  upsertMetadata: (gradeObj: any[], grade: number) => void,
+  upsertMetadata: (gradeObj: any[], value: any, isGrade: boolean) => void,
   deleteMetadata: (gradeObj: any[]) => void,
   enrollmentId: string,
   currFormula: string,
@@ -25,8 +29,9 @@ interface GradeTableProps {
 export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata, deleteMetadata, enrollmentId, currFormula }: GradeTableProps) {
   const [editingState, setEditingState] = useState<Record<string, boolean>>({});
   const [inputState, setInputState] = useState<Record<string, string>>({});
+  const [editDate, setEditDate] = useState<Date | undefined>(undefined);
+  const editTimeRef = useRef<HTMLInputElement>(null);
   const formula = !!courseMetadata?.conditions?.length;
-  console.log("FORMULA", currFormula);
 
   useEffect(() => {
     const newEditingState: Record<string, boolean> = {};
@@ -53,7 +58,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
     const newGrade = await GradesAPIClient.upsertGrade(id, Number(value), enrollmentId);
     toast.dismiss("upsert");
     if (newGrade) {
-      upsertMetadata(newGrade, Number(value));
+      upsertMetadata(newGrade, Number(value), true);
       toast.success("New grades recalculated!", {
 	richColors: true
       });
@@ -89,6 +94,47 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
       return;
     }
   }
+
+  const upsertDate = async (id: string, value: Date | undefined) => {
+    toast.loading("Upserting Date", {
+      id: "upsert"+id,
+      richColors: true
+    });
+    const newDate = await DatesAPIClient.upsertDate(id, value, enrollmentId);
+    toast.dismiss("upsert"+id);
+    if (newDate) {
+      upsertMetadata(newDate, value, false);
+      toast.success("Saved new due date", {
+	richColors: true
+      });
+    } else {
+      toast.error("Error saving new date", {
+	richColors: true
+      });
+      return;
+    }
+  }
+
+  const deleteDate = async (id: string) => {
+    toast.loading("Clearing date", {
+      id: "clearing"+id,
+      richColors: true,
+    });
+
+    const deletedDate = await DatesAPIClient.deleteDate(id);
+    toast.dismiss("clearing"+id);
+    if (deletedDate) {
+      deleteMetadata(deletedDate);
+      toast.success("Reverted due date successfully", {
+	richColors: true
+      });
+    } else {
+      toast.error("Error deleting due date", {
+	richColors: true
+      });
+      return;
+    }
+  };
 
   const toggleEditing = (id: string) => {
     if (editingState[id]) {
@@ -161,14 +207,24 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 	      <TableHead>Name</TableHead>
 	      <TableHead>Weighting</TableHead>
 	      <TableHead>Grade</TableHead>
+	      <TableHead>Due Date</TableHead>
 	    </TableRow>
 	  </TableHeader>
 	  {isLoading
 	    ? <COURSE_ASSIGNMENTS />
 	    : <TableBody>
 	      {courseMetadata!.assessment_groups?.map((assessment_group: any) =>
-		assessment_group.assessments.map((assessment: any) => (
-		  <TableRow key={assessment.index}>
+		assessment_group.assessments.map((assessment: any) => {
+		  const date = !!assessment.dates.length 
+		    ? assessment.dates[0].date 
+		      ? new Date(assessment.dates[0].date) : undefined 
+		    : (assessment.due_date 
+		      ? (new Date(assessment.due_date)) : undefined);
+		  const now = new Date(Date.now())
+		  const datePassed = now > date! && date;
+		  const editDatePassed = now > editDate! && editDate;
+
+		  return <TableRow key={assessment.index}>
 		    <TableCell className="font-medium text-nowrap">
 		      {getAssessmentName(assessment_group, assessment.index)}
 		      {(assessment.dropped) && (
@@ -195,7 +251,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 			type="number"
 			onChange={(e)=>handleGradeChange(e, assessment.id)}
 			disabled={!(editingState[assessment.id as string]) as boolean}
-			value={inputState[assessment.id] || ''}
+			value={inputState[assessment.id] ?? ''}
 			className="min-w-24"
 			placeholder="Grade"
 		      />
@@ -219,8 +275,87 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 			<Eraser />
 		      </Button>
 		    </TableCell>
+
+		    <TableCell className="w-min">
+		      <div className="flex flex-row gap-2 items-center">
+			<Dialog>
+			  <DialogContent>
+			    <CHANGE_COURSE_HEADER/>
+			    <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-2">
+			      <Calendar
+				mode="single"
+				selected={editDate}
+				onSelect={(selectedDate) => setEditDate(selectedDate)}
+				captionLayout="dropdown"
+			      />
+			      <div className="flex flex-col items-center gap-y-2">
+				<Input
+				  ref={editTimeRef}
+				  type="time"
+				  defaultValue={editDate ? format(editDate, "hh:mm") : "23:59"}
+				  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+				/>
+				<Button
+				  variant="secondary" 
+				  className={"font-normal"+(!editDatePassed ? '' : " opacity-50")}
+				>
+				  <CalendarIcon/>
+				  {editDate ? format(editDate, ("MMM dd yyyy")) : "Select Date"}
+				</Button>
+			      </div>
+			    </div>
+			    <DialogFooter className="sm:justify-between">
+			      <DialogClose asChild>
+				<Button variant="ghost">Cancel</Button>
+			      </DialogClose>
+			      <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-min">
+				<Button variant="ghost" onClick={()=>{setEditDate(undefined)}} className="w-full sm:w-min text-destructive hover:text-destructive hover:bg-destructive/20 ">
+				  Clear
+				</Button>
+				<Button 
+				  onClick={()=>{
+				    console.log("INPUT", editTimeRef, editTimeRef?.current, editTimeRef?.current?.value);
+				    if (editTimeRef.current && editTimeRef.current.value.includes(":")) {
+				      const base = editDate ? new Date(editDate) : new Date();
+				      const updated = new Date(base);
+				      const [hour, minute] = editTimeRef?.current?.value.split(":").map((item) => Number.parseInt(item));
+				      updated.setHours(hour, minute);
+				      setEditDate(updated);
+				      upsertDate(assessment.id, updated);
+				    }
+				  }}
+				  className="w-full sm:w-min">
+				  Confirm 
+				</Button>
+			      </div>
+			    </DialogFooter>
+			  </DialogContent>
+			  <DialogTrigger asChild>
+			    <Button
+			      variant="secondary" 
+			      className={"font-normal"+(!datePassed ? '' : " opacity-50")}
+			      onClick={()=>{setEditDate(date)}}
+			      //disabled={now > date && assessment.due_date}
+			    >
+			      <CalendarIcon/>
+			      {date ? format(date, ("MMM dd yyyy h:mm a")) : "Select Date"}
+			    </Button>
+			  </DialogTrigger>
+			  {(!!assessment.dates.length) && (
+			    <Button
+			      size="icon"
+			      className="size-8 px-5"
+			      onClick={()=>deleteDate(assessment.id)}
+			      variant="secondary"
+			    >
+			      <Trash2/>
+			    </Button>
+			  )}
+			</Dialog>
+		      </div>
+		    </TableCell>
 		  </TableRow>
-		))
+		})
 	      )}
 	    </TableBody>
 	  }

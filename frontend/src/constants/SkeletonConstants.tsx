@@ -1,5 +1,5 @@
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { Eraser, Pencil, Plus, Download } from "lucide-react";
+import { Eraser, Pencil, Plus, Download, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,7 @@ export const COURSE_ASSIGNMENTS = () => {
     <TableBody>
       {Array.from({length: 6}, (_, i) =>
 	<TableRow key={i}>
-	  <TableCell className="font-medium">
+	  <TableCell className="font-medium text-nowrap">
 	    <Skeleton>
 	      <p className="opacity-0">
 		{COURSE_ASSIGNMENT_TITLE}
@@ -70,6 +70,18 @@ export const COURSE_ASSIGNMENTS = () => {
 	      <Eraser />
 	    </Button>
 	  </TableCell>
+
+	  <TableCell>
+	    <Button 
+	      variant="secondary" 
+	      className="font-normal"
+	      disabled={true}
+	    >
+	      <Calendar/>
+	      Due Date
+	    </Button>
+	  </TableCell>
+
 	</TableRow>
       )}
     </TableBody>

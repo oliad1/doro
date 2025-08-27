@@ -1,3 +1,5 @@
+import { DatesDTO } from "../types/datesTypes";
+
 export type Assessments = {
   id: string;
   group_id: string;
@@ -7,4 +9,6 @@ export type Assessments = {
   name: string | null;
 };
 
-export type AssessmentsDTO = Omit<Assessments, "group_id">;
+export type AssessmentsDTO = Omit<Assessments, "group_id"> & {
+  dates: DatesDTO[];
+};

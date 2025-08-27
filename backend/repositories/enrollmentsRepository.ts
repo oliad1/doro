@@ -48,6 +48,10 @@ class EnrollmentsRepository {
 		grade,
 		submitted_at,
 		assessment_id
+	      ),
+	      dates (
+		id,
+		date
 	      )
 	    )
 	  )
