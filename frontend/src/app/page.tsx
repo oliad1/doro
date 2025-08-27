@@ -68,8 +68,9 @@ export default function Page() {
   return (
     <div className="flex flex-1 flex-col items-center">
       <header className="bg-background sticky top-0 z-50 w-full flex justify-between px-5 py-3">
-	<Button variant="ghost" size="icon">
+	<Button variant="ghost">
 	  <TrendingUp/>
+	  Doro
 	</Button>
 	<Button asChild size="sm">
 	  <Link href={LOGIN_PAGE}>Get Started</Link>
