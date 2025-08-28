@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { motion, animate, useMotionValue } from "motion/react";
 import { useWindowSize } from '@react-hook/window-size';
+import VideoPlayer from "@/components/Landing/VideoPlayer";
 
 const quotes = [
   {
@@ -67,7 +68,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-1 flex-col items-center">
-      <header className="bg-background sticky top-0 z-50 w-full flex justify-between px-5 py-3">
+      <header className="bg-background sticky top-0 z-50 w-full flex justify-between px-5 pt-3">
 	<Button variant="ghost">
 	  <TrendingUp/>
 	  Doro
@@ -83,7 +84,7 @@ export default function Page() {
 	  </Link>
 	</Badge>
 	<PageHeaderHeading className="max-w-4xl">Your last grade tracker</PageHeaderHeading>
-        <PageHeaderDescription>A waterloo-tailored grade tracker with over 1000 courses with weights, dates, profs, and more.</PageHeaderDescription>
+        <PageHeaderDescription>A waterloo-tailored grade tracker with over 1700 courses with weights, dates, profs, and more.</PageHeaderDescription>
         <PageActions>
           <Button asChild size="sm">
             <Link href={LOGIN_PAGE}>Get Started</Link>
@@ -96,7 +97,8 @@ export default function Page() {
           </Button>
         </PageActions>
       </PageHeader>
-      <div className="w-[100vw] flex flex-row gap-2 overflow-hidden">
+      <VideoPlayer />
+      <div className="w-[100vw] flex flex-row gap-2 overflow-hidden pb-12">
 	<motion.div className="flex flex-row gap-2 left-0 h-min" ref={marqueeRef} style={{x}}>
 	  {[...quotes, ...quotes].map((testimony, i) => <Card className="min-w-[80vw] md:min-w-[50vw] lg:min-w-[20vw] px-4 flex flex-col justify-between" key={i}>
 	    <p className="text-muted-foreground">"{testimony.quote}"</p>

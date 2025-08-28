@@ -27,7 +27,7 @@ export default function CourseConditionTable ({ symbolValues }: CourseConditionT
 	    </TableRow>
 	  </TableHeader>
 	  <TableBody>
-	    {symbolValues.map((entry, i) => (
+	    {(symbolValues ?? []).map((entry, i) => (
 	      <TableRow key={i}>
 		<TableCell className="font-medium text-nowrap">
 		  {entry.symbol}

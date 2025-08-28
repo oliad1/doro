@@ -8,7 +8,7 @@ function PageHeader({
   return (
     <section className={cn("border-grid", className)} {...props}>
       <div className="container-wrapper">
-        <div className="container flex flex-col items-center gap-2 py-8 text-center md:py-16 lg:py-20 xl:gap-4">
+        <div className="container flex flex-col items-center gap-2 py-8 text-center md:pt-16 md:pb-10 lg:pt-20 lg:pt-15 xl:gap-4">
           {children}
         </div>
       </div>
