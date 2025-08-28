@@ -1,7 +1,7 @@
 import { DatesActionDTO, UpsertDateProps } from "../types/datesTypes";
 import { jwtSupabaseClient } from "../models/index";
 
-class GradesRepository {
+class DatesRepository {
   async upsertDate(jwt: string, payload: UpsertDateProps): Promise<DatesActionDTO> {
     const { data, error } = await jwtSupabaseClient(jwt)
       .from("dates")
@@ -51,4 +51,4 @@ class GradesRepository {
   };
 };
 
-export default GradesRepository;
+export default DatesRepository;

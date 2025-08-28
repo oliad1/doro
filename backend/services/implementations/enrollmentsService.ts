@@ -1,6 +1,6 @@
 import EnrollmentsRepository from "../../repositories/enrollmentsRepository";
 import OutlinesRepository from "../../repositories/outlinesRepository";
-import { EnrollmentsInfoDTO, EnrollmentsSidebarDTO, EnrollmentsCourseActionDTO } from "../../types/enrollmentsTypes";
+import { EnrollmentsInfoDTO, EnrollmentsSidebarDTO, EnrollmentsCourseActionDTO, EnrollmentsDateDTO } from "../../types/enrollmentsTypes";
 import IEnrollmentsService from "../interfaces/enrollmentsService.interface";
 import logger from "../../utils/logger";
 import { getErrorMessage } from "../../utils/errorUtils";
@@ -36,6 +36,19 @@ class EnrollmentsService implements IEnrollmentsService {
       data = this.enrollmentsRepository.getEnrollments(jwt, term);
     } catch (error: unknown) {
       Logger.error(`Failed to get term enrollments. Reason: ${getErrorMessage(error)}`);
+      throw error;
+    }
+
+    return data;
+  };
+
+  async getEnrollmentDates(jwt: string, id: string): Promise<EnrollmentsDateDTO> {
+    let data: Promise<EnrollmentsDateDTO>;
+
+    try {
+      data = this.enrollmentsRepository.getCourseDates(jwt, id);
+    } catch (error: unknown) {
+      Logger.error(`Failed to get dates for enrollment ${id}. Reason: ${getErrorMessage(error)}`)
       throw error;
     }
 

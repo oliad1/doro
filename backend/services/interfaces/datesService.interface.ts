@@ -1,4 +1,4 @@
-import { DatesActionDTO, UpsertDateProps } from "../../types/datesTypes";
+import { DatesActionDTO, UpsertDateProps, DatesDTO } from "../../types/datesTypes";
 
 interface IDatesService {
   upsertDate(jwt: string, payload: UpsertDateProps): Promise<DatesActionDTO>

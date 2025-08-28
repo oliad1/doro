@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
-import { Pencil, Check, Eraser, Info, Calendar as CalendarIcon, Trash2 } from "lucide-react";
+import { Pencil, Check, Eraser, SquareFunction, Calendar as CalendarIcon, Trash2 } from "lucide-react";
 import { COURSE_TITLE, COURSE_BIO, COURSE_ASSIGNMENTS } from "@/constants/SkeletonConstants";
 import { CHANGE_COURSE_HEADER } from "@/constants/DialogConstants";
 import CourseInfoDialog from "@/components/Course/CourseInfoDialog";
@@ -21,7 +21,7 @@ interface GradeTableProps {
   isLoading: boolean,
   courseMetadata: any,
   upsertMetadata: (gradeObj: any[], value: any, isGrade: boolean) => void,
-  deleteMetadata: (gradeObj: any[]) => void,
+  deleteMetadata: (gradeObj: any[], isGrade: boolean) => void,
   enrollmentId: string,
   currFormula: string,
 };
@@ -83,7 +83,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 	...prevState,
 	[id]: ''
       }));
-      deleteMetadata(deletedGrade);
+      deleteMetadata(deletedGrade, true);
       toast.success("New grades recalculated!", {
 	richColors: true
       });
@@ -100,6 +100,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
       id: "upsert"+id,
       richColors: true
     });
+    console.log(value)
     const newDate = await DatesAPIClient.upsertDate(id, value, enrollmentId);
     toast.dismiss("upsert"+id);
     if (newDate) {
@@ -124,7 +125,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
     const deletedDate = await DatesAPIClient.deleteDate(id);
     toast.dismiss("clearing"+id);
     if (deletedDate) {
-      deleteMetadata(deletedDate);
+      deleteMetadata(deletedDate, false);
       toast.success("Reverted due date successfully", {
 	richColors: true
       });
@@ -188,7 +189,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 	    <Dialog>
 	      <DialogTrigger asChild>
 		  <Button variant="ghost" className="p-0 aspect-square">
-		    <Info/>
+		    <SquareFunction/>
 		</Button>
 	      </DialogTrigger>
 	      <CourseInfoDialog
@@ -292,7 +293,7 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 				<Input
 				  ref={editTimeRef}
 				  type="time"
-				  defaultValue={editDate ? format(editDate, "hh:mm") : "23:59"}
+				  defaultValue={editDate ? format(editDate, "HH:mm") : "23:59"}
 				  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
 				/>
 				<Button

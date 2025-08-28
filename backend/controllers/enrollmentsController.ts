@@ -30,6 +30,17 @@ enrollmentsRouter.get("/term/:term", isAuthorizedByExistence(), async (req, res)
   }
 });
 
+enrollmentsRouter.get("/dates/:id", isAuthorizedByExistence(), async (req, res) => {
+  try {
+    const id = req.params.id;
+    const jwt = getJWTHeader(req)!;
+    const data = await enrollmentsService.getEnrollmentDates(jwt, id);
+    res.status(200).json(data.outlines);
+  } catch (error: unknown) {
+    res.status(500).json({ error: getErrorMessage(error) });
+  }
+});
+
 enrollmentsRouter.post("/course/", isAuthorizedByExistence(), async (req, res) => {
   try {
     const { term , course_id } = req.body;

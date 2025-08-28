@@ -1,4 +1,4 @@
-import { EnrollmentsInfoDTO, EnrollmentsSidebarDTO, EnrollmentsCourseActionDTO } from "../types/enrollmentsTypes";
+import { EnrollmentsInfoDTO, EnrollmentsSidebarDTO, EnrollmentsCourseActionDTO, EnrollmentsDateDTO } from "../types/enrollmentsTypes";
 import { jwtSupabaseClient } from "../models/index";
 
 class EnrollmentsRepository {
@@ -83,6 +83,35 @@ class EnrollmentsRepository {
 
     if (!data || error) {
       throw new Error(`${term} enrollments not found.`);
+    }
+
+    return data;
+  };
+
+  async getCourseDates(jwt: string, id: string): Promise<EnrollmentsDateDTO> {
+    const { data, error } = await jwtSupabaseClient(jwt)
+      .from("enrollments")
+      .select(`
+	outlines (
+	  assessment_groups (
+	    name,
+	    count,
+	    assessments (
+	      due_date,
+	      name,
+	      index,
+	      dates (
+		date
+	      )
+	    )
+	  )
+	)
+      `)
+      .eq("id", id)
+      .single();
+    
+    if (!data || error) {
+      throw new Error(`Failed to insert date. Error: ${error.message}`);
     }
 
     return data;

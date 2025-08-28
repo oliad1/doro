@@ -196,7 +196,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     });
 
     setCourseMetadata(newData);
-    setRecalculate(true);
+    if (isGrade) {
+      setRecalculate(true);
+    }
   }
 
 
@@ -207,7 +209,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 	  isLoading={isLoading}
 	  courseMetadata={courseMetadata}
 	  upsertMetadata={(gradeObj: any[], value: any, isGrade: boolean) => updateMetadata(gradeObj, true, value, isGrade)}
-	  deleteMetadata={(gradeObj: any[]) => updateMetadata(gradeObj, false)}
+	  deleteMetadata={(gradeObj: any[], isGrade: boolean) => updateMetadata(gradeObj, false, undefined, isGrade)}
 	  enrollmentId={enrollmentId!}
 	  currFormula={formula}
 	/>

@@ -1,5 +1,5 @@
 import DatesRepository from "../../repositories/datesRepository";
-import { DatesActionDTO, UpsertDateProps } from "../../types/datesTypes";
+import { DatesActionDTO, UpsertDateProps, DatesDTO } from "../../types/datesTypes";
 import IDatesService from "../implementations/datesService";
 import logger from "../../utils/logger";
 import { getErrorMessage } from "../../utils/errorUtils";

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import EnrollmentsAPIClient from "@/APIClients/EnrollmentsAPIClient";
 
 export const capitalize = (str: string) => {
   return str.charAt(0).toUpperCase() + str.substring(1);
@@ -387,3 +388,40 @@ export const getTermName = (term: string) => {
 
   return name;
 }
+
+export const exportCalendar = async (id: string, code: string) => {
+  const data = await EnrollmentsAPIClient.getEnrollmentDates(id);
+
+  let icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:-//Doro//NONSGML v1.0//EN
+X-WR-CALNAME:${code}`;
+
+  (data.assessment_groups as any[]).forEach((group) => {
+    (group.assessments as any[]).forEach((assessment, i) => {
+      if (assessment.dates?.length || assessment.due_date) {
+	console.log("ITEM", assessment);
+	const base = assessment.dates?.length ? assessment.dates[0].date : assessment.due_date;
+	const formattedDate = format(new Date(base), "yyyyMMdd'T'HHmmss'Z'");
+	icsContent += `
+BEGIN:VEVENT
+UID:event${assessment.name ?? getAssessmentName(group, assessment.index)}${i}@doro.study
+DTSTAMP:${formattedDate}
+DTSTART;TZID="America/Toronto":${formattedDate}
+DTEND;TZID="America/Toronto":${formattedDate}
+SUMMARY:${assessment.name ?? getAssessmentName(group, assessment.index)}
+END:VEVENT`;
+      }
+    });
+  });
+
+  icsContent += `
+END:VCALENDAR`;
+
+  const blob = new Blob([icsContent], { type: 'text/calendar' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${code.replaceAll(" ", "_")}.ics`;
+  link.click();
+};

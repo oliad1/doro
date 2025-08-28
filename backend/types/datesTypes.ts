@@ -5,7 +5,18 @@ type Dates = {
   enrollment_id: string;
 };
 
-export type DatesDTO = Omit<Dates, "id" | "assessment_id" | "enrollment_id">;
+export type DatesDTO = Omit<Dates, "id" | "assessment_id" | "enrollment_id"> & {
+  assessments: {
+    name: string | null;
+    index: number | null;
+    assessment_groups: {
+      name: string | null;
+      count: number | null;
+    } | null;
+  } | null;
+};
+
+export type DatesInfoDTO = Omit<Dates, "assessment_id" | "enrollment_id">;
 
 export type UpsertDateProps = Omit<Dates, "id">;
 

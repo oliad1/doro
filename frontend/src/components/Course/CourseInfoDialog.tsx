@@ -10,7 +10,7 @@ export default function CourseInfoDialog ({currFormula, conditions}: CourseInfoD
   return (
     <DialogContent>
       <DialogHeader>
-	<DialogTitle>Course Info</DialogTitle>
+	<DialogTitle>Course Formulas</DialogTitle>
 	<DialogDescription asChild>
 	  <Table>
 	    <TableHeader>

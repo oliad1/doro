@@ -20,4 +20,21 @@ export type EnrollmentsSidebarDTO = Omit<Enrollments, "profile" | "term" | "cour
   }
 };
 
+export type EnrollmentsDateDTO = Omit<Enrollments, "id" | "profile" | "term" | "course_id"> & {
+  outlines: {
+    assessment_groups: {
+      name: string | null;
+      count: number;
+      assessments: {
+	due_date: string | null;
+	name: string | null;
+	index: number;
+	dates: {
+	  date: number | null;
+	}[];
+      }[];
+    }[];
+  };
+};
+
 export type EnrollmentsCourseActionDTO = Omit<Enrollments, "term" | "profile" | "course_id">;

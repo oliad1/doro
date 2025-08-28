@@ -56,6 +56,27 @@ const getEnrollment = async (enrollment_id: string) => {
   }
 };
 
+const getEnrollmentDates = async (enrollment_id: string): Promise<any> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const jwt = session!.access_token;
+    
+    const res = await base.get(
+      `/enrollments/dates/${enrollment_id}`, {
+      headers: { Authorization: `Bearer ${jwt}` }
+    });
+
+    if (!isSuccess(res)) {
+      throw new Error(`Response status ${res.status}`);
+    }
+
+    return res.data;
+  } catch (error) {
+    console.log("Error:", error);
+    return null;
+  }
+};
+
 const addEnrollment = async (course: TermCourse, term: Term) => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -107,6 +128,7 @@ const dropEnrollment = async (id: string) => {
 export default {
   getEnrollments,
   getEnrollment,
+  getEnrollmentDates,
   addEnrollment,
   dropEnrollment,
 };

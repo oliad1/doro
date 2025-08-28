@@ -3,10 +3,10 @@ import { useEffect, useTransition } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from 'next/link';
 import React from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger, Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, useSidebar, SidebarMenuAction } from "@/components/ui/sidebar";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ChevronDown, ChevronRight, ChevronsUpDown, ChevronUp, Home, Loader2, LogOut, Search, Settings, TrendingUp, Trash2, RefreshCcw, Globe, SquarePlus, Check, BadgeCheckIcon, CircleDot, ExternalLink } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, SidebarMenuAction } from "@/components/ui/sidebar";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ChevronDown, ChevronsUpDown, Home, Loader2, LogOut, Search, TrendingUp, Trash2, RefreshCcw, Globe, SquarePlus, BadgeCheckIcon, CircleDot, ExternalLink, Calendar } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,14 +14,15 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
+import { Term } from "@/types/Types";
 import { logoutAction } from "@/actions/users";
 import { navigate } from '@/actions/redirect';
 import { LOGIN_PAGE, SEARCH_PAGE, UW_FLOW_PAGE, OUTLINE_PAGE } from '@/constants/Routes';
 import { STUDY_TERMS, WORK_TERMS } from "@/constants/SidebarConstants";
 import { DELETE_COURSE_HEADER } from "@/constants/DialogConstants";
-import { Term } from "@/types/Types";
 import { useDashboardStore } from "@/providers/dashboard-store-provider";
 import CookiesAPIClient from "@/APIClients/CookiesAPIClient";
+import { exportCalendar } from "@/utils/helpers";
 
 interface SidebarProps {
   user: User | null | undefined,
@@ -248,6 +249,10 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
 				  )}
 				</>
 			      )}
+			      <DropdownMenuItem onClick={()=>exportCalendar(course.id, course.code)}>
+				<Calendar/>
+				Export Calendar
+			      </DropdownMenuItem>
 			      <AlertDialogTrigger asChild>
 				<DropdownMenuItem variant="destructive">
 				  <Trash2 />
