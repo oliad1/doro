@@ -24,11 +24,13 @@ import outlinesRouter from "./controllers/outlinesController";
 import enrollmentsRouter from "./controllers/enrollmentsController";
 import gradesRouter from "./controllers/gradesController";
 import datesRouter from "./controllers/datesController";
+import objectsController from "./controllers/objectsController";
 
 app.use("/outlines", outlinesRouter);
 app.use("/enrollments", enrollmentsRouter);
 app.use("/grades", gradesRouter);
 app.use("/dates", datesRouter);
+app.use("/objects", objectsController);
 
 app.listen({ port: process.env.PORT || 8080 }, () => {
   console.info(`Server is listening on port ${process.env.PORT || 8080}`);

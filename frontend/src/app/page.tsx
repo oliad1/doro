@@ -13,6 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { motion, animate, useMotionValue } from "motion/react";
 import { useWindowSize } from '@react-hook/window-size';
 import VideoPlayer from "@/components/Landing/VideoPlayer";
+import ObjectsAPIClient from "@/APIClients/ObjectsAPIClient";
 
 const quotes = [
   {
@@ -43,6 +44,7 @@ const quotes = [
 ];
 
 export default function Page() {
+  const [url, setUrl] = useState<string>();
   const marqueeRef = useRef<HTMLDivElement | null>(null);
   const [marqueeWidth, setMarqueeWidth] = useState(0);
   const x = useMotionValue(0);
@@ -65,6 +67,16 @@ export default function Page() {
     });
     return controls.stop;
   }, [x, marqueeWidth]);
+
+
+  useEffect(() => {
+    const fetchUrl = async () => {
+      const s3Url = await ObjectsAPIClient.getUrl('demo_video');
+      setUrl(s3Url);
+    };
+
+    fetchUrl();
+  }, []);
 
   return (
     <div className="flex flex-1 flex-col items-center">
@@ -97,7 +109,7 @@ export default function Page() {
           </Button>
         </PageActions>
       </PageHeader>
-      <VideoPlayer />
+      <VideoPlayer url={url} />
       <div className="w-[100vw] flex flex-row gap-2 overflow-hidden pb-12">
 	<motion.div className="flex flex-row gap-2 left-0 h-min" ref={marqueeRef} style={{x}}>
 	  {[...quotes, ...quotes].map((testimony, i) => <Card className="min-w-[80vw] md:min-w-[50vw] lg:min-w-[20vw] px-4 flex flex-col justify-between" key={i}>

@@ -1,9 +1,13 @@
 "use client";
 import { MediaController } from "media-chrome/react";
 
-export default function VideoPlayer () {
+export interface VideoPlayerProps {
+  url: string | undefined;
+};
+
+export default function VideoPlayer ({url}: VideoPlayerProps) {
   return (
-    <MediaController className="hidden sm:block sm:w-[70%] sm:pb-12 bg-transparent">
+    <MediaController className="w-[90%] sm:w-[70%] pb-12 bg-transparent pointer-events-none">
       <video
 	playsInline
 	autoPlay
@@ -12,10 +16,10 @@ export default function VideoPlayer () {
 	muted
 	slot="media"
 	tabIndex={-1}
-	className="mtz-vlc-dkbcc sm:rounded-lg"
-      >
-	<source src="/demo.mp4" type="video/mp4"></source>
-      </video>
+	className="mtz-vlc-dkbcc rounded-lg aspect-[829/540] data-[loaded=false]:animate-pulse data-[loaded=false]:bg-primary/10"
+	data-loaded={!!url}
+	src={url}
+      />
     </MediaController>
   );
 };
