@@ -2,17 +2,17 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
-import { ChevronDown, FilterX, Plus, Search, Minus, ExternalLink, CircleDot } from 'lucide-react';
+import { ChevronDown, Plus, Search, Minus, ExternalLink, CircleDot } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
 import { Pagination } from "@/components/ui/pagination";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import PaginationFooter from "@/components/Pagination/Pagination";
-import { DEPARTMENTS, FACULTIES, TERMS, SearchParams } from '@/constants/SearchConstants';
+import Filter from "@/components/Search/Filters";
+import { SearchParams } from '@/constants/SearchConstants';
 import { DELETE_COURSE_HEADER } from "@/constants/DialogConstants";
 import { OUTLINE_PAGE, UW_FLOW_PAGE } from "@/constants/Routes";
 import { SEARCH_RESULTS } from "@/constants/SkeletonConstants";
@@ -50,9 +50,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 	search: search,
 	term: searchTerm
       })
-    , {
-      scroll: false,
-    });
+    );
   }, [facultyIndex, dept, page, search, router, searchTerm]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +78,13 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
     setSearchTerm("Term");
     setPage(1);
   }
+
+  const onFilterChange = (func: ()=>void) => {
+    setLoading(true);
+    setPage(1);
+    setSearch(query);
+    func();
+  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -117,118 +122,52 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
   return (
     <Pagination className="no-scrollbar">
       <div className="w-full mx-4">
-	<div className="w-full sticky py-3 flex flex-col lg:flex-row items-center justify-center gap-2">
-	  <>
-	    <Input 
-	      value={query.toUpperCase()}
-	      onChange={handleSearch}
-	      onKeyDown={handlePress}
-	      placeholder="Search"
-	      leadingIcon={<Search className="h-4" />}
-	    />
-	  </>
-	  <div className="flex flex-row self-start gap-2">
-	    <DropdownMenu>
-	      <DropdownMenuTrigger asChild className="faculty">
-		<Button variant="outline"> 
-		  {validFaculty ? FACULTIES[facultyIndex!] : "Faculty"}
-		  <ChevronDown />
-		</Button>
-	      </DropdownMenuTrigger>
-	      <DropdownMenuContent>
-		<DropdownMenuRadioGroup value={validFaculty ? FACULTIES[facultyIndex!] : ""}>
-		  {FACULTIES.map((facultyOption, i) => (
-		    <DropdownMenuRadioItem
-		      key={facultyOption}
-		      value={facultyOption}
-		      onSelect={() => {
-			setLoading(true);
-			setFacultyIndex(i);
-			setSearch(query);
-			setDept("Department");
-			setPage(1);
-		      }
-		      }>
-		      {facultyOption}
-		    </DropdownMenuRadioItem>
-		  ))}
-		</DropdownMenuRadioGroup>
-	      </DropdownMenuContent>
-	    </DropdownMenu>
-
-	    <DropdownMenu>
-	      <DropdownMenuTrigger asChild className="department">
-		<Button variant="outline">
-		  {dept}
-		  <ChevronDown />
-		</Button>
-	      </DropdownMenuTrigger>
-	      <DropdownMenuContent>
-		<DropdownMenuRadioGroup value={dept}>
-		  {[...(validFaculty ? DEPARTMENTS[facultyIndex!] : DEPARTMENTS.flat())].map((departmentOption) => (
-		    <DropdownMenuRadioItem 
-		      key={departmentOption} 
-		      value={departmentOption}
-		      onSelect={() => {
-			setLoading(true);
-			setDept(departmentOption); 
-			setSearch(query);
-			setPage(1);
-		      }}>
-		      {departmentOption}
-		    </DropdownMenuRadioItem>
-		  ))}
-		</DropdownMenuRadioGroup>
-	      </DropdownMenuContent>
-	    </DropdownMenu>
-
-	    <DropdownMenu>
-	      <DropdownMenuTrigger asChild>
-		<Button variant="outline">
-		  {getTermName(searchTerm) || "Term"}
-		  <ChevronDown />
-		</Button>
-	      </DropdownMenuTrigger>
-	      <DropdownMenuContent>
-		<DropdownMenuRadioGroup value={searchTerm}>
-		  {TERMS.map((termOption) => (
-		    <DropdownMenuRadioItem 
-		      key={termOption}
-		      value={termOption.toString()}
-		      onSelect={() => {
-			setLoading(true);
-			setSearchTerm(termOption.toString())
-			setDept("Department"); 
-			setSearch(query);
-			setPage(1);
-		      }}>
-		      {getTermName(termOption.toString())}
-		    </DropdownMenuRadioItem>
-		  ))}
-		</DropdownMenuRadioGroup>
-	      </DropdownMenuContent>
-	    </DropdownMenu>
-
-	    <Button onClick={clearFilters}>
-	      <FilterX/>
-	    </Button>
-	  </div>
+	<div className="sticky py-3 flex flex-col lg:flex-row items-center justify-center gap-2">
+	  <Input 
+	    value={query.toUpperCase()}
+	    onChange={handleSearch}
+	    onKeyDown={handlePress}
+	    placeholder="Search"
+	    leadingIcon={<Search className="h-4" />}
+	  />
+	  <Filter
+	    facIndex={facultyIndex}
+	    dept={dept}
+	    searchTerm={searchTerm}
+	    clearFilters={clearFilters}
+	    onFacChange={(i: number) => {
+	      onFilterChange(()=>{
+		setFacultyIndex(i);
+		setDept("Department");
+	      });
+	    }}
+	    onDeptChange={(dept: string) => {
+	      onFilterChange(()=>{
+		setDept(dept); 
+	      });
+	    }}
+	    onTermChange={(term: string)=> {
+	      onFilterChange(()=>{
+		setSearchTerm(term);
+	      });
+	    }}
+	  />
 	</div>
 
 	<div ref={resultsRef} className="max-h-[80vh]">
 	  {isLoading 
 	    ? <SEARCH_RESULTS />
 	    : <Accordion type="multiple" className="w-full">
-		{!results || !results[0]
-		  ? <p className="leading-7 [&:not(:first-child)]:mt-6">No results.</p>
-		  : results.map((result, i) => {
-		    const courseEnrolled = termCourses.some((course) => course.c_id == result.id);
-		    return (
-		      <AlertDialog key={i}>
-		      <AccordionItem value={i.toString()} className="border rounded-md mb-3 overflow-hidden hover:bg-card/80">
-			<div data-course={i.toString()} className="flex items-center space-x-4 p-4 w-[-webkit-fill-available]">
-			  <AccordionTrigger className="py-0">
-			    <div className="flex-1 space-y-1">
+	      {!results || !results[0]
+		? <p className="leading-7 [&:not(:first-child)]:mt-6">No results.</p>
+		: results.map((result, i) => {
+		  const courseEnrolled = termCourses.some((course) => course.c_id == result.id);
+		  return (
+		    <AlertDialog key={i}>
+		      <AccordionItem value={i.toString()} className="border rounded-md mb-3 overflow-hidden hover:bg-card/80 py-0 pr-4">
+			<div data-course={i.toString()} className="flex items-center space-x-4 w-[-webkit-fill-available]">
+			  <AccordionTrigger className="pl-4">
+			    <div className="flex-1 space-y-1 flex-col self-start items-start justify-start">
 			      <div className="flex flex-row space-x-2 py-0 items-center">
 				<p className="text-sm font-medium leading-none">
 				  {result.code}
@@ -243,20 +182,20 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 			      </p>
 			    </div>
 			  </AccordionTrigger>
-			  <div className="flex items-center space-x-2">
+			  <div className="flex items-center gap-2">
 			    <Tooltip>
-			      <TooltipTrigger asChild>
-				<Button
-				  variant="ghost"
-				  className="p-0 size-8"
-				>
-				  <a 
-				    href={UW_FLOW_PAGE+result.code.split("/")[0].toLowerCase().replaceAll(" ", "")}
-				    target="_blank">
+			      <a 
+				href={UW_FLOW_PAGE+result.code.split("/")[0].toLowerCase().replaceAll(" ", "")}
+				target="_blank">
+				<TooltipTrigger asChild>
+				  <Button
+				    variant="ghost"
+				    className="p-0 size-8"
+				  >
 				    <CircleDot/>
-				  </a>
-				</Button>
-			      </TooltipTrigger>
+				  </Button>
+				</TooltipTrigger>
+			      </a>
 			      <TooltipContent>
 				UW Flow
 			      </TooltipContent>
@@ -282,7 +221,13 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 				variant="ghost"
 				className="p-0 size-8"
 				onClick={async () => {
-				  await addTermCourse({id: result.id, code: result.code, verified: true, c_id: result.id, ...(result.url) && { url: result.url! }});
+				  await addTermCourse({
+				    id: result.id,
+				    code: result.code,
+				    verified: true,
+				    c_id: result.id,
+				    ...(result.url) && { url: result.url! }
+				  });
 				  toast.success(`Added ${result.code} to ${term}`, {
 				    richColors: true
 				  });
@@ -318,7 +263,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 		  )}
 		)}
 	    </Accordion>}
-	  
+
 	  <PaginationFooter
 	    page={page}
 	    incrementPage={() => handlePageChange(page+1)}

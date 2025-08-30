@@ -4,13 +4,13 @@ import OutlinesAPIClient from "@/APIClients/OutlinesAPIClient";
 import { Card, CardHeader, CardContent, CardAction, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Pagination, PaginationContent } from "@/components/ui/pagination";
-import PaginationFooter from "@/components/Pagination/Pagination";
 import { Button } from "@/components/ui/button";
+import PaginationFooter from "@/components/Pagination/Pagination";
+import Filter from "@/components/Search/Filters";
 import { COMMUNITY_RESULTS } from "@/constants/SkeletonConstants";
-import { DEPARTMENTS, FACULTIES, SearchParams } from '@/constants/SearchConstants';
+import {  SearchParams } from '@/constants/SearchConstants';
 import { Input } from "@/components/ui/input";
-import { ChevronDown, FilterX, Search, Plus, Minus, Download } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {  Search, Plus, Minus, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getSearchParams } from "@/utils/helpers";
 import { toast } from "sonner";
@@ -71,7 +71,14 @@ export default function Community (searchParams: Promise<SearchParams>) {
     setDept("Department");
     setSearch("");
     setPage(1);
-  }
+  };
+
+  const onFilterChange = (func: ()=>void) => {
+    setLoading(true);
+    setPage(1);
+    setSearch(query);
+    func();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -107,7 +114,7 @@ export default function Community (searchParams: Promise<SearchParams>) {
       <div className="flex flex-col items-center mx-2 my-4 w-full" >
 	<div className="mb-5 flex flex-col items-center">
 	  <h1 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight " >Community Courses</h1>
-	  <p className="text-muted-foreground">Created by the community. For the community.</p>
+	  <p className="text-muted-foreground text-center">Created by the community. For the community.</p>
 	</div>
 	<div className="w-full sticky py-3 flex flex-col lg:flex-row items-center justify-center gap-2 lg:mb-5">
 	  <Input 
@@ -117,68 +124,22 @@ export default function Community (searchParams: Promise<SearchParams>) {
 	    placeholder="Search"
 	    leadingIcon={<Search className="h-4" />}
 	  />
-	  <div className="flex flex-row self-start gap-2">
-	    <DropdownMenu>
-	      <DropdownMenuTrigger asChild className="faculty">
-		<Button variant="outline">
-		  {validFaculty ? FACULTIES[facIndex!] : "Faculty"}
-		  <ChevronDown />
-		</Button>
-	      </DropdownMenuTrigger>
-	      <DropdownMenuContent>
-		<DropdownMenuRadioGroup value={validFaculty ? FACULTIES[facIndex!] : ""}>
-		  {FACULTIES.map((facultyOption, i) => (
-		    <DropdownMenuRadioItem
-		      key={facultyOption}
-		      value={facultyOption}
-		      onSelect={() => { 
-			setLoading(true);
-			setFacIndex(i);
-			setSearch(query);
-			setDept("Department");
-			setPage(1);
-		      }
-		    }>
-		    {facultyOption}
-		    </DropdownMenuRadioItem>
-		  ))}
-		</DropdownMenuRadioGroup>
-	      </DropdownMenuContent>
-	    </DropdownMenu>
-
-	    <DropdownMenu>
-	      <DropdownMenuTrigger asChild className="department">
-		<Button variant="outline">
-		  {dept}
-		  <ChevronDown />
-		</Button>
-	      </DropdownMenuTrigger>
-	      {validFaculty && (
-		<DropdownMenuContent>
-		  <DropdownMenuRadioGroup value={dept}>
-		    {DEPARTMENTS[facIndex!].map((departmentOption) => (
-		      <DropdownMenuRadioItem 
-			key={departmentOption} 
-			value={departmentOption}
-			onSelect={() => {
-			  setLoading(true);
-			  setDept(departmentOption); 
-			  setSearch(query);
-			  setPage(1);
-			}
-			}>
-			{departmentOption}
-		      </DropdownMenuRadioItem>
-		    ))}
-		  </DropdownMenuRadioGroup>
-		</DropdownMenuContent>
-	      )}
-	    </DropdownMenu>
-
-	    <Button onClick={clearFilters}>
-	      <FilterX/>
-	    </Button>
-	  </div>
+	  <Filter
+	    facIndex={facIndex}
+	    dept={dept}
+	    clearFilters={clearFilters}
+	    onFacChange={(i: number) => {
+	      onFilterChange(()=>{
+		setFacIndex(i);
+		setDept("Department");
+	      });
+	    }}
+	    onDeptChange={(dept: string) => {
+	      onFilterChange(()=>{
+		setDept(dept); 
+	      });
+	    }}
+	  />
 	</div>
 	<PaginationContent className="w-full">
 	  {loading

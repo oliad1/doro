@@ -1,10 +1,10 @@
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { Eraser, Pencil, Plus, Download, Calendar } from "lucide-react";
+import { Eraser, Pencil, Plus, Download, Calendar, CircleDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion";
-import { Card, CardHeader, CardContent, CardAction, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardHeader, CardAction, CardTitle, CardDescription } from "@/components/ui/card";
 
 export const COURSE_CODE = `ACTSC 363`;
 
@@ -109,6 +109,9 @@ export const SEARCH_RESULTS = () => {
 	      </div>
 	    </AccordionTrigger>
 	    <div className="flex items-center space-x-2">
+	      <Button variant="ghost" className="p-0 size-8">
+		<CircleDot/>
+	      </Button>
 	      <Button variant="ghost" className="p-0 h-8 w-8">
 		<Plus className="h-4 w-4" />
 	      </Button>

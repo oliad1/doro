@@ -48,7 +48,7 @@ export const getSearchParams = (searchParams: SearchParams) => {
     + (!searchParams.search ? '' : `&search=${searchParams.search?.toUpperCase()}`)
     + (!searchParams.fac ? '' :`&fac=${searchParams.fac}`) 
     + (searchParams?.dept=="Department" ? '' :`&dept=${searchParams.dept}`)
-    + (searchParams?.term=="Term" ? '' : `&term=${searchParams.term}`);
+    + (typeof searchParams.term=="undefined" ? '' : searchParams?.term=="Term" ? '' : `&term=${searchParams.term}`);
 }
 
 export const getParamsFromUrl = (search: string): SearchParams => {
