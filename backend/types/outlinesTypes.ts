@@ -1,14 +1,16 @@
 import { PersonnelsDTO } from "./personnelsTypes";
 import { AssessmentGroupsDTO } from "./assessmentGroupsTypes";
 import { ConditionsDTO } from "./conditionsTypes";
+import { TypesDTO } from "./typesTypes";
 
 export type GetCoursesProps = {
-  isVerified: boolean,
-  page: number,
-  search?: string,
-  dept?: string,
-  fac?: number,
-  term?: number,
+  isVerified: boolean;
+  page: number;
+  search?: string;
+  dept?: string;
+  fac?: number;
+  term?: number;
+  types?: string[];
 };
 
 export type Outlines = {
@@ -31,6 +33,8 @@ export type CourseInfoDTO = Omit<Outlines, "id" | "term" | "author" | "enrollmen
 export type CourseSearchDTO = Omit<Outlines, "author" | "enrollments"> & {
   author?: string | null;
   enrollments?: number | null;
+  types_filter: TypesDTO[];
+  types: TypesDTO[];
 };
 
 //export type CourseSearchDTO = Omit<Outlines, "id" | "term">;

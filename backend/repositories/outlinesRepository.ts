@@ -9,6 +9,7 @@ class OutlinesRepository {
     const dept = props.dept;
     const fac = props.fac;
     const term = props.term;
+    const types = props.types;
 
     let coursesModel = supabase
       .from("outlines")
@@ -20,7 +21,13 @@ class OutlinesRepository {
 	author,
 	enrollments,
 	term,
-	url
+	url,
+	types_filter:types ${types?.length ? '!inner' : ''} (
+	  type
+	),
+	types:types (
+	  type
+	)
       `);
 
     if (!isVerified) {
@@ -50,6 +57,10 @@ class OutlinesRepository {
 
     if (typeof term == "number") {
       coursesModel = coursesModel.eq("term", term);
+    }
+
+    if (types?.length) {
+      coursesModel = coursesModel.in("types_filter.type", types);
     }
 
     const { data, error } = await coursesModel;

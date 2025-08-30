@@ -23,6 +23,22 @@ export const TERMS = [
   1251,
 ];
 
+export const TYPES = [
+  "LAB",
+  "PRA",
+  "TUT",
+  "FLD",
+  "RDG",
+  "LEC",
+  "DIS",
+  "PRJ",
+  "TST",
+  "STU",
+  "OLN",
+  "CLN",
+  "SEM",
+];
+
 export const enum SEARCH_PARAMS {
   FACULTY = 'fac',
   DEPARTMENT = 'dept',
@@ -37,4 +53,5 @@ export interface SearchParams {
   dept?: string;
   facName?: string;
   term?: string;
+  types?: string[];
 };

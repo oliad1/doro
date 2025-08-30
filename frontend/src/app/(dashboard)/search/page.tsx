@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
-import { ChevronDown, Plus, Search, Minus, ExternalLink, CircleDot } from 'lucide-react';
+import { Plus, Search, Minus, ExternalLink, CircleDot, EyeOff, Eye } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, } from "@/components/ui/accordion"
@@ -31,7 +31,9 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
   const [facultyIndex, setFacultyIndex] = useState<number>();
   const [dept, setDept] = useState("Department");
   const [searchTerm, setSearchTerm] = useState("Term");
+  const [courseTypes, setCourseTypes] = useState<string[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
+  const [badgesVisible, setBadgesVisible] = useState(true);
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<CourseDTO[] | null>([]);
@@ -48,10 +50,11 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 	...(validFaculty) && { fac: facultyIndex!.toString() },
 	dept: dept,
 	search: search,
-	term: searchTerm
+	term: searchTerm,
+	types: courseTypes
       })
     );
-  }, [facultyIndex, dept, page, search, router, searchTerm]);
+  }, [facultyIndex, dept, page, search, searchTerm, courseTypes, router]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -76,6 +79,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
     setDept("Department");
     setSearch("");
     setSearchTerm("Term");
+    setCourseTypes([]);
     setPage(1);
   }
 
@@ -108,6 +112,12 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
       if (searchParams.has('term')){
 	setSearchTerm(searchParams.get('term')!);
       }
+      if (searchParams.has('types')){
+	const filterList = searchParams.get('types')!.split(",");
+	if (filterList.length != courseTypes.length) {
+	  setCourseTypes(filterList);
+	}
+      }
 
       const { data, hasNextPage } = await OutlinesAPIClient.searchCourses(window.location.search, true) || {data: null, hasNextPage: false};
 
@@ -131,24 +141,50 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 	    leadingIcon={<Search className="h-4" />}
 	  />
 	  <Filter
+	    badgesVisible={badgesVisible}
 	    facIndex={facultyIndex}
 	    dept={dept}
 	    searchTerm={searchTerm}
+	    courseTypes={courseTypes}
 	    clearFilters={clearFilters}
+	    toggleVisible={()=> {
+	      setBadgesVisible(!badgesVisible);
+	    }}
 	    onFacChange={(i: number) => {
 	      onFilterChange(()=>{
-		setFacultyIndex(i);
-		setDept("Department");
+		if (i==facultyIndex){
+		  setFacultyIndex(undefined);
+		} else {
+		  setFacultyIndex(i);
+		}
+		if (dept!="Department") {
+		  setDept("Department");
+		}
 	      });
 	    }}
-	    onDeptChange={(dept: string) => {
+	    onDeptChange={(selectedDept: string) => {
 	      onFilterChange(()=>{
-		setDept(dept); 
+		if (dept==selectedDept) {
+		  setDept("Department");
+		} else {
+		  setDept(selectedDept);
+		}
 	      });
 	    }}
-	    onTermChange={(term: string)=> {
+	    onTermChange={(selectedTerm: string)=> {
 	      onFilterChange(()=>{
-		setSearchTerm(term);
+		if (selectedTerm==searchTerm) {
+		  setSearchTerm("Term");
+		} else {
+		  setSearchTerm(selectedTerm);
+		}
+	      });
+	    }}
+	    toggleChecked={(type: string) => {
+	      onFilterChange(() => {
+		setCourseTypes(
+		  (courseTypes.some((item) => item==type)) ? courseTypes.filter((item) => item != type) : [...courseTypes, type]
+		);
 	      });
 	    }}
 	  />
@@ -164,18 +200,25 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 		  const courseEnrolled = termCourses.some((course) => course.c_id == result.id);
 		  return (
 		    <AlertDialog key={i}>
-		      <AccordionItem value={i.toString()} className="border rounded-md mb-3 overflow-hidden hover:bg-card/80 py-0 pr-4">
+		      <AccordionItem value={i.toString()} className="border rounded-md mb-3 overflow-hidden hover:bg-card/80 py-0 pr-4 sm:w-full">
 			<div data-course={i.toString()} className="flex items-center space-x-4 w-[-webkit-fill-available]">
 			  <AccordionTrigger className="pl-4">
 			    <div className="flex-1 space-y-1 flex-col self-start items-start justify-start">
-			      <div className="flex flex-row space-x-2 py-0 items-center">
-				<p className="text-sm font-medium leading-none">
+			      <div className="flex flex-row flex-wrap gap-2 py-0 items-center max-w-[39vw]">
+				<p className="text-sm font-medium leading-none w-max">
 				  {result.code}
 				</p>
-				{(result.term && searchTerm=="Term") && (
-				  <Badge variant="secondary" className="rounded-full text-[10.5px] py-0 my-0">
-				    {getTermName(result.term.toString())}
-				  </Badge>)}
+				{/*<div className="flex flex-row gap-2 flex-wrap">*/}
+				  {(result.term && searchTerm=="Term" && badgesVisible) && (
+				    <Badge variant="secondary" className="rounded-full text-[10.5px] py-0 my-0">
+				      {getTermName(result.term.toString())}
+				    </Badge>)}
+				  {(badgesVisible) && result.types.map((type, i) => (
+				    <Badge key={i} variant="secondary" className="rounded-full text-[10.5px] py-0 my-0">
+				      {type.type}
+				    </Badge>
+				  ))}
+				{/*</div>*/}
 			      </div>
 			      <p className="text-sm text-muted-foreground">
 				{result.name}

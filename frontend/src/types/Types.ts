@@ -7,6 +7,9 @@ export type CourseDTO = {
   description: string;
   url: string | null;
   term: string | null;
+  types: {
+    type: string;
+  }[];
 };
 
 export type SidebarCourseDTO = {

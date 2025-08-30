@@ -130,13 +130,23 @@ export default function Community (searchParams: Promise<SearchParams>) {
 	    clearFilters={clearFilters}
 	    onFacChange={(i: number) => {
 	      onFilterChange(()=>{
-		setFacIndex(i);
-		setDept("Department");
+		if (i==facIndex){
+		  setFacIndex(undefined);
+		} else {
+		  setFacIndex(i);
+		}
+		if (dept!="Department") {
+		  setDept("Department");
+		}
 	      });
 	    }}
-	    onDeptChange={(dept: string) => {
+	    onDeptChange={(selectedDept: string) => {
 	      onFilterChange(()=>{
-		setDept(dept); 
+		if (dept==selectedDept) {
+		  setDept("Department");
+		} else {
+		  setDept(selectedDept);
+		}
 	      });
 	    }}
 	  />

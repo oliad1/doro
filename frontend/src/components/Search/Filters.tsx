@@ -1,21 +1,26 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerClose, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
-import { ChevronDown, FilterX } from 'lucide-react';
-import { DEPARTMENTS, FACULTIES, TERMS } from '@/constants/SearchConstants';
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ChevronDown, FilterX, EyeOff, Eye } from 'lucide-react';
+import { DEPARTMENTS, FACULTIES, TERMS, TYPES } from '@/constants/SearchConstants';
 import { getTermName } from "@/utils/helpers";
 
 interface FilterProps {
+  badgesVisible?: boolean,
   facIndex: number | undefined,
   dept: string,
   searchTerm?: string,
+  courseTypes?: string[],
   clearFilters: () => void,
   onFacChange: (i: number) => void,
   onDeptChange: (dept: string) => void,
   onTermChange?: (searchTerm: string) => void,
+  toggleChecked?: (key: string) => void,
+  toggleVisible?: () => void,
 }
 
-export default function Filter ({ facIndex, dept, searchTerm, clearFilters, onFacChange, onDeptChange, onTermChange }: FilterProps) {
+export default function Filter ({ badgesVisible, facIndex, dept, searchTerm, courseTypes, clearFilters, onFacChange, onDeptChange, onTermChange, toggleChecked, toggleVisible }: FilterProps) {
   return (
     <div className="flex flex-row gap-2 self-end">
       <Drawer>
@@ -36,10 +41,12 @@ export default function Filter ({ facIndex, dept, searchTerm, clearFilters, onFa
 	      facIndex={facIndex}
 	      dept={dept}
 	      searchTerm={searchTerm}
+	      courseTypes={courseTypes}
 	      clearFilters={clearFilters}
 	      onFacChange={onFacChange}
 	      onDeptChange={onDeptChange}
 	      onTermChange={onTermChange}
+	      toggleChecked={toggleChecked}
 	    />
 
 	    <DrawerFooter>
@@ -54,22 +61,41 @@ export default function Filter ({ facIndex, dept, searchTerm, clearFilters, onFa
 	      facIndex={facIndex}
 	      dept={dept}
 	      searchTerm={searchTerm}
+	      courseTypes={courseTypes}
 	      clearFilters={clearFilters}
 	      onFacChange={onFacChange}
 	      onDeptChange={onDeptChange}
 	      onTermChange={onTermChange}
+	      toggleChecked={toggleChecked}
 	    />
 	  </div>
-	  <Button onClick={clearFilters}>
-	    <FilterX/>
-	  </Button>
+	  {(typeof badgesVisible == "boolean") && (<Tooltip>
+	    <TooltipContent>
+	      Hide Tags
+	    </TooltipContent>
+	    <TooltipTrigger asChild>
+	      <Button variant="secondary" onClick={toggleVisible}>
+		{badgesVisible ? <Eye/> : <EyeOff/>}
+	      </Button>
+	    </TooltipTrigger>
+	  </Tooltip>)}
+	  <Tooltip>
+	    <TooltipContent>
+	      Clear Filters
+	    </TooltipContent>
+	    <TooltipTrigger asChild>
+	      <Button onClick={clearFilters}>
+		<FilterX/>
+	      </Button>
+	    </TooltipTrigger>
+	  </Tooltip>
 	</div>
       </Drawer>
     </div>
   );
 };
 
-function ResponsiveFilters ({ facIndex, dept, searchTerm, onFacChange, onDeptChange, onTermChange }: FilterProps) {
+function ResponsiveFilters ({ facIndex, dept, searchTerm, courseTypes, onFacChange, onDeptChange, onTermChange, toggleChecked }: FilterProps) {
   const validFaculty = Number.isInteger(facIndex);
 
   return (
@@ -135,6 +161,27 @@ function ResponsiveFilters ({ facIndex, dept, searchTerm, onFacChange, onDeptCha
 		</DropdownMenuRadioItem>
 	      ))}
 	    </DropdownMenuRadioGroup>
+	  </DropdownMenuContent>
+	</DropdownMenu>
+      )}
+
+      {(courseTypes) && (
+	<DropdownMenu>
+	  <DropdownMenuTrigger asChild>
+	    <Button variant="outline">
+	      Type
+	      <ChevronDown />
+	    </Button>
+	  </DropdownMenuTrigger>
+	  <DropdownMenuContent>
+	    {TYPES.map((typeOption) => (
+	      <DropdownMenuCheckboxItem
+		key={typeOption}
+		checked={courseTypes!.some((item)=> item==typeOption)}
+		onCheckedChange={()=>toggleChecked!(typeOption)}>
+		{typeOption}
+	      </DropdownMenuCheckboxItem>
+	    ))}
 	  </DropdownMenuContent>
 	</DropdownMenu>
       )}
