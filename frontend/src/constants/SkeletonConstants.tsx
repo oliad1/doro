@@ -28,63 +28,59 @@ const COURSE_ASSIGNMENT_WEIGHT = `
 `;
 
 export const COURSE_ASSIGNMENTS = () => {
-  return (
-    <TableBody>
-      {Array.from({length: 6}, (_, i) =>
-	<TableRow key={i}>
-	  <TableCell className="font-medium text-nowrap">
-	    <Skeleton>
-	      <p className="opacity-0">
-		{COURSE_ASSIGNMENT_TITLE}
-	      </p>
-	    </Skeleton>
-	  </TableCell>
+  return Array.from({length: 6}, (_, i) =>
+    <TableRow key={i}>
+      <TableCell className="font-medium text-nowrap">
+	<Skeleton>
+	  <p className="opacity-0">
+	    {COURSE_ASSIGNMENT_TITLE}
+	  </p>
+	</Skeleton>
+      </TableCell>
 
-	  <TableCell>
-	    <Skeleton>
-	      <p className="opacity-0">
-		{COURSE_ASSIGNMENT_WEIGHT}
-	      </p>
-	    </Skeleton>
-	  </TableCell>
+      <TableCell>
+	<Skeleton>
+	  <p className="opacity-0">
+	    {COURSE_ASSIGNMENT_WEIGHT}
+	  </p>
+	</Skeleton>
+      </TableCell>
 
-	  <TableCell className="flex w-min max-w-sm justify-center items-center gap-2">
-	    <Input
-	      type="number"
-	      disabled={true}
-	      className="min-w-24"
-	      value={'...'}
-	    />
-	    <Button
-	      size="icon"
-	      className="size-8 px-5"
-	      variant="secondary"
-	    >
-	      <Pencil/>
-	    </Button>
-	    <Button
-	      size="icon"
-	      className="size-8 px-5"
-	      variant="secondary"
-	    >
-	      <Eraser />
-	    </Button>
-	  </TableCell>
+      <TableCell className="flex w-min max-w-sm justify-center items-center gap-2">
+	<Input
+	  type="number"
+	  disabled={true}
+	  className="min-w-24"
+	  value={'...'}
+	/>
+	<Button
+	  size="icon"
+	  className="size-8 px-5"
+	  variant="secondary"
+	>
+	  <Pencil/>
+	</Button>
+	<Button
+	  size="icon"
+	  className="size-8 px-5"
+	  variant="secondary"
+	>
+	  <Eraser />
+	</Button>
+      </TableCell>
 
-	  <TableCell>
-	    <Button 
-	      variant="secondary" 
-	      className="font-normal"
-	      disabled={true}
-	    >
-	      <Calendar/>
-	      Due Date
-	    </Button>
-	  </TableCell>
+      <TableCell>
+	<Button 
+	  variant="secondary" 
+	  className="font-normal"
+	  disabled={true}
+	>
+	  <Calendar/>
+	  Due Date
+	</Button>
+      </TableCell>
 
-	</TableRow>
-      )}
-    </TableBody>
+    </TableRow>
   )
 };
 

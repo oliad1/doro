@@ -23,6 +23,7 @@ import { DELETE_COURSE_HEADER } from "@/constants/DialogConstants";
 import { useDashboardStore } from "@/providers/dashboard-store-provider";
 import CookiesAPIClient from "@/APIClients/CookiesAPIClient";
 import { exportCalendar } from "@/utils/helpers";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SidebarProps {
   user: User | null | undefined,
@@ -58,6 +59,7 @@ const items = [
 
 export default function DashboardSidebar({ user, loading }: SidebarProps) {
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   const { termCourses, term, setTerm, fetchTermCourses, deleteTermCourse } = useDashboardStore(
     (state) => state,
@@ -127,7 +129,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
       <SidebarHeader>
 	<div className="flex flex-row overflow-hidden w-full gap-2 p-2 h-8 items-center text-left">
 	  <TrendingUp />
-	  {open && (
+	  {(open || isMobile) && (
 	    <span className="text-md font-semibold">Doro</span>
 	  )}
 	</div>

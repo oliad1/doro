@@ -14,7 +14,7 @@ interface HomeRadarChartProps {
 export default function HomeRadarChart ({chartData}: HomeRadarChartProps) {
   return (
     <Card> 
-      <CardHeader className="items-center pb-4">
+      <CardHeader className="items-center">
 	<CardTitle>Radar Chart</CardTitle>
 	<CardDescription>Showing your average amongst courses</CardDescription>
       </CardHeader>

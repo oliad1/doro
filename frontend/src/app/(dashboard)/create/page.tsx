@@ -18,7 +18,7 @@ import { AssessmentGroup, Assessment } from "@/types/TableTypes";
 import { type CourseType } from "@/types/Types";
 import { assessmentGroupsCols, assessmentsCols, conditionGroupCols, conditionsCols, personnelsCols } from "@/constants/TableConstants";
 import TableSheet from "@/components/Create/Sheet/TableSheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
@@ -87,7 +87,7 @@ export default function CreatePage () {
   return (
     <div className="p-5 h-screen flex flex-col justify-between">
       <Progress value={((stepper.current.index+1)/steps.length)*100} />
-      <ScrollArea className="py-5">
+      <ScrollArea className="py-5 max-w-[79vw] sm:max-w-full">
 	{stepper.switch({
 	  first: () => <CourseType />,
 	  second: () => <GeneralInfo form={generalInfoForm} />,
@@ -95,6 +95,7 @@ export default function CreatePage () {
 	  fourth: () => <Personnel sensors={sensors} table={table} />,
 	  fifth: () => <SubmitForm />
 	})}
+	<ScrollBar orientation="horizontal"/>
       </ScrollArea>
       {!stepper.isLast
 	? <div
@@ -360,13 +361,13 @@ const Assessments = ({ sensors, table }: AssessmentsProps) => {
   );
 
   const conditionsTable = useTable(conditionsSchema, {
-      lower: 0,
-      formula: "",
-    },
+    lower: 0,
+    formula: "",
+  },
     conditions,
     "conditions"
   );
-  
+
   return (
     <div className="lg:mx-[20vw] space-y-10">
       <TableSheet

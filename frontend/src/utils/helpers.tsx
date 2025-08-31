@@ -67,10 +67,9 @@ export const getCourseStats = (assessment_groups: any, isFormula: boolean, condi
   let sum = 0;
   let sum_weights = 0;
   let total_weights = 0;
-  let symbolValues: Record<string, number> = {}
+  let symbolValues: Record<string, number> = {};
   
   assessment_groups.forEach((group: any) => {
-
     group.assessments.forEach((assessment: any) => {
       const gradeObj = assessment.grades[0];
 
@@ -97,7 +96,8 @@ export const getCourseStats = (assessment_groups: any, isFormula: boolean, condi
   if (isFormula) {
     const symbolArr = [];
     for (const condition of conditions!) {
-      if (symbolValues[condition.condition_group_id.symbol] >= condition.lower) {
+      const symbol = condition.condition_group_id.symbol;
+      if (symbolValues[symbol] >= condition.lower || typeof symbolValues[symbol] == "undefined") {
 	let formula = condition.formula;
 	console.log(condition.formula);
 
@@ -108,8 +108,10 @@ export const getCourseStats = (assessment_groups: any, isFormula: boolean, condi
 	  });
 
 	  formula = formula.replaceAll(symbol, symbolValues[symbol].toString());
-	  console.log(symbol, symbolValues[symbol]);
+	  console.log(symbol, symbolValues[symbol] ?? 0);
 	}
+	
+	formula = formula.replaceAll(/[a-zA-Z]/g, "0");
 
 	return { newAverage: eval(formula), newCompletion: (sum_weights/total_weights)*100, symbolValues: symbolArr, formula: condition.formula };
       }
