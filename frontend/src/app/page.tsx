@@ -79,7 +79,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col items-center">
+    <div className="flex flex-1 flex-col items-center w-full overflow-x-hidden">
       <header className="bg-background sticky top-0 z-50 w-full flex justify-between px-5 pt-3">
 	<Button variant="ghost">
 	  <TrendingUp/>
