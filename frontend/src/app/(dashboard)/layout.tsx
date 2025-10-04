@@ -5,6 +5,7 @@ import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import ProfilesAPIClient from "@/APIClients/ProfilesAPIClient";
 import { DashboardStoreProvider } from "@/providers/dashboard-store-provider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DashboardProps {
     children: React.ReactNode,
@@ -25,18 +26,18 @@ export default function DashboardLayout({ children }: DashboardProps) {
     setLoading(false);
   }, []);
 
-  return <div className="flex flex-row overflow-x-hidden">
+  return <ScrollArea className="flex flex-row overflow-x-hidden">
     <DashboardStoreProvider>
       <SidebarProvider>
 	<DashboardSidebar 
 	  user={user}
 	  loading={loading}
 	/>
-	<SidebarTrigger className="-ml-1 mx-2 my-4 px-2" />
+	<SidebarTrigger className="-ml-1 mx-2 my-4 px-2 sticky top-4" />
 	<SidebarInset>
 	  {children}
 	</SidebarInset>
       </SidebarProvider>
     </DashboardStoreProvider>
-  </div>
+  </ScrollArea>
 }

@@ -132,7 +132,7 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
   return (
     <Pagination className="no-scrollbar">
       <div className="w-full mx-4">
-	<div className="sticky py-3 flex flex-col lg:flex-row items-center justify-center gap-2">
+	<div className="sticky top-0 bg-[var(--background)] z-50 opacity-100 py-3 flex flex-col lg:flex-row items-center justify-center gap-2">
 	  <Input 
 	    value={query.toUpperCase()}
 	    onChange={handleSearch}
@@ -210,11 +210,11 @@ export default function SearchPage(searchParams: Promise<SearchParams>) {
 				</p>
 				{/*<div className="flex flex-row gap-2 flex-wrap">*/}
 				  {(result.term && searchTerm=="Term" && badgesVisible) && (
-				    <Badge variant="secondary" className="rounded-full text-[10.5px] py-0 my-0">
+				    <Badge variant="secondary" className="h-[14px] rounded-full text-[10.5px] py-0 my-0">
 				      {getTermName(result.term.toString())}
 				    </Badge>)}
 				  {(badgesVisible) && result.types.map((type, i) => (
-				    <Badge key={i} variant="secondary" className="rounded-full text-[10.5px] py-0 my-0">
+				    <Badge key={i} variant="secondary" className="h-[14px] rounded-full text-[10.5px] py-0 my-0">
 				      {type.type}
 				    </Badge>
 				  ))}
