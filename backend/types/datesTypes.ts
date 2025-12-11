@@ -20,7 +20,10 @@ export type DatesInfoDTO = Omit<Dates, "assessment_id" | "enrollment_id">;
 
 export type UpsertDateProps = Omit<Dates, "id">;
 
-export type DatesActionDTO = Omit<Dates, "assessment_id" | "enrollment_id" | "date"> & {
+export type DatesActionDTO = Omit<
+  Dates,
+  "assessment_id" | "enrollment_id" | "date"
+> & {
   assessments: {
     id: string | null;
     assessment_groups: {

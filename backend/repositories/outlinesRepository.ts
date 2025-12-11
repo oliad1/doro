@@ -4,16 +4,14 @@ import { supabase, jwtSupabaseClient } from "../models/index";
 
 class OutlinesRepository {
   async getCourses(props: GetCoursesProps): Promise<CourseSearchDTO[]> {
-    const { isVerified, page } = props; 
+    const { isVerified, page } = props;
     const search = props.search;
     const dept = props.dept;
     const fac = props.fac;
     const term = props.term;
     const types = props.types;
 
-    let coursesModel = supabase
-      .from("outlines")
-      .select(`
+    let coursesModel = supabase.from("outlines").select(`
 	id,
 	code,
 	name,
@@ -22,7 +20,7 @@ class OutlinesRepository {
 	enrollments,
 	term,
 	url,
-	types_filter:types ${types?.length ? '!inner' : ''} (
+	types_filter:types ${types?.length ? "!inner" : ""} (
 	  type
 	),
 	types:types (
@@ -32,18 +30,20 @@ class OutlinesRepository {
 
     if (!isVerified) {
       coursesModel = coursesModel
-	.not("author", "is", null)
-	.order("enrollments", { ascending: false });
+        .not("author", "is", null)
+        .order("enrollments", { ascending: false });
     } else {
       coursesModel = coursesModel.is("author", null);
     }
 
-    const start = 10*(page-1); //0, 10
+    const start = 10 * (page - 1); //0, 10
 
-    coursesModel = coursesModel.range(start, (start+10));
+    coursesModel = coursesModel.range(start, start + 10);
 
     if (search && search.length) {
-      coursesModel = coursesModel.or(`code.ilike.${search}%, name.ilike.${search}%`);
+      coursesModel = coursesModel.or(
+        `code.ilike.${search}%, name.ilike.${search}%`,
+      );
     }
 
     if (dept && dept.length) {
@@ -51,7 +51,9 @@ class OutlinesRepository {
     }
 
     if (typeof fac == "number") {
-      const facFilters = DEPARTMENTS[fac].map((code) => `code.ilike.${code}%`).join(',');
+      const facFilters = DEPARTMENTS[fac]
+        .map((code) => `code.ilike.${code}%`)
+        .join(",");
       coursesModel = coursesModel.or(facFilters);
     }
 
@@ -70,17 +72,21 @@ class OutlinesRepository {
     }
 
     return data;
-  };
+  }
 
   async incrementEnrollment(jwt: string, course_id: string): Promise<any> {
     try {
-      const { data, error } = await jwtSupabaseClient(jwt)
-	.rpc("increment_enrollment", {
-	  _course_id: course_id
-	});
+      const { data, error } = await jwtSupabaseClient(jwt).rpc(
+        "increment_enrollment",
+        {
+          _course_id: course_id,
+        },
+      );
 
       if (error) {
-	throw new Error(`Failed to increment enrollment. Reason: ${error.message}`);
+        throw new Error(
+          `Failed to increment enrollment. Reason: ${error.message}`,
+        );
       }
 
       return data;
@@ -88,17 +94,18 @@ class OutlinesRepository {
       console.log("Error:", error);
       return;
     }
-  };
+  }
 
   async decrementEnrollment(jwt: string, enrollment_id: string): Promise<any> {
     try {
-      const { data, error } = await supabase
-	.rpc("decrement_enrollment", {
-	  _enrollment_id: enrollment_id
-	});
-      
+      const { data, error } = await supabase.rpc("decrement_enrollment", {
+        _enrollment_id: enrollment_id,
+      });
+
       if (!data || error) {
-	throw new Error(`Failed to decrement enrollment. Reason: ${error?.message}`);
+        throw new Error(
+          `Failed to decrement enrollment. Reason: ${error?.message}`,
+        );
       }
 
       return data;
@@ -106,7 +113,7 @@ class OutlinesRepository {
       console.log("Error:", error);
       return;
     }
-  };
-};
+  }
+}
 
 export default OutlinesRepository;

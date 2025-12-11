@@ -1,5 +1,3 @@
-
-
 export type AssessmentGroup = {
   id: string;
   name: string;
@@ -11,9 +9,13 @@ export type AssessmentGroup = {
   conditionGroup: string;
 };
 
-export type Assessment = Omit<AssessmentGroup, "count" | "drop" & {
-  index: number;
-}>;
+export type Assessment = Omit<
+  AssessmentGroup,
+  | "count"
+  | ("drop" & {
+      index: number;
+    })
+>;
 
 export type ConditionGroups = {
   id: string;
@@ -30,6 +32,6 @@ export type Conditions = {
 export type Personnel = {
   id: string;
   name: string;
-  role: "Professor" | "TA",
+  role: "Professor" | "TA";
   email?: string;
 };

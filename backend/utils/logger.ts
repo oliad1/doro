@@ -38,7 +38,7 @@ const logger = (fileName: string): Logger => {
     warn: (message: string) => {
       WinstonLogger.warn(`[${fileName}] ${message}`);
     },
-  }
+  };
 };
 
 export default logger;

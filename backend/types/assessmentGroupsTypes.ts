@@ -11,7 +11,7 @@ export type AssessmentGroups = {
   type: string | null;
   optional: boolean;
   condition_group_id: ConditionGroupsDTO | null;
-  assessments: AssessmentsDTO[],
+  assessments: AssessmentsDTO[];
 };
 
 export type AssessmentGroupsDTO = Omit<AssessmentGroups, "course_id">;

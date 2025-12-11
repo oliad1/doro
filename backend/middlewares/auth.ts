@@ -11,12 +11,16 @@ const authFactory = (fn: (jwt: string) => Promise<any>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const jwt = getJWTHeader(req);
     if (!jwt) {
-      return res.status(401).json({ error: "You are not authorized to make this request." });
+      return res
+        .status(401)
+        .json({ error: "You are not authorized to make this request." });
     }
 
     const authorized = await fn(jwt);
     if (!authorized) {
-      return res.status(403).json({ error: "You do not have permission to make this request" });
+      return res
+        .status(403)
+        .json({ error: "You do not have permission to make this request" });
     }
 
     return next();
@@ -24,7 +28,5 @@ const authFactory = (fn: (jwt: string) => Promise<any>) => {
 };
 
 export const isAuthorizedByExistence = () => {
-  return authFactory((jwt) =>
-    authService.isAuthorizedByExistence(jwt)
-  ); 
+  return authFactory((jwt) => authService.isAuthorizedByExistence(jwt));
 };

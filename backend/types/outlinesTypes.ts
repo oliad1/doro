@@ -24,7 +24,10 @@ export type Outlines = {
   url: string | null;
 };
 
-export type CourseInfoDTO = Omit<Outlines, "id" | "term" | "author" | "enrollments" | "url"> & {
+export type CourseInfoDTO = Omit<
+  Outlines,
+  "id" | "term" | "author" | "enrollments" | "url"
+> & {
   personnels: PersonnelsDTO[];
   assessment_groups: AssessmentGroupsDTO[];
   conditions: ConditionsDTO[];

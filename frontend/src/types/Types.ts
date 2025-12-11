@@ -26,16 +26,7 @@ export type EnrollmentsDTO = {
   course_code: string;
 };
 
-export type Term = 
-  "1A"
-  | "1B"
-  | "2A"
-  | "2B"
-  | "3A"
-  | "3B"
-  | "4A"
-  | "4B"
-;
+export type Term = "1A" | "1B" | "2A" | "2B" | "3A" | "3B" | "4A" | "4B";
 
 export type TermCourse = {
   id: string;
@@ -53,16 +44,16 @@ export type GradeDTO = {
     weight: number;
     assessment_groups: {
       outlines: {
-	code: string;
-      }
-    }
-  }
+        code: string;
+      };
+    };
+  };
 };
 
 export type CourseAverageData = {
   grade: number;
   average: number;
   date: string;
-}
+};
 
 export type CourseType = "general" | "formula";

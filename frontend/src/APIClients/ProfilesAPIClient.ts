@@ -4,18 +4,20 @@ const supabase = createClient();
 
 const getUser = async (): Promise<any> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/cookies/user`);
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/cookies/user`,
+    );
     const status = res.status;
 
     if (res.status !== 204) {
       const { data: metadataCookie, error } = await res.json();
 
-      if (error){
-	throw new Error(`Response status ${status}`);
+      if (error) {
+        throw new Error(`Response status ${status}`);
       }
 
       if (!metadataCookie) {
-	throw new Error(`Response status ${status}`);
+        throw new Error(`Response status ${status}`);
       }
 
       return JSON.parse(metadataCookie);
@@ -30,16 +32,16 @@ const getUser = async (): Promise<any> => {
     if (!data || !data.user) {
       throw new Error(`Error: user is null`);
     }
-    
-    const cookieRes = await fetch('/api/cookies/user', {
-      method: 'POST',
+
+    const cookieRes = await fetch("/api/cookies/user", {
+      method: "POST",
       headers: {
-	'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
-    const {error: cookieErr } = await cookieRes.json();
+    const { error: cookieErr } = await cookieRes.json();
 
     if (cookieErr) {
       throw new Error(`Error: ${cookieErr}`);
@@ -53,5 +55,5 @@ const getUser = async (): Promise<any> => {
 };
 
 export default {
-  getUser
+  getUser,
 };

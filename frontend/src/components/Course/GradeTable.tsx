@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardAction,
+} from "@/components/ui/card";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,18 +18,31 @@ import CourseInfoDialog from "@/components/Course/CourseInfoDialog";
 import { toast } from "sonner";
 import GradesAPIClient from "@/APIClients/GradesAPIClient";
 import DatesAPIClient from "@/APIClients/DatesAPIClient";
+import StatusAPIClient from "@/APIClients/StatusAPIClient";
 import { getAssessmentName } from "@/utils/helpers";
 
 interface GradeTableProps {
-  isLoading: boolean,
-  courseMetadata: any,
-  upsertMetadata: (gradeObj: any[], value: any, isGrade: boolean) => void,
-  deleteMetadata: (gradeObj: any[], isGrade: boolean) => void,
-  enrollmentId: string,
-  currFormula: string,
-};
+  isLoading: boolean;
+  courseMetadata: any;
+  upsertMetadata: (
+    gradeObj: any[],
+    value: any,
+    isGrade: boolean,
+    status?: string,
+  ) => void;
+  deleteMetadata: (gradeObj: any[], isGrade: boolean, field?: string) => void;
+  enrollmentId: string;
+  currFormula: string;
+}
 
-export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata, deleteMetadata, enrollmentId, currFormula }: GradeTableProps) {
+export default function GradeTable({
+  isLoading,
+  courseMetadata,
+  upsertMetadata,
+  deleteMetadata,
+  enrollmentId,
+  currFormula,
+}: GradeTableProps) {
   const [editingState, setEditingState] = useState<Record<string, boolean>>({});
   const [inputState, setInputState] = useState<Record<string, string>>({});
   const editTimeRef = useRef<HTMLInputElement>(null);
@@ -34,10 +54,12 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
 
     if (!isLoading) {
       courseMetadata!.assessment_groups?.map((assessment_group: any) => {
-	return assessment_group.assessments.map((assessment: any) => { 
-	  newEditingState[assessment.id as string] = false;
-	  newInputState[assessment.id as string] = (assessment.grades.length) ? assessment.grades[0].grade : "";
-	})
+        return assessment_group.assessments.map((assessment: any) => {
+          newEditingState[assessment.id as string] = false;
+          newInputState[assessment.id as string] = assessment.grades.length
+            ? assessment.grades[0].grade
+            : "";
+        });
       });
 
       setEditingState(newEditingState);
@@ -48,22 +70,26 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
   const upsertGrade = async (id: string, value: string) => {
     toast.loading("Upserting Grade", {
       id: "upsert",
-      richColors: true
+      richColors: true,
     });
-    const newGrade = await GradesAPIClient.upsertGrade(id, Number(value), enrollmentId);
+    const newGrade = await GradesAPIClient.upsertGrade(
+      id,
+      Number(value),
+      enrollmentId,
+    );
     toast.dismiss("upsert");
     if (newGrade) {
       upsertMetadata(newGrade, Number(value), true);
       toast.success("New grades recalculated!", {
-	richColors: true
+        richColors: true,
       });
     } else {
       toast.error("Error inserting new grade", {
-	richColors: true
+        richColors: true,
       });
       return;
     }
-  }
+  };
 
   const deleteGrade = async (id: string) => {
     toast.loading("Clearing grade", {
@@ -75,70 +101,99 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
     toast.dismiss("clearing");
     if (deletedGrade) {
       setInputState((prevState) => ({
-	...prevState,
-	[id]: ''
+        ...prevState,
+        [id]: "",
       }));
       deleteMetadata(deletedGrade, true);
       toast.success("New grades recalculated!", {
-	richColors: true
+        richColors: true,
       });
     } else {
       toast.error("Error deleting grade", {
-	richColors: true
+        richColors: true,
       });
       return;
     }
-  }
+  };
 
   const upsertDate = async (id: string, value: Date | undefined) => {
     toast.loading("Upserting Date", {
-      id: "upsert"+id,
-      richColors: true
+      id: "upsert" + id,
+      richColors: true,
     });
-    console.log(value)
+    console.log(value);
     const newDate = await DatesAPIClient.upsertDate(id, value, enrollmentId);
-    toast.dismiss("upsert"+id);
+    toast.dismiss("upsert" + id);
     if (newDate) {
       upsertMetadata(newDate, value, false);
       toast.success("Saved new due date", {
-	richColors: true
+        richColors: true,
       });
     } else {
       toast.error("Error saving new date", {
-	richColors: true
+        richColors: true,
       });
       return;
     }
-  }
+  };
 
   const deleteDate = async (id: string) => {
     toast.loading("Clearing date", {
-      id: "clearing"+id,
+      id: "clearing" + id,
       richColors: true,
     });
 
     const deletedDate = await DatesAPIClient.deleteDate(id);
-    toast.dismiss("clearing"+id);
+    toast.dismiss("clearing" + id);
     if (deletedDate) {
       deleteMetadata(deletedDate, false);
       toast.success("Reverted due date successfully", {
-	richColors: true
+        richColors: true,
       });
     } else {
       toast.error("Error deleting due date", {
-	richColors: true
+        richColors: true,
+      });
+      return;
+    }
+  };
+
+  const upsertStatus = async (id: string, value: string | undefined) => {
+    console.log(value);
+    const newStatus = await StatusAPIClient.upsertStatus(
+      id,
+      value,
+      enrollmentId,
+    );
+    if (newStatus) {
+      upsertMetadata(newStatus, value, false, value ?? "Not Started");
+    } else {
+      toast.error("Error saving new status", {
+        richColors: true,
+      });
+      return;
+    }
+  };
+
+  const deleteStatus = async (id: string) => {
+    const deletedStatus = await StatusAPIClient.deleteStatus(id);
+    if (deletedStatus) {
+      deleteMetadata(deletedStatus, false, "status");
+    } else {
+      toast.error("Error deleting status", {
+        richColors: true,
       });
       return;
     }
   };
 
   const toggleEditing = (id: string, value: string, oldValue: string) => {
-    if (editingState[id] && oldValue!=value) {
+    if (editingState[id] && oldValue != value) {
       upsertGrade(id, value);
     }
     setEditingState((prevState) => ({
       ...prevState,
-      [id]: !prevState[id]
+      [id]: !prevState[id],
     }));
   };
 
@@ -146,83 +201,113 @@ export default function GradeTable ({ isLoading, courseMetadata, upsertMetadata,
     //console.log(e.target.value);
     setInputState((prevState) => ({
       ...prevState,
-      [id]: value.replace(/[^0-9.]/g, '')
+      [id]: value.replace(/[^0-9.]/g, ""),
     }));
-  }
+  };
 
   return (
     <Card className="w-full h-min">
       <CardHeader>
-	<CardTitle>
-	  {isLoading
-	    ? <Skeleton>
-	      <h2 className="text-3xl font-semibold opacity-0">
-		{COURSE_TITLE}
-	      </h2>
-	    </Skeleton>
-	    : <h2 className="text-3xl font-semibold text-white">
-	      {courseMetadata!.code}: {courseMetadata!.name}
-	    </h2>
-	  }
-	</CardTitle>
-	<CardDescription>
-	  {isLoading 
-	    ? <Skeleton>
-	      <p className="opacity-0">
-		{COURSE_BIO}
-	      </p>
-	    </Skeleton>
-	    : <p className="text-muted-foreground">
-	      {courseMetadata!.description}
-	    </p>
-	  }
-	</CardDescription>
-	{!isLoading && formula && (
-	  <CardAction>
-	    <Dialog>
-	      <DialogTrigger asChild>
-		  <Button variant="ghost" className="p-0 aspect-square">
-		    <SquareFunction/>
-		</Button>
-	      </DialogTrigger>
-	      <CourseInfoDialog
-		currFormula={currFormula}
-		conditions={courseMetadata.conditions}
-	      />
-	    </Dialog>
-	  </CardAction>
-	)}
+        <CardTitle>
+          {isLoading ? (
+            <Skeleton>
+              <h2 className="text-3xl font-semibold opacity-0">
+                {COURSE_TITLE}
+              </h2>
+            </Skeleton>
+          ) : (
+            <h2 className="text-3xl font-semibold text-white">
+              {courseMetadata!.code}: {courseMetadata!.name}
+            </h2>
+          )}
+        </CardTitle>
+        <CardDescription>
+          {isLoading ? (
+            <Skeleton>
+              <p className="opacity-0">{COURSE_BIO}</p>
+            </Skeleton>
+          ) : (
+            <p className="text-muted-foreground">
+              {courseMetadata!.description}
+            </p>
+          )}
+        </CardDescription>
+        {!isLoading && formula && (
+          <CardAction>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" className="p-0 aspect-square">
+                  <SquareFunction />
+                </Button>
+              </DialogTrigger>
+              <CourseInfoDialog
+                currFormula={currFormula}
+                conditions={courseMetadata.conditions}
+              />
+            </Dialog>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="overflow-hidden w-[100%]">
-	<DataTable 
-	  columns={columns({
-	    formula,
-	    editingState,
-	    inputState,
-	    editTimeRef,
-	    upsertDate,
-	    deleteDate,
-	    toggleEditing,
-	    deleteGrade,
-	    handleGradeChange,
-	  })}
-	  data={
-	    courseMetadata ? courseMetadata!.assessment_groups?.flatMap((assessment_group: any) =>
-	      assessment_group.assessments.map((assessment: any) => ({
-		id: assessment.id,
-		name: getAssessmentName(assessment_group, assessment.index),
-		dropped: assessment.dropped,
-		optional: assessment_group.optional || assessment_group.type?.includes("Bonus"),
-		weight: (!formula ? assessment.weight : assessment.weight * assessment_group.weight).toPrecision(2).replace(/(?:\.0+|(\.\d+?)0+)$/, "$1"),
-		symbol: assessment_group?.condition_group_id?.symbol ?? null,
-		grade: inputState[assessment.id],
-		date: (assessment.dates?.length ? new Date(assessment.dates[0].date) : undefined) ?? (assessment.due_date ? new Date(assessment.due_date) : undefined),
-		default_date: assessment.due_date ? new Date(assessment.due_date) : undefined,
-		modified_date: assessment.dates?.length ? new Date(assessment.dates[0].date) : undefined,
-	      }))
-	    ) : []}
-	/>
+        <DataTable
+          columns={columns({
+            formula,
+            editingState,
+            inputState,
+            editTimeRef,
+            upsertDate,
+            deleteDate,
+            toggleEditing,
+            deleteGrade,
+            handleGradeChange,
+            upsertStatus,
+            deleteStatus,
+          })}
+          data={
+            courseMetadata
+              ? courseMetadata!.assessment_groups?.flatMap(
+                  (assessment_group: any) =>
+                    assessment_group.assessments.map((assessment: any) => ({
+                      id: assessment.id,
+                      name: getAssessmentName(
+                        assessment_group,
+                        assessment.index,
+                      ),
+                      dropped: assessment.dropped,
+                      optional:
+                        assessment_group.optional ||
+                        assessment_group.type?.includes("Bonus"),
+                      weight: (!formula
+                        ? assessment.weight
+                        : assessment.weight * assessment_group.weight
+                      )
+                        .toPrecision(2)
+                        .replace(/(?:\.0+|(\.\d+?)0+)$/, "$1"),
+                      symbol:
+                        assessment_group?.condition_group_id?.symbol ?? null,
+                      grade: inputState[assessment.id],
+                      date:
+                        (assessment.dates?.length
+                          ? new Date(assessment.dates[0].date)
+                          : undefined) ??
+                        (assessment.due_date
+                          ? new Date(assessment.due_date)
+                          : undefined),
+                      default_date: assessment.due_date
+                        ? new Date(assessment.due_date)
+                        : undefined,
+                      modified_date: assessment.dates?.length
+                        ? new Date(assessment.dates[0].date)
+                        : undefined,
+                      status: assessment.assessment_statuses?.length
+                        ? assessment.assessment_statuses[0].status
+                        : undefined,
+                    })),
+                )
+              : []
+          }
+        />
       </CardContent>
     </Card>
   );

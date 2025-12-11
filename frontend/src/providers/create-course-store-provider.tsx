@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
@@ -10,16 +10,16 @@ import {
 
 export type CreateCourseStoreApi = ReturnType<typeof createCreateCourseStore>;
 
-export const CreateCourseStoreContext = createContext<CreateCourseStoreApi | undefined>(
-  undefined
-);
+export const CreateCourseStoreContext = createContext<
+  CreateCourseStoreApi | undefined
+>(undefined);
 
 export interface CreateCourseStoreProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export const CreateCourseStoreProvider = ({
-  children
+  children,
 }: CreateCourseStoreProviderProps) => {
   const storeRef = useRef<CreateCourseStoreApi | null>(null);
 
@@ -31,8 +31,8 @@ export const CreateCourseStoreProvider = ({
     <CreateCourseStoreContext.Provider value={storeRef.current}>
       {children}
     </CreateCourseStoreContext.Provider>
-  )
-}
+  );
+};
 
 export const useCreateCourseStore = <T,>(
   selector: (store: CreateCourseStore) => T,
@@ -40,8 +40,10 @@ export const useCreateCourseStore = <T,>(
   const counterStoreContext = useContext(CreateCourseStoreContext);
 
   if (!counterStoreContext) {
-    throw new Error(`useCreateCourseStore must be used within CreateCourseStoreProvider`);
+    throw new Error(
+      `useCreateCourseStore must be used within CreateCourseStoreProvider`,
+    );
   }
 
-  return useStore(counterStoreContext, selector)
-}
+  return useStore(counterStoreContext, selector);
+};

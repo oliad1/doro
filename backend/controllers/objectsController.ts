@@ -17,5 +17,4 @@ objectsRouter.get("/url/:id", async (req, res) => {
   }
 });
 
-
 export default objectsRouter;

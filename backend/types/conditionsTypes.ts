@@ -8,7 +8,10 @@ export type Condition = {
   condition_group_id: string | null;
 };
 
-export type ConditionsDTO = Omit<Condition, "id" | "group_id" | "condition_group_id" | "course_id"> & {
+export type ConditionsDTO = Omit<
+  Condition,
+  "id" | "group_id" | "condition_group_id" | "course_id"
+> & {
   group_id: {
     name: string | null;
   } | null;

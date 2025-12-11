@@ -1,11 +1,13 @@
-import { GradesDTO, UpsertGradeProps, GradeActionDTO } from "../types/gradesTypes";
+import {
+  GradesDTO,
+  UpsertGradeProps,
+  GradeActionDTO,
+} from "../types/gradesTypes";
 import { jwtSupabaseClient } from "../models/index";
 
 class GradesRepository {
   async getGrades(jwt: string): Promise<GradesDTO[]> {
-    const { data, error } = await jwtSupabaseClient(jwt)
-      .from("grades")
-      .select(`
+    const { data, error } = await jwtSupabaseClient(jwt).from("grades").select(`
 	submitted_at,
 	grade,
 	enrollments (
@@ -26,16 +28,20 @@ class GradesRepository {
     }
 
     return data;
-  };
+  }
 
-  async upsertGrade(jwt: string, payload: UpsertGradeProps): Promise<GradeActionDTO> {
+  async upsertGrade(
+    jwt: string,
+    payload: UpsertGradeProps,
+  ): Promise<GradeActionDTO> {
     const { data, error } = await jwtSupabaseClient(jwt)
       .from("grades")
       .upsert(payload, {
-	  onConflict: 'assessment_id,enrollment_id',
-	  ignoreDuplicates: false
-	})
-      .select(`
+        onConflict: "assessment_id,enrollment_id",
+        ignoreDuplicates: false,
+      })
+      .select(
+        `
 	id,
 	submitted_at,
 	assessments (
@@ -44,22 +50,24 @@ class GradesRepository {
 	    id
 	  )
 	)
-      `)
+      `,
+      )
       .single();
-    
+
     if (!data || error) {
       throw new Error(`Failed to insert grade. Error: ${error.message}`);
     }
 
     return data;
-  };
+  }
 
   async deleteGrade(jwt: string, id: string): Promise<GradeActionDTO> {
     const { data, error } = await jwtSupabaseClient(jwt)
       .from("grades")
       .delete()
       .eq("assessment_id", id)
-      .select(`
+      .select(
+        `
 	id,
 	submitted_at,
 	assessments (
@@ -68,7 +76,8 @@ class GradesRepository {
 	    id
 	  )
 	)
-      `)
+      `,
+      )
       .single();
 
     if (!data || error) {
@@ -76,7 +85,7 @@ class GradesRepository {
     }
 
     return data;
-  };
-};
+  }
+}
 
 export default GradesRepository;

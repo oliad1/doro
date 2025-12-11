@@ -7,12 +7,13 @@ const base = await baseAPIClient();
 
 const getTermDates = async (term: string): Promise<any> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     const jwt = session!.access_token;
-    
-    const res = await base.get(
-      `/dates/term/${term}`, {
-      headers: { Authorization: `Bearer ${jwt}` }
+
+    const res = await base.get(`/dates/term/${term}`, {
+      headers: { Authorization: `Bearer ${jwt}` },
     });
 
     if (!isSuccess(res)) {
@@ -24,19 +25,28 @@ const getTermDates = async (term: string): Promise<any> => {
     console.log("Error:", error);
     return null;
   }
-}
+};
 
-const upsertDate = async (assessment_id: string, date: Date | undefined, enrollment_id: string) : Promise<any> => {
+const upsertDate = async (
+  assessment_id: string,
+  date: Date | undefined,
+  enrollment_id: string,
+): Promise<any> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     const jwt = session!.access_token;
-    
+
     const res = await base.post(
-      `/dates/date`, {
-      body: {assessment_id, date, enrollment_id}
-      }, {
-	headers: { Authorization: `Bearer ${jwt}` },
-    });
+      `/dates/date`,
+      {
+        body: { assessment_id, date, enrollment_id },
+      },
+      {
+        headers: { Authorization: `Bearer ${jwt}` },
+      },
+    );
 
     if (!isSuccess(res)) {
       throw new Error(`Response status ${res.status}`);
@@ -47,15 +57,16 @@ const upsertDate = async (assessment_id: string, date: Date | undefined, enrollm
     console.log("Error:", error);
     return null;
   }
-}
+};
 
-const deleteDate = async (id: string) : Promise<any> => {
+const deleteDate = async (id: string): Promise<any> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     const jwt = session!.access_token;
-    
-    const res = await base.delete(
-      `/dates/date`, {
+
+    const res = await base.delete(`/dates/date`, {
       headers: { Authorization: `Bearer ${jwt}` },
       data: { id },
     });
@@ -69,10 +80,10 @@ const deleteDate = async (id: string) : Promise<any> => {
     console.log("Error:", error);
     return null;
   }
-}
+};
 
 export default {
   getTermDates,
   upsertDate,
   deleteDate,
-}
+};

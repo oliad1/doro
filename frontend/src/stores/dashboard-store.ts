@@ -8,32 +8,35 @@ export type DashboardState = {
 };
 
 export type DashboardActions = {
-  deleteTermCourse: (id: string) => Promise<void>
-  addTermCourse: (course: TermCourse) => Promise<void>
-  fetchTermCourses: () => void
-  setTerm: (term: Term) => void
+  deleteTermCourse: (id: string) => Promise<void>;
+  addTermCourse: (course: TermCourse) => Promise<void>;
+  fetchTermCourses: () => void;
+  setTerm: (term: Term) => void;
 };
 
 export type DashboardStore = DashboardState & DashboardActions;
 
 export const initDashboardStore = (): DashboardState => {
-  return { 
+  return {
     termCourses: [],
-    term: "1A"
-  }
-}
+    term: "1A",
+  };
+};
 
 export const defaultInitState: DashboardState = {
   termCourses: [],
-  term: "1A"
+  term: "1A",
 };
 
-
 const fetchTermCourses = async (term: Term) => {
-  return (await EnrollmentsAPIClient.getEnrollments(term) ?? []);
-}
+  return (await EnrollmentsAPIClient.getEnrollments(term)) ?? [];
+};
 
-const addTermCourse = async (course: TermCourse, termCourses: TermCourse[], term: Term): Promise<TermCourse[]> => {
+const addTermCourse = async (
+  course: TermCourse,
+  termCourses: TermCourse[],
+  term: Term,
+): Promise<TermCourse[]> => {
   const newCourse = await EnrollmentsAPIClient.addEnrollment(course, term);
   if (!newCourse) {
     return termCourses;
@@ -43,14 +46,17 @@ const addTermCourse = async (course: TermCourse, termCourses: TermCourse[], term
     code: course.code,
     verified: course.verified,
     c_id: course.id,
-    ...(course.url) && { url: course.url }
+    ...(course.url && { url: course.url }),
   };
   return [...termCourses, transformedCourse];
 };
 
-const deleteTermCourse = async (id: string, termCourses: TermCourse[]) : Promise<TermCourse[]> => {
+const deleteTermCourse = async (
+  id: string,
+  termCourses: TermCourse[],
+): Promise<TermCourse[]> => {
   await EnrollmentsAPIClient.dropEnrollment(id);
-  const newCourses = termCourses.filter((item)=>item.id!==id);
+  const newCourses = termCourses.filter((item) => item.id !== id);
   return newCourses;
 };
 
@@ -62,30 +68,39 @@ export const createDashboardStore = (
     deleteTermCourse: async (id: string): Promise<void> => {
       const currState = get();
       const newCourses = await deleteTermCourse(id, currState.termCourses);
-      set(_ => {
-	return { termCourses: newCourses };
-      })
+      set((_) => {
+        return { termCourses: newCourses };
+      });
     },
     addTermCourse: async (course: TermCourse): Promise<void> => {
       const currState = get();
-      if (currState.termCourses.some((termCourse) => termCourse.code == course.code)) return;
-      const newCourses = await addTermCourse(course, currState.termCourses, currState.term);
-      set(_ => {
-	return { termCourses: newCourses };
-      })
+      if (
+        currState.termCourses.some(
+          (termCourse) => termCourse.code == course.code,
+        )
+      )
+        return;
+      const newCourses = await addTermCourse(
+        course,
+        currState.termCourses,
+        currState.term,
+      );
+      set((_) => {
+        return { termCourses: newCourses };
+      });
     },
     fetchTermCourses: async () => {
       const currState = get();
       const courses = await fetchTermCourses(currState.term);
-      set(_ => {
-	return { termCourses: courses }
-      })
+      set((_) => {
+        return { termCourses: courses };
+      });
     },
     setTerm: async (term: Term) => {
-      set(_ => ({
-	term: term
+      set((_) => ({
+        term: term,
       }));
       get().fetchTermCourses();
-    }
-  }))
+    },
+  }));
 };

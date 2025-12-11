@@ -3,16 +3,18 @@ import { Database } from "../types/database.types";
 
 export const supabase = createClient<Database>(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
+  process.env.SUPABASE_ANON_KEY!,
 );
 
-export const jwtSupabaseClient = (jwt: string) => createClient<Database>(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!, {
-    global: {
-      headers: {
-	Authorization: `Bearer ${jwt}`
-      }
-    }
-  }
-);
+export const jwtSupabaseClient = (jwt: string) =>
+  createClient<Database>(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      },
+    },
+  );

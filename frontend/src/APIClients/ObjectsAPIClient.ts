@@ -5,9 +5,7 @@ const base = await baseAPIClient();
 
 const getUrl = async (object_id: string) => {
   try {
-    const res = await base.get(
-      `/objects/url/${object_id}`, {
-    });
+    const res = await base.get(`/objects/url/${object_id}`, {});
 
     if (!isSuccess(res)) {
       throw new Error(`Response status ${res.status}`);
@@ -22,4 +20,4 @@ const getUrl = async (object_id: string) => {
 
 export default {
   getUrl,
-}
+};

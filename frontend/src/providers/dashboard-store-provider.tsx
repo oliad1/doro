@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
@@ -10,16 +10,16 @@ import {
 
 export type DashboardStoreApi = ReturnType<typeof createDashboardStore>;
 
-export const DashboardStoreContext = createContext<DashboardStoreApi | undefined>(
-  undefined
-);
+export const DashboardStoreContext = createContext<
+  DashboardStoreApi | undefined
+>(undefined);
 
 export interface DashboardStoreProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export const DashboardStoreProvider = ({
-  children
+  children,
 }: DashboardStoreProviderProps) => {
   const storeRef = useRef<DashboardStoreApi | null>(null);
 
@@ -31,8 +31,8 @@ export const DashboardStoreProvider = ({
     <DashboardStoreContext.Provider value={storeRef.current}>
       {children}
     </DashboardStoreContext.Provider>
-  )
-}
+  );
+};
 
 export const useDashboardStore = <T,>(
   selector: (store: DashboardStore) => T,
@@ -40,8 +40,10 @@ export const useDashboardStore = <T,>(
   const counterStoreContext = useContext(DashboardStoreContext);
 
   if (!counterStoreContext) {
-    throw new Error(`useDashboardStore must be used within DashboardStoreProvider`);
+    throw new Error(
+      `useDashboardStore must be used within DashboardStoreProvider`,
+    );
   }
 
-  return useStore(counterStoreContext, selector)
-}
+  return useStore(counterStoreContext, selector);
+};
