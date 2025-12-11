@@ -8,7 +8,7 @@ const Logger = logger(__filename);
 
 class OutlinesService implements IOutlinesService {
   outlinesRepository: OutlinesRepository;
-  
+
   constructor() {
     this.outlinesRepository = new OutlinesRepository();
   }
@@ -24,7 +24,7 @@ class OutlinesService implements IOutlinesService {
     }
 
     return data;
-  };
-};
+  }
+}
 
 export default OutlinesService;

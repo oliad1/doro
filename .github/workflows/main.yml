@@ -5,9 +5,9 @@ on:
     branches:
       - main
     paths:
-      - 'backend/**'
+      - "backend/**"
   workflow_dispatch:
-  
+
 permissions:
   id-token: write
   contents: read
@@ -27,7 +27,7 @@ jobs:
           role-to-assume: arn:aws:iam::808285223016:role/github-actions-role
           role-session-name: githubactions
           aws-region: ${{ secrets.AWS_REGION }}
-      
+
       - name: Deploy on EC2 (full script)
         run: |
           CMD_ID=$(aws ssm send-command \
@@ -45,7 +45,7 @@ jobs:
             ]' \
             --comment "Full deploy script" \
             --query "Command.CommandId" --output text)
-      
+
           aws ssm wait command-executed --command-id $CMD_ID --instance-id ${{ secrets.INSTANCE_ID }}
-      
+
           aws ssm get-command-invocation --command-id $CMD_ID --instance-id ${{ secrets.INSTANCE_ID }}

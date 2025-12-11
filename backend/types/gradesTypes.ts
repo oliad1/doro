@@ -6,7 +6,10 @@ export type Grades = {
   submitted_at: string;
 };
 
-export type GradesDTO = Omit<Grades, "id" | "enrollment_id" | "assessment_id"> & {
+export type GradesDTO = Omit<
+  Grades,
+  "id" | "enrollment_id" | "assessment_id"
+> & {
   enrollments: {
     term: string | null;
   } | null;
@@ -14,7 +17,7 @@ export type GradesDTO = Omit<Grades, "id" | "enrollment_id" | "assessment_id"> &
     weight: number | null;
     assessment_groups: {
       outlines: {
-	code: string | null;
+        code: string | null;
       } | null;
     } | null;
   } | null;
@@ -22,7 +25,10 @@ export type GradesDTO = Omit<Grades, "id" | "enrollment_id" | "assessment_id"> &
 
 export type UpsertGradeProps = Omit<Grades, "id" | "submitted_at">;
 
-export type GradeActionDTO = Omit<Grades, "assessment_id" | "enrollment_id" | "grade"> & {
+export type GradeActionDTO = Omit<
+  Grades,
+  "assessment_id" | "enrollment_id" | "grade"
+> & {
   assessments: {
     id: string | null;
     assessment_groups: {

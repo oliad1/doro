@@ -5,14 +5,14 @@ import { isSuccess } from "../utils/apiUtils";
 const supabase = createClient();
 const base = await baseAPIClient();
 
-const getTermGrades = async (term: string): Promise<any> => {
+const getTermTasks = async (term: string): Promise<any> => {
   try {
     const {
       data: { session },
     } = await supabase.auth.getSession();
     const jwt = session!.access_token;
 
-    const res = await base.get(`/grades/term/${term}`, {
+    const res = await base.get(`/statuses/term/${term}`, {
       headers: { Authorization: `Bearer ${jwt}` },
     });
 
@@ -27,9 +27,9 @@ const getTermGrades = async (term: string): Promise<any> => {
   }
 };
 
-const upsertGrade = async (
+const upsertStatus = async (
   assessment_id: string,
-  grade: number,
+  status: string | undefined,
   enrollment_id: string,
 ): Promise<any> => {
   try {
@@ -39,9 +39,13 @@ const upsertGrade = async (
     const jwt = session!.access_token;
 
     const res = await base.post(
-      `/grades/grade`,
+      `/statuses/status`,
       {
-        body: { assessment_id, grade, enrollment_id },
+        body: {
+          assessment_id,
+          ...(status != undefined && { status }),
+          enrollment_id,
+        },
       },
       {
         headers: { Authorization: `Bearer ${jwt}` },
@@ -59,14 +63,14 @@ const upsertGrade = async (
   }
 };
 
-const deleteGrade = async (id: string): Promise<any> => {
+const deleteStatus = async (id: string): Promise<any> => {
   try {
     const {
       data: { session },
     } = await supabase.auth.getSession();
     const jwt = session!.access_token;
 
-    const res = await base.delete(`/grades/grade`, {
+    const res = await base.delete(`/statuses/status`, {
       headers: { Authorization: `Bearer ${jwt}` },
       data: { id },
     });
@@ -83,7 +87,7 @@ const deleteGrade = async (id: string): Promise<any> => {
 };
 
 export default {
-  getTermGrades,
-  upsertGrade,
-  deleteGrade,
+  getTermTasks,
+  upsertStatus,
+  deleteStatus,
 };

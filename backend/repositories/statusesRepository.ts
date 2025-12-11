@@ -1,13 +1,16 @@
-import { DatesActionDTO, UpsertDateProps } from "../types/datesTypes";
+import {
+  StatusActionDTO,
+  UpsertStatusProps,
+} from "../types/assessmentStatusesTypes";
 import { jwtSupabaseClient } from "../models/index";
 
-class DatesRepository {
-  async upsertDate(
+class StatusRepository {
+  async upsertStatus(
     jwt: string,
-    payload: UpsertDateProps,
-  ): Promise<DatesActionDTO> {
+    payload: UpsertStatusProps,
+  ): Promise<StatusActionDTO> {
     const { data, error } = await jwtSupabaseClient(jwt)
-      .from("dates")
+      .from("assessment_statuses")
       .upsert(payload, {
         onConflict: "assessment_id,enrollment_id",
         ignoreDuplicates: false,
@@ -15,7 +18,8 @@ class DatesRepository {
       .select(
         `
 	id,
-	assessments (
+	status,
+	assessments!assessment_id (
 	  id,
 	  assessment_groups (
 	    id
@@ -26,21 +30,21 @@ class DatesRepository {
       .single();
 
     if (!data || error) {
-      throw new Error(`Failed to insert date. Error: ${error.message}`);
+      throw new Error(`Failed to upsert status. Error: ${error.message}`);
     }
 
     return data;
   }
 
-  async deleteDate(jwt: string, id: string): Promise<DatesActionDTO> {
+  async deleteStatus(jwt: string, id: string): Promise<StatusActionDTO> {
     const { data, error } = await jwtSupabaseClient(jwt)
-      .from("dates")
+      .from("assessment_statuses")
       .delete()
       .eq("assessment_id", id)
       .select(
         `
 	id,
-	assessments (
+	assessments!assessment_id (
 	  id,
 	  assessment_groups (
 	    id
@@ -51,11 +55,11 @@ class DatesRepository {
       .single();
 
     if (!data || error) {
-      throw new Error(`Failed to delete date.`);
+      throw new Error(`Failed to delete status.`);
     }
 
     return data;
   }
 }
 
-export default DatesRepository;
+export default StatusRepository;

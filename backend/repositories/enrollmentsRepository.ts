@@ -1,11 +1,17 @@
-import { EnrollmentsInfoDTO, EnrollmentsSidebarDTO, EnrollmentsCourseActionDTO, EnrollmentsDateDTO } from "../types/enrollmentsTypes";
+import {
+  EnrollmentsInfoDTO,
+  EnrollmentsSidebarDTO,
+  EnrollmentsCourseActionDTO,
+  EnrollmentsDateDTO,
+} from "../types/enrollmentsTypes";
 import { jwtSupabaseClient } from "../models/index";
 
 class EnrollmentsRepository {
   async getEnrollment(jwt: string, id: string): Promise<EnrollmentsInfoDTO> {
     const { data, error } = await jwtSupabaseClient(jwt)
       .from("enrollments")
-      .select(`
+      .select(
+        `
 	outlines (
 	  author,
 	  code,
@@ -52,25 +58,34 @@ class EnrollmentsRepository {
 	      dates (
 		id,
 		date
+	      ),
+	      assessment_statuses (
+		id,
+		status
 	      )
 	    )
 	  )
 	)
-      `)
+      `,
+      )
       .eq("id", id)
       .single();
-    
+
     if (!data || error) {
       throw new Error(`Course ${id} not found.`);
     }
 
     return data;
-  };
+  }
 
-  async getEnrollments(jwt: string, term: string): Promise<EnrollmentsSidebarDTO[]> {
+  async getEnrollments(
+    jwt: string,
+    term: string,
+  ): Promise<EnrollmentsSidebarDTO[]> {
     const { data, error } = await jwtSupabaseClient(jwt)
       .from("enrollments")
-      .select(`
+      .select(
+        `
 	id,
 	outlines (
 	  id,
@@ -78,7 +93,8 @@ class EnrollmentsRepository {
 	  author,
 	  url
 	)
-      `)
+      `,
+      )
       .eq("term", term);
 
     if (!data || error) {
@@ -86,12 +102,13 @@ class EnrollmentsRepository {
     }
 
     return data;
-  };
+  }
 
   async getCourseDates(jwt: string, id: string): Promise<EnrollmentsDateDTO> {
     const { data, error } = await jwtSupabaseClient(jwt)
       .from("enrollments")
-      .select(`
+      .select(
+        `
 	outlines (
 	  assessment_groups (
 	    name,
@@ -106,42 +123,50 @@ class EnrollmentsRepository {
 	    )
 	  )
 	)
-      `)
+      `,
+      )
       .eq("id", id)
       .single();
-    
+
     if (!data || error) {
       throw new Error(`Failed to insert date. Error: ${error.message}`);
     }
 
     return data;
-  };
+  }
 
-  async addEnrollment(jwt: string, term: string, course_id: string): Promise<EnrollmentsCourseActionDTO> {
+  async addEnrollment(
+    jwt: string,
+    term: string,
+    course_id: string,
+  ): Promise<EnrollmentsCourseActionDTO> {
     const { data, error } = await jwtSupabaseClient(jwt)
       .from("enrollments")
       .insert({
-	term: term,
-	course_id: course_id
+        term: term,
+        course_id: course_id,
       })
       .select("id")
       .single();
-    
+
     if (!data || error) {
       throw new Error(`Could not enroll in ${course_id}.`);
     }
 
     return data;
-  };
+  }
 
-  async dropEnrollment(jwt: string, id: string): Promise<EnrollmentsCourseActionDTO> {
+  async dropEnrollment(
+    jwt: string,
+    id: string,
+  ): Promise<EnrollmentsCourseActionDTO> {
     const { data, error } = await jwtSupabaseClient(jwt)
       .from("enrollments")
       .delete()
       .eq("id", id)
       .select("id")
       .single();
-    
+
     if (!data || error) {
       throw new Error(`Could not drop enrollment ${id}.`);
     }

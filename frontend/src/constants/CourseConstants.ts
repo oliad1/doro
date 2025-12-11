@@ -1,4 +1,3 @@
-
 export const MIN_GPA_THRESHOLD = [
   [90, 4.0],
   [85, 3.9],

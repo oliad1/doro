@@ -1,6 +1,11 @@
 import EnrollmentsRepository from "../../repositories/enrollmentsRepository";
 import OutlinesRepository from "../../repositories/outlinesRepository";
-import { EnrollmentsInfoDTO, EnrollmentsSidebarDTO, EnrollmentsCourseActionDTO, EnrollmentsDateDTO } from "../../types/enrollmentsTypes";
+import {
+  EnrollmentsInfoDTO,
+  EnrollmentsSidebarDTO,
+  EnrollmentsCourseActionDTO,
+  EnrollmentsDateDTO,
+} from "../../types/enrollmentsTypes";
 import IEnrollmentsService from "../interfaces/enrollmentsService.interface";
 import logger from "../../utils/logger";
 import { getErrorMessage } from "../../utils/errorUtils";
@@ -11,7 +16,7 @@ class EnrollmentsService implements IEnrollmentsService {
   enrollmentsRepository: EnrollmentsRepository;
   outlinesRepository: OutlinesRepository;
 
-  constructor () {
+  constructor() {
     this.enrollmentsRepository = new EnrollmentsRepository();
     this.outlinesRepository = new OutlinesRepository();
   }
@@ -22,66 +27,89 @@ class EnrollmentsService implements IEnrollmentsService {
     try {
       data = this.enrollmentsRepository.getEnrollment(jwt, id);
     } catch (error: unknown) {
-      Logger.error(`Failed to get course info. Reason: ${getErrorMessage(error)}`);
+      Logger.error(
+        `Failed to get course info. Reason: ${getErrorMessage(error)}`,
+      );
       throw error;
     }
 
     return data;
-  };
+  }
 
-  async getEnrollments(jwt: string, term: string): Promise<EnrollmentsSidebarDTO[]> {
+  async getEnrollments(
+    jwt: string,
+    term: string,
+  ): Promise<EnrollmentsSidebarDTO[]> {
     let data: Promise<EnrollmentsSidebarDTO[]>;
 
     try {
       data = this.enrollmentsRepository.getEnrollments(jwt, term);
     } catch (error: unknown) {
-      Logger.error(`Failed to get term enrollments. Reason: ${getErrorMessage(error)}`);
+      Logger.error(
+        `Failed to get term enrollments. Reason: ${getErrorMessage(error)}`,
+      );
       throw error;
     }
 
     return data;
-  };
+  }
 
-  async getEnrollmentDates(jwt: string, id: string): Promise<EnrollmentsDateDTO> {
+  async getEnrollmentDates(
+    jwt: string,
+    id: string,
+  ): Promise<EnrollmentsDateDTO> {
     let data: Promise<EnrollmentsDateDTO>;
 
     try {
       data = this.enrollmentsRepository.getCourseDates(jwt, id);
     } catch (error: unknown) {
-      Logger.error(`Failed to get dates for enrollment ${id}. Reason: ${getErrorMessage(error)}`)
+      Logger.error(
+        `Failed to get dates for enrollment ${id}. Reason: ${getErrorMessage(error)}`,
+      );
       throw error;
     }
 
     return data;
-  };
+  }
 
-  async addEnrollment(jwt: string, term: string, course_id: string): Promise<EnrollmentsCourseActionDTO> {
+  async addEnrollment(
+    jwt: string,
+    term: string,
+    course_id: string,
+  ): Promise<EnrollmentsCourseActionDTO> {
     let data: Promise<EnrollmentsCourseActionDTO>;
-    
+
     try {
       data = this.enrollmentsRepository.addEnrollment(jwt, term, course_id);
       this.outlinesRepository.incrementEnrollment(jwt, course_id);
     } catch (error: unknown) {
-      Logger.error(`Failed to add enrollment. Reason: ${getErrorMessage(error)}`);
+      Logger.error(
+        `Failed to add enrollment. Reason: ${getErrorMessage(error)}`,
+      );
       throw error;
     }
 
     return data;
-  };
+  }
 
-  async dropEnrollment(jwt: string, id: string): Promise<EnrollmentsCourseActionDTO> {
+  async dropEnrollment(
+    jwt: string,
+    id: string,
+  ): Promise<EnrollmentsCourseActionDTO> {
     let data: Promise<EnrollmentsCourseActionDTO>;
-    
+
     try {
       data = this.enrollmentsRepository.dropEnrollment(jwt, id);
       this.outlinesRepository.decrementEnrollment(jwt, id);
     } catch (error: unknown) {
-      Logger.error(`Failed to drop enrollment. Reason: ${getErrorMessage(error)}`);
+      Logger.error(
+        `Failed to drop enrollment. Reason: ${getErrorMessage(error)}`,
+      );
       throw error;
     }
 
     return data;
-  };
-};
+  }
+}
 
 export default EnrollmentsService;

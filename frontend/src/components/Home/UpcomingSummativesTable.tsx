@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useMemo, useEffect } from "react"
-import { parse, format, isValid } from "date-fns"
+import { useState, useMemo, useEffect } from "react";
+import { parse, format, isValid } from "date-fns";
 import {
   Table,
   TableBody,
@@ -9,151 +9,177 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Switch } from "@/components/ui/switch"
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type Summative = {
-  id: string
-  date: string
-  time: string
-  course: string
-  type: string
-  isNew?: boolean
-}
+  id: string;
+  date: string;
+  time: string;
+  course: string;
+  type: string;
+  isNew?: boolean;
+};
 
-type SortKey = "date" | "course" | "type"
+type SortKey = "date" | "course" | "type";
 
 interface TableProps {
-  summatives: Omit<Summative, 'id'>[],
-  isLoading: boolean
+  summatives: Omit<Summative, "id">[];
+  isLoading: boolean;
 }
 
-export function UpcomingSummativesTable({ summatives = [], isLoading }: TableProps) {
-  const [localSummatives, setLocalSummatives] = useState<Summative[]>([])
-  const [newSummatives, setNewSummatives] = useState<Summative[]>([])
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({})
-  const [sortBy, setSortBy] = useState<SortKey>("date")
-  const [showStrikethrough, setShowStrikethrough] = useState(true)
+export function UpcomingSummativesTable({
+  summatives = [],
+  isLoading,
+}: TableProps) {
+  const [localSummatives, setLocalSummatives] = useState<Summative[]>([]);
+  const [newSummatives, setNewSummatives] = useState<Summative[]>([]);
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [sortBy, setSortBy] = useState<SortKey>("date");
+  const [showStrikethrough, setShowStrikethrough] = useState(true);
 
   useEffect(() => {
     if (summatives && summatives.length > 0) {
-      setLocalSummatives(summatives.map((summative, index) => ({
-        ...summative,
-        id: `${summative.date}-${summative.time}-${summative.course}-${index}`
-      })))
+      setLocalSummatives(
+        summatives.map((summative, index) => ({
+          ...summative,
+          id: `${summative.date}-${summative.time}-${summative.course}-${index}`,
+        })),
+      );
     }
-  }, [summatives])
+  }, [summatives]);
 
   const handleCheckboxChange = (id: string) => {
     setCheckedItems((prev) => ({
       ...prev,
       [id]: !prev[id],
-    }))
-  }
+    }));
+  };
 
   const sortedAndFilteredSummatives = useMemo(() => {
     return localSummatives
       .filter((summative) => showStrikethrough || !checkedItems[summative.id])
       .sort((a, b) => {
         if (sortBy === "date") {
-          return new Date(a.date).getTime() - new Date(b.date).getTime()
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
         }
-        return a[sortBy].localeCompare(b[sortBy])
-      })
-  }, [localSummatives, sortBy, showStrikethrough, checkedItems])
+        return a[sortBy].localeCompare(b[sortBy]);
+      });
+  }, [localSummatives, sortBy, showStrikethrough, checkedItems]);
 
   const handleAddRow = () => {
-    const newId = `new-${Date.now()}`
-    setNewSummatives([...newSummatives, { id: newId, date: '', time: '', course: '', type: '', isNew: true }])
-  }
+    const newId = `new-${Date.now()}`;
+    setNewSummatives([
+      ...newSummatives,
+      { id: newId, date: "", time: "", course: "", type: "", isNew: true },
+    ]);
+  };
 
-  const handleInputChange = (id: string, field: keyof Summative, value: string) => {
+  const handleInputChange = (
+    id: string,
+    field: keyof Summative,
+    value: string,
+  ) => {
     const updateSummative = (summative: Summative) => {
       if (summative.id === id) {
-        let correctedValue = value
+        let correctedValue = value;
 
-        if (field === 'date') {
-          const digitsOnly = value.replace(/\D/g, '')
+        if (field === "date") {
+          const digitsOnly = value.replace(/\D/g, "");
           if (digitsOnly.length > 0) {
-            correctedValue = digitsOnly.match(/^(\d{0,4})(\d{0,2})(\d{0,2}).*/)?.slice(1, 4).filter(Boolean).join('-') ?? ''
+            correctedValue =
+              digitsOnly
+                .match(/^(\d{0,4})(\d{0,2})(\d{0,2}).*/)
+                ?.slice(1, 4)
+                .filter(Boolean)
+                .join("-") ?? "";
           }
           if (correctedValue.length === 10) {
-            const parsedDate = parse(correctedValue, 'yyyy-MM-dd', new Date())
+            const parsedDate = parse(correctedValue, "yyyy-MM-dd", new Date());
             if (isValid(parsedDate)) {
-              correctedValue = format(parsedDate, 'yyyy-MM-dd')
+              correctedValue = format(parsedDate, "yyyy-MM-dd");
             }
           }
-        } else if (field === 'time') {
+        } else if (field === "time") {
           // Remove any non-alphanumeric characters except colon
-          const cleanedValue = value.replace(/[^a-zA-Z0-9:]/g, '').toUpperCase()
-          
+          const cleanedValue = value
+            .replace(/[^a-zA-Z0-9:]/g, "")
+            .toUpperCase();
+
           // Add colon after the first two digits if not present
-          const timeMatch = cleanedValue.match(/^(\d{1,2})(:?)(\d{0,2})\s*(AM|PM)?$/i)
-          
+          const timeMatch = cleanedValue.match(
+            /^(\d{1,2})(:?)(\d{0,2})\s*(AM|PM)?$/i,
+          );
+
           if (timeMatch) {
-            let [, hours, colon, minutes, period] = timeMatch
-            
+            let [, hours, colon, minutes, period] = timeMatch;
+
             // Ensure two-digit hours
-            hours = hours.padStart(2, '0')
-            
+            hours = hours.padStart(2, "0");
+
             // Add colon if not present
             if (!colon && minutes) {
-              correctedValue = `${hours}:${minutes}${period ? ' ' + period : ''}`
+              correctedValue = `${hours}:${minutes}${period ? " " + period : ""}`;
             } else {
-              correctedValue = cleanedValue.replace(/(AM|PM)$/i, ' $1').trim()
+              correctedValue = cleanedValue.replace(/(AM|PM)$/i, " $1").trim();
             }
           } else {
-            correctedValue = cleanedValue
+            correctedValue = cleanedValue;
           }
         }
 
-        return { ...summative, [field]: correctedValue }
+        return { ...summative, [field]: correctedValue };
       }
-      return summative
-    }
+      return summative;
+    };
 
-    if (id.startsWith('new-')) {
-      setNewSummatives(prevNew => prevNew.map(updateSummative))
+    if (id.startsWith("new-")) {
+      setNewSummatives((prevNew) => prevNew.map(updateSummative));
     } else {
-      setLocalSummatives(prevLocal => prevLocal.map(updateSummative))
+      setLocalSummatives((prevLocal) => prevLocal.map(updateSummative));
     }
-  }
+  };
 
   const handleConfirmNewRow = (id: string) => {
-    const newSummative = newSummatives.find(s => s.id === id)
+    const newSummative = newSummatives.find((s) => s.id === id);
     if (newSummative) {
-      setLocalSummatives(prevLocal => [...prevLocal, { ...newSummative, isNew: undefined }])
-      setNewSummatives(prevNew => prevNew.filter(s => s.id !== id))
+      setLocalSummatives((prevLocal) => [
+        ...prevLocal,
+        { ...newSummative, isNew: undefined },
+      ]);
+      setNewSummatives((prevNew) => prevNew.filter((s) => s.id !== id));
     }
-  }
+  };
 
   const isNewRowComplete = (summative: Summative) => {
-    const timeRegex = /^(1[0-2]|0?[1-9]):[0-5][0-9]\s(AM|PM)$/i
-    return summative.date && 
-           summative.time && 
-           summative.course && 
-           summative.type &&
-           timeRegex.test(summative.time.trim())
-  }
+    const timeRegex = /^(1[0-2]|0?[1-9]):[0-5][0-9]\s(AM|PM)$/i;
+    return (
+      summative.date &&
+      summative.time &&
+      summative.course &&
+      summative.type &&
+      timeRegex.test(summative.time.trim())
+    );
+  };
 
   return (
     <Card className="xl:col-span-4">
@@ -196,9 +222,11 @@ export function UpcomingSummativesTable({ summatives = [], isLoading }: TablePro
             </TableHeader>
             <TableBody>
               {sortedAndFilteredSummatives.map((summative) => (
-                <TableRow 
-                  key={summative.id} 
-                  className={checkedItems[summative.id] ? "line-through opacity-50" : ""}
+                <TableRow
+                  key={summative.id}
+                  className={
+                    checkedItems[summative.id] ? "line-through opacity-50" : ""
+                  }
                 >
                   <TableCell>
                     <Checkbox
@@ -210,28 +238,40 @@ export function UpcomingSummativesTable({ summatives = [], isLoading }: TablePro
                   <TableCell>
                     <Input
                       value={summative.date}
-                      onChange={(e) => handleInputChange(summative.id, 'date', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(summative.id, "date", e.target.value)
+                      }
                       placeholder="YYYY-MM-DD"
                     />
                   </TableCell>
                   <TableCell>
                     <Input
                       value={summative.time}
-                      onChange={(e) => handleInputChange(summative.id, 'time', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(summative.id, "time", e.target.value)
+                      }
                       placeholder="HH:MM AM/PM"
                     />
                   </TableCell>
                   <TableCell>
                     <Input
                       value={summative.course}
-                      onChange={(e) => handleInputChange(summative.id, 'course', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          summative.id,
+                          "course",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Course name"
                     />
                   </TableCell>
                   <TableCell>
                     <Input
                       value={summative.type}
-                      onChange={(e) => handleInputChange(summative.id, 'type', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(summative.id, "type", e.target.value)
+                      }
                       placeholder="Assessment type"
                     />
                   </TableCell>
@@ -250,28 +290,40 @@ export function UpcomingSummativesTable({ summatives = [], isLoading }: TablePro
                   <TableCell>
                     <Input
                       value={summative.date}
-                      onChange={(e) => handleInputChange(summative.id, 'date', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(summative.id, "date", e.target.value)
+                      }
                       placeholder="YYYY-MM-DD"
                     />
                   </TableCell>
                   <TableCell>
                     <Input
                       value={summative.time}
-                      onChange={(e) => handleInputChange(summative.id, 'time', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(summative.id, "time", e.target.value)
+                      }
                       placeholder="HH:MM AM/PM"
                     />
                   </TableCell>
                   <TableCell>
                     <Input
                       value={summative.course}
-                      onChange={(e) => handleInputChange(summative.id, 'course', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          summative.id,
+                          "course",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Course name"
                     />
                   </TableCell>
                   <TableCell>
                     <Input
                       value={summative.type}
-                      onChange={(e) => handleInputChange(summative.id, 'type', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange(summative.id, "type", e.target.value)
+                      }
                       placeholder="Assessment type"
                     />
                   </TableCell>
@@ -290,6 +342,5 @@ export function UpcomingSummativesTable({ summatives = [], isLoading }: TablePro
         <Button onClick={handleAddRow}>Add Row</Button>
       </CardContent>
     </Card>
-  )
+  );
 }
-

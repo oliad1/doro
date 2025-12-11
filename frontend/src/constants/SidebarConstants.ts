@@ -1,4 +1,3 @@
-
 export const STUDY_TERMS: string[] = [
   "1A",
   "1B",
@@ -10,11 +9,4 @@ export const STUDY_TERMS: string[] = [
   "4B",
 ] as const;
 
-export const WORK_TERMS: string[] = [
-  "WT1",
-  "WT2",
-  "WT3",
-  "WT4",
-  "WT5",
-  "WT6",
-];
+export const WORK_TERMS: string[] = ["WT1", "WT2", "WT3", "WT4", "WT5", "WT6"];

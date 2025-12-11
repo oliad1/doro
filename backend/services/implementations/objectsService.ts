@@ -8,17 +8,16 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const Logger = logger(__filename);
 
 class ObjectsService implements IObjectsService {
-  constructor () {
-  }
+  constructor() {}
 
   async getUrl(object_id: string): Promise<string> {
     let data: Promise<string>;
 
     try {
       const getObjectParams = {
-	Bucket: process.env.BUCKET_NAME!,
-	Key: object_id
-      }
+        Bucket: process.env.BUCKET_NAME!,
+        Key: object_id,
+      };
 
       const command = new GetObjectCommand(getObjectParams);
 
@@ -29,7 +28,7 @@ class ObjectsService implements IObjectsService {
     }
 
     return data;
-  };
-};
+  }
+}
 
 export default ObjectsService;

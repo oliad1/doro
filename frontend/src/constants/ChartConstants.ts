@@ -6,16 +6,15 @@ export const COURSE_AVERAGE_CHART_CONFIG = {
   },
   average: {
     label: "Average",
-  }
+  },
 } satisfies ChartConfig;
 
 export const HOME_RADAR_CHART_CONFIG = {
   average: {
     label: "Average",
-    color: "var(--primary)"
-  }
+    color: "var(--primary)",
+  },
 } satisfies ChartConfig;
-
 
 export const POSITIVE_MESSAGE = `
   Great job! Keep up the hard work and stay focused.

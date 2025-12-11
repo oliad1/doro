@@ -38,10 +38,13 @@ export type CreateCourseState = {
 };
 
 export type CreateCourseActions = {
-  setCourseType: (type: CourseType) => void,
-  setGeneralInfo: (code: string, name: string, description: string) => void,
-  setField: <K extends keyof CreateCourseState>(key: K, data: CreateCourseState[K]) => void,
-  reset: () => void,
+  setCourseType: (type: CourseType) => void;
+  setGeneralInfo: (code: string, name: string, description: string) => void;
+  setField: <K extends keyof CreateCourseState>(
+    key: K,
+    data: CreateCourseState[K],
+  ) => void;
+  reset: () => void;
 };
 
 export type CreateCourseStore = CreateCourseState & CreateCourseActions;
@@ -57,8 +60,8 @@ export const initCreateCourseStore = (): CreateCourseState => {
     personnels: [],
     conditionGroups: [],
     conditions: [],
-  }
-}
+  };
+};
 
 export const defaultInitState: CreateCourseState = {
   courseType: "general",
@@ -72,7 +75,6 @@ export const defaultInitState: CreateCourseState = {
   conditions: [],
 };
 
-
 export const createCreateCourseStore = (
   initState: CreateCourseState = defaultInitState,
 ) => {
@@ -81,16 +83,16 @@ export const createCreateCourseStore = (
     setCourseType: (type: CourseType) => set({ courseType: type }),
     setGeneralInfo: (code: string, name: string, description: string) => {
       set(() => ({
-	name,
-	code,
-	description,
-      }))
+        name,
+        code,
+        description,
+      }));
     },
     setField: (key, data) => {
       set({ [key]: data });
     },
     reset: () => {
       set(defaultInitState);
-    }
-  }))
+    },
+  }));
 };
