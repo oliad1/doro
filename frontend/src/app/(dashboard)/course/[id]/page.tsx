@@ -233,7 +233,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   };
 
   return (
-    <div className="grid lg:grid-cols-4 grid-cols-1 gap-2 p-4">
+    <div className="grid lg:grid-cols-4 grid-cols-1 gap-2 pl-0 pt-4 pb-4 pr-2 sm:pl-2">
       <div className="flex flex-col col-span-2 h-min space-y-2 min-w-0">
         <GradeTable
           isLoading={isLoading}
