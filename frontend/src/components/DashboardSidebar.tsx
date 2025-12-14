@@ -173,12 +173,14 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader>
-        <div className="flex flex-row overflow-hidden w-full gap-2 p-2 h-8 items-center text-left">
-          <TrendingUp />
-          {(open || isMobile) && (
-            <span className="text-md font-semibold">Doro</span>
-          )}
-        </div>
+        <Link href="/">
+          <div className="flex flex-row overflow-hidden w-full gap-2 p-2 h-8 items-center text-left">
+            <TrendingUp />
+            {(open || isMobile) && (
+              <span className="text-md font-semibold select-none">Doro</span>
+            )}
+          </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
@@ -194,7 +196,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
                     passHref
                   >
                     <SidebarMenuButton
-                      className={currentPage ? "bg-sidebar-accent" : ""}
+                      className={currentPage ? "bg-[var(--primary)]/20" : ""}
                       asChild
                     >
                       <div>
@@ -218,6 +220,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
         </SidebarGroup>
 
         <SidebarGroup>
+          <SidebarGroupLabel>Courses</SidebarGroupLabel>
           <SidebarMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -229,7 +232,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
                   )}
                   <div
                     className="
-		    absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0
+		    absolute right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0
 		    after:absolute after:-inset-2 after:md:hidden,
 		    group-data-[collapsible=icon]"
                   >
@@ -280,7 +283,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
                             <SidebarMenuButton
                               className={
                                 "px-5 " +
-                                (currentPage ? "bg-sidebar-accent" : "")
+                                (currentPage ? "bg-[var(--primary)]/20" : "")
                               }
                             >
                               <span className="whitespace-nowrap max-w-[70%] truncate">
