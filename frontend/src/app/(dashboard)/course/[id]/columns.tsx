@@ -315,7 +315,7 @@ export const columns = ({
 
       return (
         <div className="flex flex-row gap-2 items-center font-normal">
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="font-normal">
                 {" "}

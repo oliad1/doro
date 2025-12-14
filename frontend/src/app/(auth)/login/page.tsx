@@ -34,12 +34,14 @@ export default function LogIn() {
   return (
     <div className="flex container lg:grid h-screen w-screen items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="lg:flex flex-col justify-between hidden h-full bg-[var(--primary)]/40 p-10">
-        <div className="flex items-center gap-x-3">
-          <TrendingUp />
-          <h3 className="scroll-m-20 text-2xl font-medium tracking-tight">
-            Doro
-          </h3>
-        </div>
+        <Link href="/">
+          <div className="flex items-center gap-x-3">
+            <TrendingUp />
+            <h3 className="scroll-m-20 text-2xl font-medium tracking-tight">
+              Doro
+            </h3>
+          </div>
+        </Link>
         <div className="relative mt-auto">
           <blockquote className="space-y-1">
             <p className="text-lg text-muted-foreground italic">

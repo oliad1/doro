@@ -57,3 +57,9 @@ export type CourseAverageData = {
 };
 
 export type CourseType = "general" | "formula";
+
+export type Quote = {
+  quote: string;
+  author: string;
+  desc: string;
+};
