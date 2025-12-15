@@ -67,8 +67,31 @@ const getSidebarOpen = async (): Promise<boolean | null> => {
   }
 };
 
+const getUser = async (): Promise<any | null> => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/cookies/user`,
+    );
+    const { data, error, status } = await response.json();
+
+    if (error) {
+      throw new Error(`Response status: ${status}`);
+    }
+
+    if (data === null || data === undefined) {
+      throw new Error(`Response status: ${status}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.log("Error:", error);
+    return null;
+  }
+};
+
 export default {
   getTerm,
   setTerm,
   getSidebarOpen,
+  getUser,
 };

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { TrendingUp, ArrowUpRightIcon, Github } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LOGIN_PAGE, GITHUB_PAGE, HOME_PAGE } from "@/constants/Routes";
+import { GITHUB_PAGE, HOME_PAGE } from "@/constants/Routes";
 import { PROF_PROFILE } from "@/constants/CourseConstants";
 import { getInitials } from "@/utils/helpers";
 import {
@@ -20,6 +20,7 @@ import { motion, animate, useMotionValue } from "motion/react";
 import { useWindowSize } from "@react-hook/window-size";
 import VideoPlayer from "@/components/Landing/VideoPlayer";
 import ObjectsAPIClient from "@/APIClients/ObjectsAPIClient";
+import CookiesAPIClient from "@/APIClients/CookiesAPIClient";
 import NavBar from "@/components/Landing/NavBar";
 import { QUOTES } from "@/constants/LandingConstants";
 
@@ -29,6 +30,7 @@ export default function Page() {
   const [marqueeWidth, setMarqueeWidth] = useState(0);
   const x = useMotionValue(0);
   const [windowWidth] = useWindowSize();
+  const [user, setUser] = useState<any>();
 
   useEffect(() => {
     if (marqueeRef.current) {
@@ -54,7 +56,14 @@ export default function Page() {
       setUrl(s3Url);
     };
 
+    const fetchUser = async () => {
+      const userMetadata = await CookiesAPIClient.getUser();
+      console.log(JSON.parse(userMetadata));
+      setUser(JSON.parse(userMetadata));
+    };
+
     fetchUrl();
+    fetchUser();
   }, []);
 
   return (
@@ -85,17 +94,37 @@ export default function Page() {
             profs, and more.
           </PageHeaderDescription>
           <PageActions>
-            <Button asChild size="sm">
-              <Link href={LOGIN_PAGE}>Get Started</Link>
-            </Button>
-            <Button asChild size="sm" variant="ghost">
-              <div>
-                <Github />
-                <a target="_blank" href={GITHUB_PAGE}>
+            <Link href={HOME_PAGE}>
+              <Button asChild className="py-1 gap-1">
+                {user ? (
+                  <div className="flex flex-col items-start h-full gap-0 px-0">
+                    <p className="text-[10px]">Continue as</p>
+                    <div className="flex flex-row gap-1 items-center justify-center">
+                      <Avatar className="size-6 rounded-full">
+                        <AvatarImage src={user?.user_metadata?.avatar_url} />
+                        <AvatarFallback className="rounded-lg"></AvatarFallback>
+                      </Avatar>
+                      <div className="grid flex-1 text-left leading-tight">
+                        <span className="truncate font-semibold">
+                          {user?.user_metadata?.full_name}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p>Get Started</p>
+                )}
+                {/*<p>{JSON.stringify(user)}</p>*/}
+              </Button>
+            </Link>
+            <a target="_blank" href={GITHUB_PAGE}>
+              <Button asChild variant="ghost">
+                <div>
+                  <Github />
                   Star us on Github
-                </a>
-              </div>
-            </Button>
+                </div>
+              </Button>
+            </a>
           </PageActions>
         </PageHeader>
         <VideoPlayer url={url} />
