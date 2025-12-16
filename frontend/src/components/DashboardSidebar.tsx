@@ -232,7 +232,7 @@ export default function DashboardSidebar({ user, loading }: SidebarProps) {
                   )}
                   <div
                     className="
-		    absolute right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0
+		    absolute right-[14px] flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0
 		    after:absolute after:-inset-2 after:md:hidden,
 		    group-data-[collapsible=icon]"
                   >

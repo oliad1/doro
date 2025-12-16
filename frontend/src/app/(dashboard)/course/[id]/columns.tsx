@@ -194,7 +194,7 @@ export const columns = ({
                     className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                   />
                   <Button
-                    variant="secondary"
+                    variant={"secondary"}
                     className={
                       "font-normal" + (!editDatePassed ? "" : " opacity-50")
                     }
@@ -248,17 +248,35 @@ export const columns = ({
               </DialogFooter>
             </DialogContent>
             <DialogTrigger asChild>
-              <Button
-                variant="secondary"
-                className={"font-normal" + (!datePassed ? "" : " opacity-50")}
-                onClick={() => {
-                  setEditDate(date);
-                }}
-                //disabled={now > date && row.original.due_date}
-              >
-                <CalendarIcon />
-                {date ? format(date, "MMM dd yyyy h:mm a") : "Select Date"}
-              </Button>
+              {date ? (
+                <Button
+                  variant="secondary"
+                  className={"font-normal" + (!datePassed ? "" : " opacity-50")}
+                  onClick={() => {
+                    setEditDate(date);
+                  }}
+                  //disabled={now > date && row.original.due_date}
+                >
+                  <CalendarIcon />
+                  {format(date, "MMM dd yyyy h:mm a")}
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  className={
+                    "font-normal text-white/50" +
+                    (!datePassed ? "" : " opacity-50")
+                  }
+                  onClick={() => {
+                    setEditDate(date);
+                  }}
+                  //disabled={now > date && row.original.due_date}
+                >
+                  {/*<CalendarIcon />*/}
+                  <CirclePlus />
+                  {"Select Date"}
+                </Button>
+              )}
             </DialogTrigger>
             {!!row.original.modified_date && (
               <Button

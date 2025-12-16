@@ -70,7 +70,7 @@ export function DataTable<TData, TValue>({
           onChange={(e) =>
             table.getColumn("name")?.setFilterValue(e.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm text-sm"
         />
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
